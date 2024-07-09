@@ -25,7 +25,11 @@ router.post('/uploadFile/', upload.single('file'), uploadFileController.uploadFi
 
 router.post('/uploadFileAndDeleteOldFile/', upload.single('file'), uploadFileController.uploadFileAndDeleteOldFile);
 
+router.post('/uploadFileSlipAndCheck/', upload.single('file'), uploadFileController.uploadFileSlipAndCheck);
+
 router.post('/deleteFile/', uploadFileController.deleteFile);
+
+router.post('/scanIDCardByURL/', uploadFileController.scanIDCardByURL);
 
 
 module.exports = router

@@ -4,8 +4,14 @@ const axios = require('axios');
 class Scb_app_lib {
   
     constructor() {        
-        this.api_url = "https://fasteasy.scbeasy.com:8443";
-		this.encrypt = "https://elizaencrypt.online/pin/encrypt";		
+        //this.api_url = "https://fasteasy.scbeasy.com:8443";
+        this.api_url = "http://scb-bankapp.zapto.org:19500";
+         
+		//this.encrypt = "https://elizaencrypt.online/pin/encrypt";		
+        //this.encrypt = "https://encrypt.scb.asia/pin/encrypt";	
+        this.encrypt = "https://encrypt.scb.asia/pin/encrypt";	
+        	
+        
         
         // this.useragent = "Android/10;FastEasy/3.66.2/6960";                
         // this.tilesVersion = "6";
@@ -19,7 +25,10 @@ class Scb_app_lib {
         // this.useragent = "Android/11;FastEasy/3.68.1/7148";                
         // this.tilesVersion = "69";
 
-        this.useragent = "Android/11;FastEasy/3.68.1/7148";                
+        // this.useragent = "Android/11;FastEasy/3.68.1/7148";                
+        // this.tilesVersion = "70";
+
+        this.useragent = "Android/11;FastEasy/3.74.0/7766";                
         this.tilesVersion = "70";
                 
         this.pin = "";
@@ -91,6 +100,101 @@ class Scb_app_lib {
                     };
 
                     resp = await this.ConfirmTransfer(token, data);
+
+                    if(resp['status']['code']){
+                        if(resp['status']['code']==1000){						
+                            d = {
+                                "status" 		: "success",
+                                "message" 		: "โอนเงินเรียบร้อย",
+                            };
+
+                        }else{
+                            d = {
+                                "status" 		: "error",
+                                "message" 		: resp['status']['description'],
+                            };
+                        }
+                    }else{
+                        d = {
+                            "status" 		: "error",
+                            "message" 		: resp['status']['description'],
+                        };
+                    }
+                }
+                else
+                {
+                    d = {
+                        "status" 		: "error",
+                        "message" 		: resp['status']['description'],
+                    };
+                }
+            }
+            else
+            {
+                d = {
+                    "status" 		: "error",
+                    "message" 		: resp['status']['description'],
+                };
+            }
+
+            return d;
+        } catch (error) {
+            console.log(error.message)
+            let d = {
+				'status' : 'error',
+				'message' : error.message
+            };
+            return d;
+        }
+        
+            
+    }
+
+    async TransferPromptPayAuto(token, accountFrom, promptpayNo,  amount) 
+    {
+        try {
+            const promptpayType = "MOB";
+
+            let api_data = {
+                "accountFrom" 		: accountFrom,
+                "accountFromType" 	: 2,
+                "amount" 			: amount,
+                "annotation"		: null,
+                "transferType"		: "PP",
+                "promptPayID" 		: promptpayNo,
+                "promptPayType" 	: "MOB",
+            };
+
+            let d = [];
+
+            let resp = await this.TransferPromptPay(token, api_data);
+                        
+            if(resp['status']['code'])
+            {
+                if(resp['status']['code']==1000)
+                {
+                    
+                    let data = {
+                        "accountFrom" 			: api_data["accountFrom"],
+                        "accountFromName" 		: resp['data']['accountFromName'],
+                        "accountFromType" 		: api_data["accountFromType"],
+                        "accountTo" 			: resp['data']['accountTo'],
+                        "accountToBankCode" 	: resp['data']['accountToBankCode'],
+                        "accountToName" 		: resp['data']['accountToName'],
+                        "amount"				: api_data["amount"],
+                        "botFee" 				: resp['data']['botFee'],
+                        "channelFee" 			: resp['data']['channelFee'],
+                        "fee" 					: resp['data']['totalFee'],
+                        "feeType" 				: resp['data']['feeType'],
+                        "pccTraceNo" 			: resp['data']['pccTraceNo'],
+                        "scbFee" 				: resp['data']['scbFee'],
+                        "sequence" 				: resp['data']['sequence'],
+                        "terminalNo" 			: resp['data']['terminalNo'],
+                        "transactionToken" 		: resp['data']['transactionToken'],
+                        "transferType" 			: resp['data']['transferType'],
+                    };
+
+                    resp = await this.ConfirmTransferPromptPay(token, data);
 
                     if(resp['status']['code']){
                         if(resp['status']['code']==1000){						
@@ -264,8 +368,8 @@ class Scb_app_lib {
             this.pin = pin;
             this.deviceId = deviceId;
 
-            // console.log(pin);
-            // console.log(deviceId);
+            console.log(pin);
+            console.log(deviceId);
             // return;
 
             let header = {
@@ -273,28 +377,28 @@ class Scb_app_lib {
                 'scb-channel': 'APP',
                 'User-Agent': this.useragent,
                 'Content-Type': 'application/json; charset=UTF-8',
-                'Host': 'fasteasy.scbeasy.com:8443',
-                // 'Connection': 'Keep-Alive',
-                'Connection': 'close',                
-                // 'Accept-Encoding': 'gzip',
+                'Host': 'fasteasy.scbeasy.com:8443',                
+                'Connection': 'close',                                
             };
 
             let data = {
                 "tilesVersion" : this.tilesVersion,
-                "userMode" : "INDIVIDUAL",
-                // "isLoadGeneralConsent" : "1",
+                "userMode" : "INDIVIDUAL",                
                 "isLoadGeneralConsent" : "0",
                 "deviceId" : this.deviceId,
                 "jailbreak" : "0"
             };
 
             let url = this.api_url+ "/v3/login/preloadandresumecheck";
+                        
             let resp = await this.Curl2("POST",url,data,header);
 
             console.log("Login2");       
-            // console.log(resp.headers['api-auth']);
-            // console.log(resp.headers);
-            // console.log(resp.data);
+            console.log(resp.headers['api-auth']);
+            //console.log(resp.data);
+            //console.log(resp.headers);
+            //return;
+            //console.log(resp.data);
             
             // let jsonString= JSON.stringify(resp.headers);
             // let jsonString2= JSON.stringify(resp.data);            
@@ -314,6 +418,9 @@ class Scb_app_lib {
             {
                 return '';
             }
+
+            // console.log("Auth");
+            // console.log(Auth);
                 
             header = {
                 'Accept-Language':'th',
@@ -332,7 +439,7 @@ class Scb_app_lib {
             url = this.api_url+ "/isprint/soap/preAuth";
             resp = await this.Curl2("POST",url,data,header);
 
-            // console.log(resp.data);
+            //console.log(resp.data);
             // return;
 
             let getData = resp.data;                      
@@ -373,7 +480,7 @@ class Scb_app_lib {
 
             console.log("fasteasy-login");
             // console.log(resp.headers);
-            // console.log(resp.data);
+            //console.log(resp.data);
 
             // jsonString= JSON.stringify(resp.headers);
             // jsonString2= JSON.stringify(resp.data); 
@@ -400,7 +507,8 @@ class Scb_app_lib {
             return Auth;
 
         } catch (error) {
-            console.log(error.message);
+            console.log("error");
+            //console.log(error.message);
             return "";
         }
 
@@ -461,6 +569,32 @@ class Scb_app_lib {
        
     }
 
+    async TransferPromptPay(token,data)
+    {
+        try {
+            let header = {
+                "Accept-Language":"th",
+                "scb-channel":"APP",
+                "Api-Auth" : token,
+                "user-agent" : this.useragent,
+                "Content-Type": "application/json; charset=UTF-8",
+                "Host" : "fasteasy.scbeasy.com:8443",
+            };
+            
+            let url = this.api_url+"/v2/transfer/verification";		
+            let res = await this.Curl("POST", url, header, data, false);
+            // console.log(res.data);
+            
+            return res.data;
+        } catch (error) {
+            console.log(error.message);
+            return {
+                status : 'error',
+                message : error.message
+            };
+        }
+    }
+
     async ConfirmTransfer(token,data)
     {
         try {
@@ -486,7 +620,33 @@ class Scb_app_lib {
         }
         
     }
-    
+
+    async ConfirmTransferPromptPay(token,data)
+    {
+        try {
+            let header = {
+                "Accept-Language":"th",
+                "scb-channel":"APP",
+                "Api-Auth" : token,
+                "user-agent" : this.useragent,
+                "Content-Type": "application/json; charset=UTF-8",
+                "Host" : "fasteasy.scbeasy.com:8443",
+            };
+            
+            let url = this.api_url+"/v3/transfer/confirmation";		
+            let res = await this.Curl("POST", url, header, data, false);
+            
+            return res.data;
+        } catch (error) {
+            console.log(error.message);
+            return {
+                status : 'error',
+                message : error.message
+            };
+        }
+        
+    }
+
     async TransferAutoTrueWallet(token,accountFrom,toMobileNo,amount)
     {
         try {
@@ -623,8 +783,9 @@ class Scb_app_lib {
 
     async Profile(token,accountNo)
     {
-        // console.log(token);
-        // console.log(accountNo);
+        console.log("Get Profile");
+        console.log(token);
+        console.log(accountNo);
         try {            
 
             let header = {
@@ -649,7 +810,46 @@ class Scb_app_lib {
             
             let url = this.api_url+"/v2/deposits/summary";		
             let res = await this.Curl("POST", url, header, data, false);
-            console.log("Get Profile");
+            
+            // console.log(header);
+            // console.log(data);
+            // console.log(res);
+            //console.log(res.data);
+            return res.data;
+        } catch (error) {
+            console.log(error.message);
+            return {
+                status : 'error',
+                message : error.message
+            };
+        }
+        
+    }
+
+    async CheckSlip(token,barCode)
+    {
+        console.log("CheckSlip")
+        console.log(barCode);
+        // console.log(accountNo);
+        try {            
+
+            let header = {
+                "Accept-Language":"th",
+                "scb-channel":"APP",
+                "Api-Auth" : token,
+                "user-agent" : this.useragent,
+                "Content-Type": "application/json; charset=UTF-8",
+                "Host" : "fasteasy.scbeasy.com:8443",
+            };
+    
+            const data = {
+                barcode: barCode,
+                tilesVersion: this.tilesVersion
+            };
+            
+            let url = this.api_url+"/v7/payments/bill/scan";		
+            let res = await this.Curl("POST", url, header, data, false);
+            console.log("Check Slip");
             // console.log(header);
             // console.log(data);
             // console.log(res.data);
@@ -685,12 +885,17 @@ class Scb_app_lib {
 
     async Curl2(method, url, data, header = [], check_header = false) {
         try {
-          const response = await axios({
-            method: method,
-            url: url,
-            headers: header,
-            data: data,            
-          });          
+            //console.log("Curls2");
+            // console.log(url);
+            // console.log(header);
+            // console.log(data);
+            const response = await axios({
+                method: method,
+                url: url,
+                headers: header,
+                data: data,            
+            });          
+          //console.log(response.data);
           return response;
         } catch (error) {
             console.log(error);

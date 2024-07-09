@@ -43,6 +43,9 @@ const interestTypeRoutes = require('./src/routes/interesttype.route');
 const loanListRoutes = require('./src/routes/loanlist.route');
 const reportRoutes = require('./src/routes/report.route');
 
+const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
+const lineChatRoutes  =require('./src/routes/linechat.route');
+
 const lineRoutes = require('./src/routes/line.route');
 
 const swaggerUi = require('swagger-ui-express');
@@ -213,11 +216,58 @@ app.use('/api/line', lineRoutes);
 
 app.use('/api/report', reportRoutes);
 
+const lineWebhookRoutes  =require('./src/routes/linewebhook.route');
 
+app.use('/api/linechatsetting', lineChatSettingRoutes);
+
+app.use('/api/linechat', lineChatRoutes);
 
 app.use('/getfile/',express.static(path.join(__dirname, '/assets/')));
 
+app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
+
 //====================================================================
+
+const expressWs = require('express-ws')(app);
+const uuid = require('uuid');
+
+let wsConnections = [];
+let lineWebhookRoutes2 = lineWebhookRoutes(wsConnections); 
+app.use('/api/linewebhook', lineWebhookRoutes2);
+
+app.ws('/api/linechat/wsconnect', function(ws, req) {
+    
+    console.log("Connected");    
+    const id = uuid.v4();    
+    ws.id = id;
+    wsConnections.push(ws);
+    console.log(wsConnections.length + " clients are connected");
+
+    ws.send(`Server is connected`);
+
+    ws.on('message', function(msg) {
+        console.log(`${ws.id} sent message: ${msg}`);
+    });
+
+    ws.on('close', function() {        
+        console.log("Closed Connection");
+        wsConnections = wsConnections.filter(conn => conn.id !== ws.id);
+    });
+    
+});
+
+app.get('/api/linechat/wstest', function(req, res, next) {
+    console.log("wstest");
+    wsConnections.forEach(element => {
+            console.log(element.id);
+      });
+  
+    res.status(200).json({
+        status: "success",
+      });
+      return;
+    }
+)
 
 // Handle 404 - Keep this as a last route
 app.use(function(req, res, next) {

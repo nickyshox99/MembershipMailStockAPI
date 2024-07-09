@@ -12,7 +12,7 @@ const dbConn = new knex({
         port: process.env.MYSQL_PORT?process.env.MYSQL_PORT:3306,
         user: process.env.MYSQL_USER?process.env.MYSQL_USER:'root',
         password: process.env.MYSQL_PASSWORD?process.env.MYSQL_PASSWORD:'',
-        database: process.env.MYSQL_DATABASE?process.env.MYSQL_DATABASE:'loan_db'
+        database: process.env.MYSQL_DATABASE?process.env.MYSQL_DATABASE:'membership'
     }
 });
 

@@ -127,7 +127,7 @@ MemberList.updateByID = async function(objData, result) {
     const rowid = objData.id;
 
     // console.log(rowid);
-    // console.log(objData);
+    //console.log(objData);
     
     const datas = await dbConn.raw("UPDATE " +tableName+" SET "+ 
     "bank_id=?"   
@@ -137,8 +137,8 @@ MemberList.updateByID = async function(objData, result) {
     +",bank_name=?"
     +",address=?"
     +",img_url=?"
-    +",card_img_url=?"
-    +",lineid=?"    
+    +",card_img_url=?"    
+    +",line_id=?"    
     +",province_id=?"
     +",district_id=?"
     +",subdistrict_id=?"
@@ -153,7 +153,7 @@ MemberList.updateByID = async function(objData, result) {
         ,objData.address
         ,objData.img_url
         ,objData.card_img_url
-        ,objData.lineid        
+        ,objData.line_id        
         ,objData.province_id??1
         ,objData.district_id??1
         ,objData.subdistrict_id??1
