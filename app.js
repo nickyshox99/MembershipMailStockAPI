@@ -40,6 +40,7 @@ const transactionRoutes = require('./src/routes/transaction.route');
 const staffGroupListRoutes = require('./src/routes/staffgrouplist.route');
 const staffListRoutes = require('./src/routes/stafflist.route');
 const interestTypeRoutes = require('./src/routes/interesttype.route');
+const subscriptionTypeRoutes = require('./src/routes/subscriptiontype.route');
 const loanListRoutes = require('./src/routes/loanlist.route');
 const reportRoutes = require('./src/routes/report.route');
 
@@ -209,6 +210,8 @@ app.use('/api/staffgroup', staffGroupListRoutes);
 app.use('/api/staff', staffListRoutes);
 
 app.use('/api/interesttype', interestTypeRoutes);
+
+app.use('/api/subscriptiontype', subscriptionTypeRoutes);
 
 app.use('/api/loan', loanListRoutes);
 

@@ -58,27 +58,27 @@ productList.create = async function(objData, result) {
 
         const datas = await dbConn.raw("INSERT INTO "+tableName+" ("+ 
         "product_name"       
-        +",product_thumbnail "
-        +",product_img "
-        +",use_credit" 
-        +",active "         
-        +",type "  
-        +",sub_type "
+        +",subscription_type_id "
+        +",product_img "        
+        +",use_credit "         
+        +",active  "  
+        +",type  "
         +",product_desc "
         +",give_credit "  
-        +",option_credit "  
+        +",subscribe_day "  
+        +",subscribe_times "  
         +" ) VALUES (?,?,?,?,?,?,?,?,?,?)"
         , [
             objData.product_name
-            ,objData.product_thumbnail
-            ,objData.product_img
+            ,objData.subscription_type_id
+            ,objData.product_img            
             ,objData.use_credit            
             ,1
             ,objData.type
-            ,objData.sub_type
             ,objData.product_desc
             ,objData.give_credit
-            ,objData.option_credit
+            ,objData.subscribe_day
+            ,objData.subscribe_times
         ]);   
         
         // const datas=[];
@@ -101,27 +101,27 @@ productList.updateByID = async function(objData, result) {
         
         const datas = await dbConn.raw("UPDATE " +tableName+" SET "        
         +"product_name=? "
-        +",product_thumbnail=? "
-        +",product_img=? "
-        +",use_point=? "
+        +",subscription_type_id=? "
+        +",product_img=? "        
+        +",use_credit=? "
         +",active=? "
         +",type=? "       
-        +",sub_type=? "       
-        +",product_desc=? "        
+        +",product_desc=? "       
         +",give_credit=? "        
-        +",option_credit=? "        
+        +",subscribe_day=? "        
+        +",subscribe_times=? "        
         +" WHERE id = ? "
         , [ 
             objData.product_name
-            ,objData.product_thumbnail
-            ,objData.product_img
-            ,objData.use_point
+            ,objData.subscription_type_id
+            ,objData.product_img            
+            ,objData.use_credit
             ,objData.active
-            ,objData.type
-            ,objData.sub_type
+            ,objData.type            
             ,objData.product_desc
             ,objData.give_credit
-            ,objData.option_credit
+            ,objData.subscribe_day
+            ,objData.subscribe_times
             , rowid]);
         
 
