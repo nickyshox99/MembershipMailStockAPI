@@ -11,6 +11,12 @@ router.post('/registermember/', memberlistController.registerMember);
 
 router.post('/getmember/', memberlistController.getmember);
 
+router.post('/getMemberEmail/', memberlistController.getMemberEmail);
+
+router.post('/addMemberEmail/', memberlistController.addMemberEmail);
+
+router.post('/deleteMemberEmail/', memberlistController.deleteMemberEmail);
+
 router.post('/getuserforgive/', memberlistController.getUserForGive);
 
 router.post('/getcountmember/', memberlistController.getCountMember);

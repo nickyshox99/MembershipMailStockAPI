@@ -69,6 +69,59 @@ MemberList.findByListId = async function(searchword,listMemberId, result) {
     return datas[0];
 };
 
+MemberList.checkDuplicateEmail = async function(objData, result) {   
+    
+    let sqlStr = "Select * ";            
+    sqlStr += " FROM user_email ";    
+    sqlStr += " where 1=1 AND user_id='"+ objData.user_id+"' AND email='"+objData.email+"'";
+    
+    const datas = await dbConn.raw(sqlStr);
+    // console.log(datas);
+    return datas[0];
+};
+
+MemberList.getMemberEmail = async function(user_id, result) {   
+    
+    let sqlStr = "Select * ";            
+    sqlStr += " FROM user_email ";    
+    sqlStr += " where 1=1 AND user_id='"+ user_id+"'";
+    
+    const datas = await dbConn.raw(sqlStr);
+    // console.log(datas);
+    return datas[0];
+};
+
+MemberList.addMemberEmail = async function(objData, result) {   
+   
+    try 
+    {        
+        const datas = MainModel.insert("user_email",objData);        
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+    
+    
+};
+
+MemberList.deleteMemberEmailByID = async function(objData, result) {   
+
+    try {
+
+        
+        let lstID =objData.listId.join(",");
+        
+        const datas = await dbConn.raw("DELETE FROM user_email WHERE id in ("+lstID+")");
+        
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+
+};
+
 MemberList.findAllWithOutId = async function(id, result) {       
     let sqlStr = "Select sl_users.fullname,sl_users.id,sl_users.line_displayurl ";            
     sqlStr += " FROM sl_users ";    

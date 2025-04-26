@@ -83,9 +83,11 @@ exports.addProduct = async function(req, res) {
                 let IsAuth = AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
+                const objData = req.body;
+
                 if (IsAuth) 
                 {
-                    const result = await productList.create(req.body);
+                    const result = await productList.create(objData);
                     if (result) {
 
                         res.status(202).json(
@@ -145,9 +147,9 @@ exports.addProduct = async function(req, res) {
     
 };
 
-exports.editProduct = async function(req, res) {
+exports.updatebyId = async function(req, res) {
     
-    console.log('editProduct');
+    console.log('updatebyId');
 
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
@@ -182,9 +184,25 @@ exports.editProduct = async function(req, res) {
                 let IsAuth = AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
+                const objData = req.body;
+
+                if (objData.id==undefined || objData.id==null || objData.id=="")
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Product ID not found',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                    
+                }
+
                 if (IsAuth) 
                 {
-                    const result = await productList.updateByID(req.body);
+                    const result = await productList.updateByID(objData);
                     if (result) {
 
                         res.status(202).json(
@@ -472,13 +490,95 @@ exports.GetActiveProduct = async function(req, res) {
                 const userid = headers.userid?headers.userid:'';
                 const token = headers.token?headers.token:'';
 
-                let IsAuth = await MemberList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
                 if (true) 
                 {
                     
                     let tmpData = await productList.findAllActive();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.GetProductSetting = async function(req, res) {
+    console.log('GetProductSetting');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid?headers.userid:'';
+                const token = headers.token?headers.token:'';
+
+                let IsAuth = await MemberList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (true) 
+                {
+                    
+                    let tmpData = await productList.findAll();
                     
                     res.status(200).json(
                         { 
@@ -1156,5 +1256,583 @@ exports.GetHistoryOrderByMemberID = async function(req, res) {
     
     
 
+    
+};
+
+
+exports.CreateSubScribeOrder = async function(req, res) {
+    console.log('CreateSubScribeOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";
+                    let user_id = req.body.user_id;
+                    let product_id = req.body.product_id;                    
+                    let email = req.body.email;
+
+                    let row_product = await productList.findById(product_id);  
+                    let row_user = await MemberList.findById(username);
+
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    let chkproduct = row_product['id']?true:false;
+                    if (chkproduct)
+                    {
+                        
+                        let data = {                            
+                            "user_id" : row_user["id"] ,
+                            "email" : email ,                            
+                            "product_id" : row_product["id"] ,
+                            "subscription_type_id":  row_product["subscription_type_id"] ,
+                            "product_name": row_product["product_name"] ,
+                            "create_by": admin ,
+                            "create_date" : timerHelper.getDateTimeNowString() ,                            
+                            "buy_date" : timerHelper.getDateTimeNowString() ,        
+                        };
+                        
+                        let tmpData = await productList.createSubScribeOrder(objData);
+                        if (tmpData) {
+                            res.status(200).json(
+                                { 
+                                    status: 'success', 
+                                    message: '',
+                                    auth : true,                        
+                                    data : [],
+                                }
+                            );
+                        }
+                        else
+                        {
+                            res.status(202).json(
+                                { 
+                                    status: 'error', 
+                                    message: 'Create order failed.',
+                                    auth : false,
+                                    data : [],
+                                }
+                            );
+                            return;
+                        }
+                        
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found product please contact support team.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.CreateAndApproveSubScribeOrder = async function(req, res) {
+    console.log('CreateAndApproveSubScribeOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";
+                    let user_id = req.body.user_id;
+                    let product_id = req.body.product_id;                    
+                    let email = req.body.email;
+
+                    let row_product = await productList.findById(product_id);  
+                    let row_user = await MemberList.findById(username);
+
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    let chkproduct = row_product['id']?true:false;
+                    if (chkproduct)
+                    {
+                        let start_date = new Date();
+                        let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
+
+                        //calculate start_date,end_date
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,email);
+                        if (lastHistData.length > 0) 
+                        {
+                            start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
+                            end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
+                        }
+                        
+                        let data = {                            
+                            "user_id" : row_user["id"] ,
+                            "email" : email ,                            
+                            "product_id" : row_product["id"] ,
+                            "subscription_type_id":  row_product["subscription_type_id"] ,
+                            "product_name": row_product["product_name"] ,
+                            "create_by": admin ,
+                            "create_date" : timerHelper.getDateTimeNowString() ,     
+                            "approve_by": admin ,
+                            "approve_date" : timerHelper.getDateTimeNowString() ,                            
+                            "buy_date" : timerHelper.getDateTimeNowString() ,        
+                            "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
+                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,        
+                        };
+                        
+                        let tmpData = await productList.createAndApproveSubScribeOrder(objData);
+                        if (tmpData) {
+                            res.status(200).json(
+                                { 
+                                    status: 'success', 
+                                    message: '',
+                                    auth : true,                        
+                                    data : [],
+                                }
+                            );
+                        }
+                        else
+                        {
+                            res.status(202).json(
+                                { 
+                                    status: 'error', 
+                                    message: 'Create order failed.',
+                                    auth : false,
+                                    data : [],
+                                }
+                            );
+                            return;
+                        }
+                        
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found product please contact support team.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.ApproveSubScribeOrder = async function(req, res) {
+    console.log('ApproveSubScribeOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";                    
+                    let order_id = req.body.order_id;
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                    let row_product = await productList.findById(row_order['product_id']);  
+                    let row_user = await MemberList.findById(row_order['user_id']);
+
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    let chkproduct = row_product['id']?true:false;
+                    if (chkproduct)
+                    {
+                        let start_date = new Date();
+                        let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
+
+                        //calculate start_date,end_date
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,row_user["email"]);
+                        if (lastHistData.length > 0) 
+                        {
+                            start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
+                            end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
+                        }
+                        
+                        let data = {                            
+                            "id" : order_id ,
+                            "approve_by": admin ,
+                            "approve_date" : timerHelper.getDateTimeNowString() ,                                                            
+                            "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
+                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,        
+                        };
+                        
+                        let tmpData = await productList.approveOrderById(objData);
+                        if (tmpData) {
+                            res.status(200).json(
+                                { 
+                                    status: 'success', 
+                                    message: '',
+                                    auth : true,                        
+                                    data : [],
+                                }
+                            );
+                        }
+                        else
+                        {
+                            res.status(202).json(
+                                { 
+                                    status: 'error', 
+                                    message: 'Create order failed.',
+                                    auth : false,
+                                    data : [],
+                                }
+                            );
+                            return;
+                        }
+                        
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found product please contact support team.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.CancelSubScribeOrder = async function(req, res) {
+    console.log('CancelSubScribeOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";                    
+                    let order_id = req.body.order_id;
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                   
+                    
+                    let data = {                            
+                        "id" : order_id ,
+                    };
+                    
+                    let tmpData = await productList.cancelOrderById(objData);                    
+                    if (tmpData) {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'canceled order failed.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
     
 };

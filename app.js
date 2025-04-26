@@ -43,6 +43,7 @@ const interestTypeRoutes = require('./src/routes/interesttype.route');
 const subscriptionTypeRoutes = require('./src/routes/subscriptiontype.route');
 const loanListRoutes = require('./src/routes/loanlist.route');
 const reportRoutes = require('./src/routes/report.route');
+const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
@@ -53,7 +54,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 // Setup server port
-const port = process.env.PORT || 9500;
+const port = process.env.PORT || 10500;
 
 // create express app
 let app = express();
@@ -159,17 +160,17 @@ const LineLog = require('./src/modules/linelog');
 const lineLog = new LineLog();
 
 //Run Line Log
-cron.schedule('0 * * * *', async () => {
- //cron.schedule('* * * * *', async () => {
+// cron.schedule('0 * * * *', async () => {
+//  //cron.schedule('* * * * *', async () => {
     
-    try {        
-        await lineLog.getLineLog();
-    }
-    catch (error) 
-    {
-        console.log(error);
-    }    
-});
+//     try {        
+//         await lineLog.getLineLog();
+//     }
+//     catch (error) 
+//     {
+//         console.log(error);
+//     }    
+// });
 
 // using as middleware
 
@@ -212,6 +213,8 @@ app.use('/api/staff', staffListRoutes);
 app.use('/api/interesttype', interestTypeRoutes);
 
 app.use('/api/subscriptiontype', subscriptionTypeRoutes);
+
+app.use('/api/subscriptiongroup', subscriptionGruopRoutes);
 
 app.use('/api/loan', loanListRoutes);
 

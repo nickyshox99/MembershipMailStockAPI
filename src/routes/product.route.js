@@ -12,13 +12,15 @@ router.get('/', productController.default);
 
 router.post('/add/', productController.addProduct);
 
-router.post('/edit/', productController.editProduct);
+router.post('/updatebyId/', productController.updatebyId);
 
-router.post('/delete/', productController.deleteProduct);
+router.post('/deleteProduct/', productController.deleteProduct);
 
 router.post('/inactive/', productController.inActiveProduct);
 
 router.post('/GetActiveProduct/', productController.GetActiveProduct);
+
+router.post('/GetProductSetting/', productController.GetProductSetting);
 
 router.post('/OrderProduct/', productController.OrderProduct);
 
@@ -28,6 +30,12 @@ router.post('/ExchangeProductByID/', productController.ExchangeProductByID);
 
 router.post('/GetHistoryOrderByMemberID/', productController.GetHistoryOrderByMemberID);
 
+router.post('/CreateSubScribeOrder/', productController.CreateSubScribeOrder);
 
+router.post('/CreateAndApproveSubScribeOrder/', productController.OrderProduct);
+
+router.post('/ApproveSubScribeOrder/', productController.ApproveSubScribeOrder);
+
+router.post('/CancelSubScribeOrder/', productController.CancelSubScribeOrder);
 
 module.exports = router
