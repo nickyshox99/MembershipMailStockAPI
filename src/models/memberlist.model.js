@@ -91,6 +91,30 @@ MemberList.getMemberEmail = async function(user_id, result) {
     return datas[0];
 };
 
+MemberList.getAllMemberEmail = async function(user_id, result) {   
+    
+    let sqlStr = "Select * ";            
+    sqlStr += " FROM user_email ";    
+    sqlStr += " where 1=1 ORDER BY email,user_id ASC";
+    
+    const datas = await dbConn.raw(sqlStr);
+    // console.log(datas);
+    return datas[0];
+};
+
+MemberList.getUserEmailById = async function(id, result) {   
+    
+    let sqlStr = "Select * ";            
+    sqlStr += " FROM user_email ";    
+    sqlStr += " where 1=1 AND id="+ id+"";
+    
+    const datas = await dbConn.raw(sqlStr);
+    // console.log(datas);
+    return datas[0];
+};
+
+
+
 MemberList.addMemberEmail = async function(objData, result) {   
    
     try 

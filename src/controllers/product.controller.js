@@ -1176,6 +1176,89 @@ exports.ExchangeProductByID = async function(req, res) {
     
 };
 
+exports.GetHistorySubScribeOrderByMemberID = async function(req, res) {
+    console.log('GetHistorySubScribeOrderByMemberID');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let memberId = req.body.member_id;
+                    
+                    let tmpData = await productList.GetHistorySubScribeOrderByMemberID(memberId);
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
 exports.GetHistoryOrderByMemberID = async function(req, res) {
     console.log('GetHistoryOrderByMemberID');
 
@@ -1299,9 +1382,10 @@ exports.CreateSubScribeOrder = async function(req, res) {
                     let user_id = req.body.user_id;
                     let product_id = req.body.product_id;                    
                     let email = req.body.email;
+                    let note = req.body.note;
 
                     let row_product = await productList.findById(product_id);  
-                    let row_user = await MemberList.findById(username);
+                    let row_user = await MemberList.findById(user_id);
 
                     if (row_user.length<=0) 
                     {
@@ -1328,10 +1412,11 @@ exports.CreateSubScribeOrder = async function(req, res) {
                             "product_name": row_product["product_name"] ,
                             "create_by": admin ,
                             "create_date" : timerHelper.getDateTimeNowString() ,                            
-                            "buy_date" : timerHelper.getDateTimeNowString() ,        
+                            "buy_date" : timerHelper.getDateTimeNowString() , 
+                            "note" : note,
                         };
                         
-                        let tmpData = await productList.createSubScribeOrder(objData);
+                        let tmpData = await productList.createSubScribeOrder(data);
                         if (tmpData) {
                             res.status(200).json(
                                 { 
@@ -1444,9 +1529,10 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
                     let user_id = req.body.user_id;
                     let product_id = req.body.product_id;                    
                     let email = req.body.email;
+                    let note = req.body.note;
 
                     let row_product = await productList.findById(product_id);  
-                    let row_user = await MemberList.findById(username);
+                    let row_user = await MemberList.findById(user_id);
 
                     if (row_user.length<=0) 
                     {
@@ -1460,6 +1546,7 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
                         );
                         return;
                     }
+
                     
                     let chkproduct = row_product['id']?true:false;
                     if (chkproduct)
@@ -1469,6 +1556,7 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
 
                         //calculate start_date,end_date
                         let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,email);
+                        
                         if (lastHistData.length > 0) 
                         {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
@@ -1487,10 +1575,11 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
                             "approve_date" : timerHelper.getDateTimeNowString() ,                            
                             "buy_date" : timerHelper.getDateTimeNowString() ,        
                             "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
-                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,        
+                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,    
+                            "note":note,
                         };
                         
-                        let tmpData = await productList.createAndApproveSubScribeOrder(objData);
+                        let tmpData = await productList.createAndApproveSubScribeOrder(data);
                         if (tmpData) {
                             res.status(200).json(
                                 { 
@@ -1598,6 +1687,7 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                 {
                     let admin = req.body.username? req.body.username:"System";                    
                     let order_id = req.body.order_id;
+                    let note = req.body.note;
 
                     let row_order = await productList.getOrderById(order_id);  
                     if (row_order.length<=0) 
@@ -1637,19 +1727,20 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                         let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
 
                         //calculate start_date,end_date
-                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,row_user["email"]);
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,row_order["email"]);
                         if (lastHistData.length > 0) 
                         {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
                             end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
                         }
                         
-                        let data = {                            
+                        let objData = {                            
                             "id" : order_id ,
                             "approve_by": admin ,
                             "approve_date" : timerHelper.getDateTimeNowString() ,                                                            
                             "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
-                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,        
+                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,       
+                            "note" :note,
                         };
                         
                         let tmpData = await productList.approveOrderById(objData);
@@ -1668,7 +1759,7 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                             res.status(202).json(
                                 { 
                                     status: 'error', 
-                                    message: 'Create order failed.',
+                                    message: 'Approve order failed.',
                                     auth : false,
                                     data : [],
                                 }
@@ -1760,6 +1851,7 @@ exports.CancelSubScribeOrder = async function(req, res) {
                 {
                     let admin = req.body.username? req.body.username:"System";                    
                     let order_id = req.body.order_id;
+                    let note = req.body.note;
 
                     let row_order = await productList.getOrderById(order_id);  
                     if (row_order.length<=0) 
@@ -1776,8 +1868,9 @@ exports.CancelSubScribeOrder = async function(req, res) {
                     }
                    
                     
-                    let data = {                            
+                    let objData = {                            
                         "id" : order_id ,
+                        "note": note,
                     };
                     
                     let tmpData = await productList.cancelOrderById(objData);                    

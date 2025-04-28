@@ -14,7 +14,7 @@ const Secret = require('../../config/secret');
 
 
 var session = require('express-session');
-const { count } = require('console');
+const { count, time } = require('console');
 const timerHelper = require('../modules/timehelper');
 
 exports.getSubscriptionGroup = async function(req, res) {
@@ -136,6 +136,7 @@ exports.getActiveSubscriptionGroup = async function(req, res) {
                     
                     let tmpData = await SubscriptionGroup.findAllActive(req.body.searchword);
                     
+                    
                     res.status(200).json(
                         { 
                             status: 'success', 
@@ -215,6 +216,240 @@ exports.getSubscriptionGroupById = async function(req, res) {
                 if (IsAuth)             
                 {
                     let tmpData = await SubscriptionGroup.findById(req.params.Id);                
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            total : count(tmpData),
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+  
+    
+
+   
+};
+
+exports.getSubscribeMemberByGroupById = async function(req, res) {
+
+    try {
+        console.log('getSubscribeMemberByGroupById');
+    
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth)             
+                {
+                    let tmpData = await SubscriptionGroup.getSubscribeMemberByGroupById(req.body.id);                
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            total : count(tmpData),
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+  
+    
+
+   
+};
+
+exports.getSubscribePaymentById = async function(req, res) {
+
+    try {
+        console.log('getSubscribePaymentById');
+    
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth)             
+                {
+                    let tmpData = await SubscriptionGroup.getSubscribePaymentById(req.body.group_id);                
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            total : count(tmpData),
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+  
+    
+
+   
+};
+
+exports.getGroupOfMemberByMemberId = async function(req, res) {
+
+    try {
+        console.log('getGroupOfMemberByMemberId');
+    
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth)             
+                {
+                    let tmpData = await SubscriptionGroup.getGroupOfMemberByMemberId(req.body.user_id);                
                     
                     res.status(200).json(
                         { 
@@ -442,6 +677,448 @@ exports.updateById = async function(req, res) {
                                 auth : true,
                             }
                             );
+                            return;
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+   
+
+    
+   
+};
+
+exports.addMemberToGroup = async function(req, res) {
+    console.log("addMemberToGroup");
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            
+             //handles null error
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    // console.log('updateadminbankbyid');
+                    // console.log(req.body);            
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;
+                    const user_id = req.body.user_id? req.body.user_id : "";
+                    const email = req.body.email? req.body.email : "";
+                    const group_id = req.body.group_id? req.body.group_id : 0;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canEdit) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+                    let objData =
+                    {
+                        subscription_group_id : group_id,
+                        user_id : user_id,
+                        email : email,
+                    }
+                    let tmpData2 = await SubscriptionGroup.checkDuplicateMember(objData); 
+                    if (tmpData2[0].totalCount>0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'This member already exists in this group.',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                        return;
+                        
+                    }
+
+                    objData =
+                    {
+                        subscription_group_id : group_id,
+                        user_id : user_id,
+                        email : email,
+                        update_at : timerHelper.getDateTimeNowString(),
+                        update_by : admin_id,
+                    }
+
+                    let tmpData = await SubscriptionGroup.addMemberToGroup(objData);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                        );
+                        return;
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+   
+
+    
+   
+};
+
+exports.addMemberToGroupById = async function(req, res) {
+    console.log("addMemberToGroupById");
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            
+             //handles null error
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    // console.log('updateadminbankbyid');
+                    // console.log(req.body);            
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;                    
+                    const id = req.body.id? req.body.id : 0;
+                    const group_id = req.body.group_id? req.body.group_id : 0;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canEdit) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+                    let tmpData3 = await MemberList.getUserEmailById(id); 
+                    if (tmpData3.length==0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'This member does not exist.',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                        return;
+                    }
+
+                    let email = tmpData3[0].email;
+                    let user_id = tmpData3[0].user_id;
+
+                    let objData =
+                    {
+                        subscription_group_id : group_id,
+                        user_id : user_id,
+                        email : email,
+                    }
+                    let tmpData2 = await SubscriptionGroup.checkDuplicateMember(objData); 
+                    if (tmpData2[0].totalCount>0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'This member already exists in this group.',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                        return;
+                        
+                    }
+
+                    objData =
+                    {
+                        subscription_group_id : group_id,
+                        user_id : user_id,
+                        email : email,
+                        update_at : timerHelper.getDateTimeNowString(),
+                        update_by : admin_id,
+                    }
+
+                    let tmpData = await SubscriptionGroup.addMemberToGroup(objData);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                        );
+                        return;
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+   
+
+    
+   
+};
+
+exports.addPaymentNoteGroup = async function(req, res) {
+    console.log("addPaymentNoteGroup");
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            
+             //handles null error
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    // console.log('updateadminbankbyid');
+                    // console.log(req.body);            
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;                    
+                    const group_id = req.body.group_id? req.body.group_id : 0;
+                    const start_at = req.body.start_at;
+                    const end_at = req.body.end_at;
+                    const paid_amount = req.body.paid_amount;
+                    const paid_by = req.body.paid_by;
+                    const ref_img1 = req.body.ref_img1? req.body.ref_img1 : "";
+                    const ref_img2 = req.body.ref_img2? req.body.ref_img2 : "";
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canEdit) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+                    let objData =
+                    {
+                        subscription_group_id : group_id,
+                        start_at  : start_at ,
+                        end_at  : end_at ,
+                        update_by   : admin_id  ,
+                        update_at   : timerHelper.getDateTimeNowString() ,
+                        paid_amount  : paid_amount ,
+                        paid_by   : paid_by  ,
+                        ref_img1  : ref_img1 ,
+                        ref_img2  : ref_img2 ,
+                    }
+                   
+                    let tmpData = await SubscriptionGroup.addPaymentNoteGroup(objData);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                        );
+                        return;
                     }
                     else
                     { 
@@ -592,3 +1269,211 @@ exports.deleteById = async function(req, res) {
 
 };
 
+exports.deleteMemberFromGroupByID = async function(req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            console.log("deleteMemberFromGroupByID")
+             //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canDelete) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+                    let tmpData = await SubscriptionGroup.deleteMemberFromGroupByID(req.body);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                            );
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+};
+
+
+exports.deletePaymentHistoryByID = async function(req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            console.log("deleteMemberFromGroupByID")
+             //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canDelete) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+                    let tmpData = await SubscriptionGroup.deletePaymentHistoryByID(req.body);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                            );
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+};

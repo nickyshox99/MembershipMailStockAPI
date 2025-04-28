@@ -32,10 +32,12 @@ router.post('/GetHistoryOrderByMemberID/', productController.GetHistoryOrderByMe
 
 router.post('/CreateSubScribeOrder/', productController.CreateSubScribeOrder);
 
-router.post('/CreateAndApproveSubScribeOrder/', productController.OrderProduct);
+router.post('/CreateAndApproveSubScribeOrder/', productController.CreateAndApproveSubScribeOrder);
 
 router.post('/ApproveSubScribeOrder/', productController.ApproveSubScribeOrder);
 
 router.post('/CancelSubScribeOrder/', productController.CancelSubScribeOrder);
+
+router.post('/GetHistorySubScribeOrderByMemberID/', productController.GetHistorySubScribeOrderByMemberID);
 
 module.exports = router

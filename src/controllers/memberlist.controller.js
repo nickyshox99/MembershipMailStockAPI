@@ -298,6 +298,109 @@ exports.getMemberEmail = async function(req, res) {
     
 };
 
+
+exports.getAllMemberEmail = async function(req, res) {
+    console.log('getAllMemberEmail');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(200).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required field' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = req.headers.userid;
+                const token = req.headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    let memberlistId = [];
+                    let tmpData = [];
+                    // if (adminPagePermission.canViewAll!=1) 
+                    // {
+                    //     // Get Only Relate Member
+                    //     // Get Loan Id From Share Person
+                    //     const loanIdBySharePerson = await LoanList.getLoanBySharePersonId(admin_id);
+
+                    //     // Get Loan Id From Assign
+                    //     const loanIdByAssign = await LoanList.getLoanByAssignId(admin_id);
+
+                    //     // Get member_id from Loan Id
+                    //     memberlistId = await LoanList.getLoanByListId([...loanIdBySharePerson,...loanIdByAssign]);
+
+                    //     tmpData = await MemberList.findByListId(req.body.searchWord,memberlistId);
+                     
+                    // }
+                    // else
+                    // {
+                    //     tmpData = await MemberList.findAll(req.body.searchWord);
+                    // }
+
+                    tmpData = await MemberList.getAllMemberEmail(req.body.selected_id);
+                                        
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(200).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+    
+};
+
 exports.addMemberEmail = async function(req, res) {
     console.log('addMemberEmail');
 

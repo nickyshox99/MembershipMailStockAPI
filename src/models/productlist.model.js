@@ -42,8 +42,8 @@ productList.findAll = async function( result) {
 
 productList.findById = async function(id, result) {   
     let sqlStr = "Select *  ";        
-    sqlStr += " FROM "+tableName;    
-    sqlStr += " where 1=1 AND ("+tableKey+" = "+id+") ";
+    sqlStr += " FROM product_list ";    
+    sqlStr += " where 1=1 AND (id = "+id+") ";
     
     
     const datas = await dbConn.raw(sqlStr);
@@ -196,7 +196,8 @@ productList.getHistoryOrderByMemberID = async function(memberId,startTime,endTim
     sqlStr += " LEFT JOIN product_list ON product_list.id=product_order_history.product_id";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND (gift_to='"+memberId+"' OR order_by='"+memberId+"' )";    
-    sqlStr += " AND (date between '"+startTime+"' AND '"+endTime+"' )";    
+    sqlStr += " AND (date between '"+startTime+"' AND '"+endTime+"' )";   
+    
     
     let datas = await dbConn.raw(sqlStr);
 
@@ -207,8 +208,8 @@ productList.getHistoryOrderByMemberID = async function(memberId,startTime,endTim
 
 productList.getLastSubscriptionOrderByMemberID = async function(memberId,subTypeId,email, result) {   
 
-    let sqlStr = "Select product_order_history.* ";
-    sqlStr += " FROM product_order_history ";    
+    let sqlStr = "Select membership_order_history.* ";
+    sqlStr += " FROM membership_order_history ";    
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND (user_id='"+memberId+"' )";    
     sqlStr += " AND (email='"+email+"' )";    
@@ -242,7 +243,8 @@ productList.createSubScribeOrder = async function(objData, result) {
         +",create_date "  
         +",approve_by  "  
         +",approve_date "  
-        +" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+        +",note "  
+        +" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
         , [
             objData.user_id 
             ,objData.email
@@ -256,6 +258,7 @@ productList.createSubScribeOrder = async function(objData, result) {
             ,objData.create_date
             ,null
             ,null
+            ,objData.note
         ]);   
         
         // const datas=[];
@@ -272,7 +275,6 @@ productList.createSubScribeOrder = async function(objData, result) {
 
 productList.createAndApproveSubScribeOrder = async function(objData, result) {   
     
-        
     try {
 
         const datas = await dbConn.raw("INSERT INTO membership_order_history ("+ 
@@ -288,11 +290,12 @@ productList.createAndApproveSubScribeOrder = async function(objData, result) {
         +",create_date "  
         +",approve_by  "  
         +",approve_date "  
-        +" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+        +",note "  
+        +" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
         , [
             objData.user_id 
             ,objData.email
-            ,objData.product_img            
+            ,objData.product_id
             ,objData.subscription_type_id            
             ,objData.product_name
             ,objData.start_date
@@ -302,6 +305,7 @@ productList.createAndApproveSubScribeOrder = async function(objData, result) {
             ,objData.create_date
             ,objData.approve_by
             ,objData.approve_date
+            ,objData.note
         ]);   
         
         // const datas=[];
@@ -331,20 +335,22 @@ productList.getOrderById = async function(id, result) {
 productList.approveOrderById = async function(objData, result) {   
 
     const rowid = objData.id;    
-   
+
     try {
         
         const datas = await dbConn.raw("UPDATE membership_order_history SET "
         +"approve_by=? "
-        +"approve_date=? "
-        +"start_date=? "
-        +"end_date=? "
+        +",approve_date=? "
+        +",start_date=? "
+        +",end_date=? "
+        +",note=? "
         +"WHERE id = ? "
         , [             
-            ,objData.approve_by  
+            objData.approve_by  
             ,objData.approve_date  
             ,objData.start_date  
             ,objData.end_date  
+            ,objData.note  
             ,rowid
             ]          
         );
@@ -366,8 +372,10 @@ productList.cancelOrderById = async function(objData, result) {
         
         const datas = await dbConn.raw("UPDATE membership_order_history SET "
         +"canceled=1 "        
+        +",note=? "        
         +"WHERE id = ? "
         , [   
+            objData.note,
             rowid
             ]          
         );
@@ -379,6 +387,23 @@ productList.cancelOrderById = async function(objData, result) {
         return false;
     }
     
+};
+
+productList.GetHistorySubScribeOrderByMemberID = async function(memberId, result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND (user_id='"+memberId+"' )";    
+    sqlStr += " ORDER BY canceled, subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
 };
 
 module.exports = productList;

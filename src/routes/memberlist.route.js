@@ -13,6 +13,8 @@ router.post('/getmember/', memberlistController.getmember);
 
 router.post('/getMemberEmail/', memberlistController.getMemberEmail);
 
+router.post('/getAllMemberEmail/', memberlistController.getAllMemberEmail);
+
 router.post('/addMemberEmail/', memberlistController.addMemberEmail);
 
 router.post('/deleteMemberEmail/', memberlistController.deleteMemberEmail);
