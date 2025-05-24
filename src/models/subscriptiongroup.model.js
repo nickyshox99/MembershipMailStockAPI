@@ -273,6 +273,43 @@ SubscriptionGroup.addMemberToGroup = async function(objData, result) {
     
 };
 
+SubscriptionGroup.setMemberToHeaderGroup = async function(objData, result) {   
+
+
+    try {  
+        const datas2 = await dbConn.raw("UPDATE " +tableName+" SET "
+        +"is_header_group=0"
+        +",update_at=? "                
+        +",update_by=? "        
+        +"WHERE subscription_group_id = ? "
+        , [
+            objData.isHeader
+            ,objData.update_at            
+            ,objData.update_by
+            ,objData.subscription_group_id            
+        ]);  
+
+        const datas = await dbConn.raw("UPDATE " +tableName+" SET "
+        +"is_header_group=?"
+        +",update_at=? "                
+        +",update_by=? "        
+        +"WHERE subscription_group_id = ? and email=? "
+        , [
+            objData.isHeader
+            ,objData.update_at            
+            ,objData.update_by
+            ,objData.subscription_group_id
+            ,objData.email
+        ]);   
+        
+        return datas[0];
+    } catch (error) {
+        console.log(error);
+        return {errorMessage : error.message};
+    }
+    
+};
+
 SubscriptionGroup.deleteMemberFromGroupByID = async function(objData, result) {   
 
     try {

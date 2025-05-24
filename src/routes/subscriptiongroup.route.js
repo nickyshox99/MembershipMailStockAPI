@@ -23,6 +23,8 @@ router.post('/deleteById/', subscriptionGroupController.deleteById);
 
 router.post('/addMemberToGroup/', subscriptionGroupController.addMemberToGroup);
 
+router.post('/setMemberToHeaderGroup/', subscriptionGroupController.setMemberToHeaderGroup);
+
 router.post('/addMemberToGroupById/', subscriptionGroupController.addMemberToGroupById);
 
 router.post('/addPaymentNoteGroup/', subscriptionGroupController.addPaymentNoteGroup);

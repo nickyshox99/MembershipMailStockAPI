@@ -870,6 +870,132 @@ exports.addMemberToGroup = async function(req, res) {
    
 };
 
+exports.setMemberToHeaderGroup = async function(req, res) {
+    console.log("setMemberToHeaderGroup");
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);        
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            
+             //handles null error
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
+            } else {
+    
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+    
+                if (IsAuth) 
+                {
+                    // console.log('updateadminbankbyid');
+                    // console.log(req.body);            
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;                    
+                    const email = req.body.email? req.body.email : "";
+                    const isHeader = req.body.isHeader? req.body.isHeader : 0;
+                    const group_id = req.body.group_id? req.body.group_id : 0;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!adminPagePermission.canEdit) {
+                        res.status(200).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                            return;
+                    }
+
+
+                    let objData =
+                    {
+                        subscription_group_id : group_id,                        
+                        email : email,
+                        isHeader : isHeader,
+                        update_at : timerHelper.getDateTimeNowString(),
+                        update_by : admin_id,
+                    }
+
+                    let tmpData = await SubscriptionGroup.setMemberToHeaderGroup(objData);
+    
+                    if (tmpData.errorMessage==null) 
+                    {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,
+                            }
+                        );
+                        return;
+                    }
+                    else
+                    { 
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: tmpData.errorMessage,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+
+   
+
+    
+   
+};
+
 exports.addMemberToGroupById = async function(req, res) {
     console.log("addMemberToGroupById");
     

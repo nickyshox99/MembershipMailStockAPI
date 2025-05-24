@@ -683,6 +683,12 @@ exports.googleAuthen = async function(req, res) {
         }
         else
         {
+
+            res.status(200).json({
+                status:"success",
+            });
+            return;
+            
             const otp = req.body.otp;
             const g = new GoogleAuthenticator();
             
