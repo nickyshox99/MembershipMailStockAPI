@@ -229,6 +229,7 @@ productList.createSubScribeOrder = async function(objData, result) {
     
         
     try {
+        //console.log(objData);
 
         const datas = await dbConn.raw("INSERT INTO membership_order_history ("+ 
         "user_id "       
@@ -248,7 +249,7 @@ productList.createSubScribeOrder = async function(objData, result) {
         , [
             objData.user_id 
             ,objData.email
-            ,objData.product_img            
+            ,objData.product_id            
             ,objData.subscription_type_id            
             ,objData.product_name
             ,null
@@ -397,6 +398,23 @@ productList.GetHistorySubScribeOrderByMemberID = async function(memberId, result
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND (user_id='"+memberId+"' )";    
     sqlStr += " ORDER BY canceled, subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetHistorySubScribeOrderNotApprove = async function(result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND (membership_order_history.approve_by is NULL || membership_order_history.approve_by ='') ";    
+    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
     
     
     let datas = await dbConn.raw(sqlStr);

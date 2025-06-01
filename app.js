@@ -54,7 +54,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 
 // Setup server port
-const port = process.env.PORT || 10500;
+const port = process.env.PORT || 10600;
 
 // create express app
 let app = express();

@@ -224,18 +224,18 @@ exports.getMemberEmail = async function(req, res) {
                 const userid = req.headers.userid;
                 const token = req.headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
-                //let IsAuth = true;
+                //let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
 
                 if (IsAuth) 
                 {
-                    const admin_id = userid;
-                    const page_name = req.body.page_name;
+                    // const admin_id = userid;
+                    // const page_name = req.body.page_name;
                                         
-                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+                    // let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
-                    let memberlistId = [];
-                    let tmpData = [];
+                    // let memberlistId = [];
+                    // let tmpData = [];
                     // if (adminPagePermission.canViewAll!=1) 
                     // {
                     //     // Get Only Relate Member
@@ -256,7 +256,7 @@ exports.getMemberEmail = async function(req, res) {
                     //     tmpData = await MemberList.findAll(req.body.searchWord);
                     // }
 
-                    tmpData = await MemberList.getMemberEmail(req.body.selected_id);
+                    let tmpData = await MemberList.getMemberEmail(req.body.selected_id);
                                         
                     res.status(200).json(
                         { 
@@ -298,6 +298,215 @@ exports.getMemberEmail = async function(req, res) {
     
 };
 
+exports.getEmailByLineSourceId = async function(req, res) {
+    console.log('getEmailByLineSourceId');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(200).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required field' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = req.headers.userid;
+                const token = req.headers.token;
+
+                //let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    // const admin_id = userid;
+                    // const page_name = req.body.page_name;
+                                        
+                    // let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    // let memberlistId = [];
+                    // let tmpData = [];
+                    // if (adminPagePermission.canViewAll!=1) 
+                    // {
+                    //     // Get Only Relate Member
+                    //     // Get Loan Id From Share Person
+                    //     const loanIdBySharePerson = await LoanList.getLoanBySharePersonId(admin_id);
+
+                    //     // Get Loan Id From Assign
+                    //     const loanIdByAssign = await LoanList.getLoanByAssignId(admin_id);
+
+                    //     // Get member_id from Loan Id
+                    //     memberlistId = await LoanList.getLoanByListId([...loanIdBySharePerson,...loanIdByAssign]);
+
+                    //     tmpData = await MemberList.findByListId(req.body.searchWord,memberlistId);
+                     
+                    // }
+                    // else
+                    // {
+                    //     tmpData = await MemberList.findAll(req.body.searchWord);
+                    // }
+
+                    let tmpData = await MemberList.getEmailByLineSourceId(req.body.line_source_id);
+                                        
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(200).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+    
+    
+
+    
+};
+
+exports.getLineProfileByLineSourceId = async function(req, res) {
+    console.log('getLineProfileByLineSourceId');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(200).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required field' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = req.headers.userid;
+                const token = req.headers.token;
+
+                //let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name;
+                                        
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    let memberlistId = [];
+                    let tmpData = [];
+                    // if (adminPagePermission.canViewAll!=1) 
+                    // {
+                    //     // Get Only Relate Member
+                    //     // Get Loan Id From Share Person
+                    //     const loanIdBySharePerson = await LoanList.getLoanBySharePersonId(admin_id);
+
+                    //     // Get Loan Id From Assign
+                    //     const loanIdByAssign = await LoanList.getLoanByAssignId(admin_id);
+
+                    //     // Get member_id from Loan Id
+                    //     memberlistId = await LoanList.getLoanByListId([...loanIdBySharePerson,...loanIdByAssign]);
+
+                    //     tmpData = await MemberList.findByListId(req.body.searchWord,memberlistId);
+                     
+                    // }
+                    // else
+                    // {
+                    //     tmpData = await MemberList.findAll(req.body.searchWord);
+                    // }
+
+                    tmpData = await MemberList.getLineProfileByLineSourceId(req.body.line_source_id);
+                                        
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(200).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+    
+    
+
+    
+};
 
 exports.getAllMemberEmail = async function(req, res) {
     console.log('getAllMemberEmail');
@@ -1638,7 +1847,7 @@ exports.registerMember = async function(req, res) {
                     const salt = await Cryptof.getSalt();                                
                     const hashPassword = await Cryptof.hashPassword(password,salt);
                     
-                    const prefix= "cb";
+                    const prefix= "mb";
                     let resultAPI = {};
                     let username = '';
                     let x = false;
@@ -1775,6 +1984,288 @@ exports.registerMember = async function(req, res) {
                             { 
                                 status: 'success', 
                                 message: '',
+                                auth : true,
+                            }
+                        );
+                        return;
+                    }
+                    else
+                    { 
+                        res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: "Can't Register Member "+ tmpData.message,
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(200).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+    
+
+    
+   
+};
+
+exports.registermemberWithEmail = async function(req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);    
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);        
+        if (ipBlockList.length>0)
+        {
+            res.status(200).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            console.log("registerMember")
+            //handles null error
+            // const headers = req.headers;
+
+            //handles null error
+            // if (headers.userid.length === 0 || headers.token.length === 0) 
+            if (false) 
+            {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+                return;
+            } 
+            else 
+            {
+                let cTime = new Date();
+                cTime = new Date(cTime.getTime() + (offsetTime));
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                // let IsAuth = MemberList.isAuthenicated(userid,token);
+                let IsAuth = true;
+                if (IsAuth) 
+                {
+                    let mobile_no = req.body.mobile_no?req.body.mobile_no:'';
+                    let password = req.body.password?req.body.password:'abcdefgh';
+                    let aff = req.body.aff?req.body.aff:null;
+                    let bank_acc_no = req.body.bank_acc_no?req.body.bank_acc_no:'';
+                    let bank_id = req.body.bank_id?req.body.bank_id:1;
+                    let knowus = req.body.knowus?req.body.knowus:'';
+                    let fullname = req.body.fullname?req.body.fullname:'';
+                    let email = req.body.line_id?req.body.email:'';
+
+                    let line_id = req.body.line_id?req.body.line_id:'';
+                    let line_displayurl = req.body.line_displayurl?req.body.line_displayurl:'https://static-00.iconduck.com/assets.00/user-icon-2048x2048-ihoxz4vq.png';
+                    
+                    if (line_id.length!=0) 
+                    {
+                        let checkLineAcc = await MainModel.query(`SELECT id FROM sl_users WHERE line_userid ='${line_id}' `);
+                        if (checkLineAcc.length>0) {
+                            res.status(200).json(
+                                { 
+                                    status: 'error', 
+                                    message: 'This line account is used register.',
+                                    auth : true,
+                                    data : [],
+                                }
+                                );
+                            return;
+                        }
+                    }
+
+                    let checkEmail = await MainModel.query(`SELECT id FROM user_email WHERE email='${email}' `);
+                    if (checkEmail.length>0) {  
+
+                        res.status(200).json(
+                            {
+                                status: 'error',
+                                message: 'This email is used register.',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                    const salt = await Cryptof.getSalt();                                                    
+                    const hashPassword = await Cryptof.hashPassword(password,salt.data);
+                    
+                    const prefix= "mb";
+                    let resultAPI = {};
+                    let username = '';
+                    let x = false;
+                    let round = 0;
+                    while (x===false && round < 5 ) {        
+                        username = await MemberList.generateMemberID(prefix,6);        
+                        if (!await MemberList.isDuplicateUsername(prefix+username)) 
+                        {   
+                            await MemberList.increaseRunningID();    
+                            x=true;                        
+                        }
+                        round++;
+                    }
+
+                    if (round>=5) 
+                    {
+                        res.status(200).json(
+                        { 
+                            status: 'error', 
+                            message: 'Cannot create new user.',
+                            auth : true,
+                            data : [],
+                        }
+                        );
+                        return;
+                    }
+
+                    username = prefix+username;
+
+                    let objData = {};
+                    
+                    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    let charactersLength =  characters.length;
+                    let randomString = '';
+                    
+                    for (let index = 0; index < 6; index++) {                        
+                        randomString += characters[Math.floor(Math.random() * (charactersLength - 1))];
+                    }                    
+
+                    let tmpBankInfo = await AdminBankList.getBankInfoByBankID(bank_id);
+                    let bank_name = tmpBankInfo.bank_name;
+                    
+                    objData["codefree"] = randomString+"-"+ mobile_no;
+
+                    console.log("codefree :"+ objData["codefree"]);
+                    console.log("new username :"+username);
+
+                    objData.id = username;
+                    objData.uid = '';
+                    objData.mobile_no = mobile_no;
+                    objData.password = hashPassword.data;
+                    objData.salt = salt.data;
+
+                    objData.lineid = '';
+                    objData.fullname = fullname;
+
+                    objData.bank_name = bank_name;
+                    objData.bank_id = bank_id;
+                    objData.bank_acc_no = bank_acc_no;
+
+                    objData.agent = "";
+                    objData.prefix = "";
+                    
+
+                    objData.turn =0;
+                    objData.bet =0;
+                    objData.credit =0;
+                    objData.credit_free =0;
+                    objData.credit_aff =0;
+                    objData.accept_promotion  =0 ;
+                    objData.last_check_aff = timerHelper.convertDatetimeToString(cTime);
+                    objData.create_at = timerHelper.convertDatetimeToString(cTime);
+                    objData.last_login = timerHelper.convertDatetimeToString(cTime);
+                    objData.aff = aff;
+
+                    objData.ticket_wheel  =0 ;
+                    objData.ticket_wheel_used  =0 ;
+                    objData.ticket_card  =0 ;
+                    objData.ticket_card_used  =0 ;
+                    objData.rank  = 999 ;
+                    objData.rank_note  ='' ;
+
+                    objData.game_login = null;
+                    objData.status = 1;
+                    objData.user_status = 'ยังไม่พร้อมใช้งาน';
+                    objData.knowus = knowus;
+
+                    objData.alias_id = '';
+                    objData.alias_credit = 0;
+                    objData.accept_promotion = 0;
+
+                    objData.line_userid = line_id;
+                    objData.line_displayurl = line_displayurl;
+                    
+                    console.log("MemberList.register");               
+                    console.log(objData);
+                    let tmpData = await MemberList.register(objData);
+
+                    if (tmpData) 
+                    {
+
+                        // Add email to user_email table
+                        let emailData = {
+                            user_id: username,
+                            email: email,                            
+                        };
+
+                        const datasEmail = MainModel.insert("user_email",emailData);                        
+
+                        const lineSetting = await AdminSetting.findById("line_token");
+                        if (lineSetting) {
+                            const token = JSON.parse(lineSetting.value);
+                            const line_token = token['Register'];
+                   
+                            let msgformat = "";
+                            msgformat += "═════════════\n";
+                            msgformat += "❄ สมัครสมาชิกใหม่ ❄\n";                            
+                            msgformat += "Username : " + username + "\n";
+                            msgformat += "ชื่อ : " + fullname + "\n";
+                            msgformat += "เบอร์มือถือ : " + mobile_no + "\n";                            
+                            msgformat += "ธนาคาร " + bank_name + " \n";
+                            msgformat += "เลขบัญชี " + bank_acc_no + "  \n";                            
+                            msgformat += "ip : " + ipAddress + "\n";
+                            msgformat += "วันที่ : " + timerHelper.convertDatetimeToString(cTime) + "\n";
+                            msgformat += "═════════════\n";
+
+                            let response = "";
+                            if (line_token) {
+                                response = await LineManage.sendNotify(line_token, msgformat);
+                            }
+                        }
+                        
+                        let userdata = await  MemberList.findById(username);
+                        NoticeManage.createAdmin(userdata, 'success', '', 'สมัครสมาชิกเรียบร้อยแล้ว' + timerHelper.convertDatetimeToString(cTime), '', 1);     
+                        
+                        
+                        // let newuserid = objData.id+'x1';
+                        // MainModel.update("sl_users",{alias_id:newuserid},{id:objData.id});                        
+
+                        // await AgentMain.reCreateUser(newuserid,objData.password);
+                        
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: 'สมัครสำเร็จ',
                                 auth : true,
                             }
                         );

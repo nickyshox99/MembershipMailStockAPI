@@ -490,8 +490,8 @@ exports.GetActiveProduct = async function(req, res) {
                 const userid = headers.userid?headers.userid:'';
                 const token = headers.token?headers.token:'';
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
-                // let IsAuth = true;
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
 
                 if (true) 
                 {
@@ -1259,6 +1259,87 @@ exports.GetHistorySubScribeOrderByMemberID = async function(req, res) {
     
 };
 
+exports.GetHistorySubScribeOrderNotApprove = async function(req, res) {
+    console.log('GetHistorySubScribeOrderNotApprove');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetHistorySubScribeOrderNotApprove();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
 exports.GetHistoryOrderByMemberID = async function(req, res) {
     console.log('GetHistoryOrderByMemberID');
 
@@ -1421,7 +1502,7 @@ exports.CreateSubScribeOrder = async function(req, res) {
                             res.status(200).json(
                                 { 
                                     status: 'success', 
-                                    message: '',
+                                    message: 'Order created successfully.',
                                     auth : true,                        
                                     data : [],
                                 }

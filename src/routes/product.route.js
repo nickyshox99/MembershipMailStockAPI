@@ -40,4 +40,6 @@ router.post('/CancelSubScribeOrder/', productController.CancelSubScribeOrder);
 
 router.post('/GetHistorySubScribeOrderByMemberID/', productController.GetHistorySubScribeOrderByMemberID);
 
+router.post('/GetHistorySubScribeOrderNotApprove/', productController.GetHistorySubScribeOrderNotApprove);
+
 module.exports = router

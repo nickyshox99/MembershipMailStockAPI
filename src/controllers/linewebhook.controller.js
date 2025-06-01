@@ -22,7 +22,7 @@ const MainModel = require("../models/main.model");
 
 const lineChatSetting = require('../models/linechatsetting.model');
 const LineChatAPI = require('./../modules/lineChatAPI');
-
+const oSecretkey = require("../../config/secret");
 
 
 function encodeToUTF8(str) {
@@ -525,6 +525,64 @@ module.exports = function(wsConnections) {
                   }                              
               }
           }  
+        }
+        else if (message_type==0 && msg)
+        {
+          let tmp_msg_detail = msg;
+          //tmp_msg_detail contain "สมัคร"          
+            if ( tmp_msg_detail.includes("สมัคร")) {
+              let replyMessage = oSecretkey.webDomain+ "/registeremail?sourceUserId="+sourceUserId;
+                lineChatAPI.replyMessage(                  
+                  reply_token,
+                  {
+                    type: 'text',
+                    text: "เปิดลิงค์นี้เพื่อทำการสมัคร "+replyMessage,
+                  }
+                );
+            }
+            else if(tmp_msg_detail.includes("ต่ออายุ")||tmp_msg_detail.includes("ซื้อ"))
+            {
+              //let replyMessage = oSecretkey.webDomain+ "/register?sourceUserId="+sourceUserId;
+              let userList = await MainModel.query(`SELECT * FROM sl_users WHERE line_sourceid ='${profileData['user_id']}' `);
+              if (userList.length>0) 
+              {
+                let userData = userList[0];
+                let replyMessage = oSecretkey.webDomain+ "/buyproduct?userId="+profileData['user_id'];
+                lineChatAPI.replyMessage(                  
+                  reply_token,
+                  {
+                    type: 'text',
+                    text: "เปิดลิงค์นี้เพื่อทำการซื้อ " +replyMessage,
+                  }
+                );
+              }
+              else
+              {
+                lineChatAPI.replyMessage(
+                  reply_token,
+                  {
+                    type: 'text',
+                    text: 'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม',
+                  }
+                );
+                
+              }
+            }
+            else if(tmp_msg_detail.includes("เช็ควัน"))
+            {
+
+            }
+            else if(tmp_msg_detail)
+            {
+              let replyMessage = 'พิมพ์คำสั่ง เช่น "สมัคร", "ต่ออายุ", "ซื้อ", "เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
+              lineChatAPI.replyMessage(
+                  reply_token,
+                  {
+                    type: 'text',
+                    text: replyMessage,
+                  }
+                );
+            }
         }
   
         delete msg_detail['keywords'];

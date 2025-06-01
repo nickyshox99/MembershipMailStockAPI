@@ -9,13 +9,19 @@ router.post('/create/', memberlistController.create);
 
 router.post('/registermember/', memberlistController.registerMember);
 
+router.post('/registermemberWithEmail/', memberlistController.registermemberWithEmail);
+
 router.post('/getmember/', memberlistController.getmember);
 
 router.post('/getMemberEmail/', memberlistController.getMemberEmail);
 
+router.post('/getLineProfileByLineSourceId/', memberlistController.getLineProfileByLineSourceId);
+
 router.post('/getAllMemberEmail/', memberlistController.getAllMemberEmail);
 
 router.post('/addMemberEmail/', memberlistController.addMemberEmail);
+
+router.post('/getEmailByLineSourceId/', memberlistController.getEmailByLineSourceId);
 
 router.post('/deleteMemberEmail/', memberlistController.deleteMemberEmail);
 
