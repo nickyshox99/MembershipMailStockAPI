@@ -5,8 +5,7 @@ const MemberList = require('../models/memberlist.model');
 const AdminBankList = require('../models/adminbanklist.model');
 const IpAllowList = require('../models/ipallowlist.model');
 const MainModel = require('../models/main.model');
-
-const productList = require('../models/productlist.model');
+const productList = require('../models/productList.model');
 
 const Secret = require('../../config/secret');
 
@@ -1340,6 +1339,331 @@ exports.GetHistorySubScribeOrderNotApprove = async function(req, res) {
     
 };
 
+exports.GetHistorySubScribeOrderWaitInvitation = async function(req, res) {
+    console.log('GetHistorySubScribeOrderWaitInvitation');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetHistorySubScribeOrderWaitInvitation();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.GetHistorySubScribeOrderWaitCheckPayment = async function(req, res) {
+    console.log('GetHistorySubScribeOrderWaitCheckPayment');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetHistorySubScribeOrderWaitCheckPayment();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
+    console.log('GetHistorySubScribeOrderCheckedPayment');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetHistorySubScribeOrderCheckedPayment();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.GetSubScribeOrderById = async function(req, res) {
+    console.log('GetSubScribeOrderById');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const {id,email}  = req.body;
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetSubScribeOrderById(id,email);
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
 exports.GetHistoryOrderByMemberID = async function(req, res) {
     console.log('GetHistoryOrderByMemberID');
 
@@ -1758,11 +2082,11 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
 
-                // const userid = headers.userid;
-                // const token = headers.token;
+                const userid = headers.userid;
+                const token = headers.token;
 
-                //let IsAuth = await AdminList.isAuthenicated(userid,token);
-                let IsAuth = true;
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
 
                 if (IsAuth) 
                 {
@@ -1855,6 +2179,553 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                             { 
                                 status: 'error', 
                                 message: 'Not found product please contact support team.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.SentFamliyInviteOrder = async function(req, res) {
+    console.log('SentFamliyInviteOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";                    
+                    let order_id = req.body.order_id;
+                    let note = req.body.note;
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                        
+                    let objData = {                            
+                        "id" : order_id ,
+                        "sent_email_by": admin ,
+                        "sent_email_at" : timerHelper.getDateTimeNowString(),      
+                        "note": note ,
+                    };
+                    
+                    let tmpData = await productList.SentFamliyInviteOrder(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Approve order failed.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.SkipFamliyInviteOrder = async function(req, res) {
+    console.log('SkipFamliyInviteOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let admin = req.body.username? req.body.username:"System";                    
+                    let order_id = req.body.order_id;
+                    let note = req.body.note;
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                        
+                    let objData = {                            
+                        "id" : order_id ,
+                        "sent_email_by": admin ,
+                        "sent_email_at" : timerHelper.getDateTimeNowString(),        
+                        "note": note ,
+                    };
+                    
+                    let tmpData = await productList.SkipFamliyInviteOrder(objData);
+                    if (tmpData) {
+
+                        //Sent Message for payment
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Approve order failed.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.PaymentOrderWithSlip = async function(req, res) {
+    console.log('PaymentOrderWithSlip');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {                
+                    let order_id = req.body.order_id??0;
+                    let slip_file_url = req.body.slip_file_url??'';
+
+                    if (order_id==0||slip_file_url=="") {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found slip or order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                        
+                    let objData = {                            
+                        "id" : order_id ,
+                        "slip_file_url": slip_file_url ,
+                        "slip_file_at" : timerHelper.getDateTimeNowString(),      
+                    };
+                    
+                    let tmpData = await productList.PaymentOrderWithSlip(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Payment order failed.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.VerifySlipOrder = async function(req, res) {
+    console.log('VerifySlipOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
+
+                if (IsAuth) 
+                {                
+                    let order_id = req.body.order_id??0;
+                    let slip_correct = req.body.slip_correct;
+
+                    if (!slip_correct ||order_id==0) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found slip or order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                        
+                    let objData = {                            
+                        "id" : order_id ,
+                        "slip_correct": slip_correct ,
+                        "check_slip_by" : userid,      
+                        "check_slip_at" : timerHelper.getDateTimeNowString(),      
+                    };
+                    
+                    let tmpData = await productList.VerifySlipOrder(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Payment order failed.',
                                 auth : false,
                                 data : [],
                             }

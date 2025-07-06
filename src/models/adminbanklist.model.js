@@ -196,35 +196,44 @@ AdminBankList.updateByID = async function(objData, result) {
         sqlStr += " where admin_bank.id="+rowid;
         // console.log(sqlStr);
         const dataByID = await dbConn.raw(sqlStr);    
-        // console.log(dataByID[0].meta_data);
-        let metadata = JSON.parse(dataByID[0].meta_data);
-
         let tmp_metadata = {
-
-            password : objData.pin,
-            bank_break_enable: objData.bank_break_enable==true?1:0,
-            deposit_decimal : objData.deposit_decimal==true?1:0,
-
-            username : metadata.username,
-            deviceid : metadata.deviceid,
-            api_refresh : metadata.api_refresh,
-            scb_app_token : metadata.scb_app_token,
-            url : metadata.url,
-            balance : metadata.balance,
-
-            kbizusername : metadata.kbizusername,
-            kbizpassword : metadata.kbizpassword,
-            
-            ktb_api_refresh:metadata.ktb_api_refresh?metadata.ktb_api_refresh:'',
-            ktb_device_id:metadata.ktb_device_id?metadata.ktb_device_id:'',
-            ktb_bearer:metadata.ktb_bearer?metadata.ktb_bearer:'',
-
-            update_time:metadata.update_time?metadata.update_time:'',
-            before_update_time:metadata.before_update_time?metadata.before_update_time:0,
-
-            bank_break_id:objData.bank_break_id?objData.bank_break_id:0,
-            bank_break_credit_check:objData.bank_break_credit_check?objData.bank_break_credit_check:0.00,        
+            deviceid:"",
+            api_refresh:"",
+            scb_app_token:"",
+            url:"",
+            kbizusername:"",
+            kbizpassword:"",
         };
+        
+        if (dataByID[0].meta_data && dataByID[0].meta_data!="") {
+            let metadata = JSON.parse(dataByID[0].meta_data);
+            tmp_metadata = {
+
+                password : objData.pin,
+                bank_break_enable: objData.bank_break_enable==true?1:0,
+                deposit_decimal : objData.deposit_decimal==true?1:0,
+
+                username : metadata.username,
+                deviceid : metadata.deviceid,
+                api_refresh : metadata.api_refresh,
+                scb_app_token : metadata.scb_app_token,
+                url : metadata.url,
+                balance : metadata.balance,
+
+                kbizusername : metadata.kbizusername,
+                kbizpassword : metadata.kbizpassword,
+                
+                ktb_api_refresh:metadata.ktb_api_refresh?metadata.ktb_api_refresh:'',
+                ktb_device_id:metadata.ktb_device_id?metadata.ktb_device_id:'',
+                ktb_bearer:metadata.ktb_bearer?metadata.ktb_bearer:'',
+
+                update_time:metadata.update_time?metadata.update_time:'',
+                before_update_time:metadata.before_update_time?metadata.before_update_time:0,
+
+                bank_break_id:objData.bank_break_id?objData.bank_break_id:0,
+                bank_break_credit_check:objData.bank_break_credit_check?objData.bank_break_credit_check:0.00,        
+            };
+        }
         
         tmp_metadata.deviceid = compareMeta(objData.deviceid,tmp_metadata.deviceid);
         tmp_metadata.api_refresh = compareMeta(objData.api_refresh,tmp_metadata.api_refresh);
@@ -248,7 +257,7 @@ AdminBankList.updateByID = async function(objData, result) {
         };
     
         // console.log(rowid);
-        // console.log(tmpData);
+        //console.log(tmpData);
 
         const datas = await dbConn.raw("UPDATE " +tableName+" SET "+ 
         "bank_id=?"

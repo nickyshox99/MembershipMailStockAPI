@@ -133,6 +133,85 @@ exports.getadminbank = async function(req, res) {
     
 };
 
+exports.getactiveadminbank = async function(req, res) {
+    console.log('getactiveadminbank');
+    try {          
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            // const headers = req.headers;
+
+            //handles null error
+            // if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (false) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                // let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    
+                    let tmpData = await AdminBankList.findAllActive(req.body.searchword);
+                    for (let index = 0; index < tmpData.length; index++) {
+                        delete tmpData[index].meta_data;
+                    }
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                        );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                }
+            
+            }
+        }
+
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+  
+    
+};
+
+
 exports.getadminbankbyid = async function(req, res) {
     console.log('getadminbankbyid');
     try {
@@ -249,7 +328,7 @@ exports.create = async function(req, res) {
                     // console.log(req.body);            
                     let tmpData = await AdminBankList.create(req.body);
     
-                    if (tmpData['affectedRows']) 
+                    if (tmpData) 
                     {
                         res.status(200).json(
                             { 
@@ -342,7 +421,7 @@ exports.updateadminbankbyid = async function(req, res) {
                     // console.log(req.body);            
                     let tmpData = await AdminBankList.updateByID(req.body);
     
-                    if (tmpData['affectedRows']) 
+                    if (tmpData) 
                     {
                         res.status(200).json(
                             { 

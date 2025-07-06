@@ -7,6 +7,8 @@ router.use(cors());
 
 router.post('/getadminbank/', adminbanklistController.getadminbank);
 
+router.post('/getactiveadminbank/', adminbanklistController.getactiveadminbank);
+
 router.post('/getbankinfo/', adminbanklistController.getbankinfo);
 
 router.post('/getbankbreakinfo/', adminbanklistController.getbankbreakinfo);

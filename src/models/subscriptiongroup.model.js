@@ -173,12 +173,18 @@ SubscriptionGroup.updateByID = async function(objData, result) {
         +"group_name=?"
         +",update_at=? "                
         +",update_by=? "
+        +",head_email=? "
+        +",password=? "
+        +",status=? "
         +",subscription_type_id=? "
         +"WHERE id = ? "
         , [
             objData.group_name
             ,objData.update_at            
             ,objData.update_by
+            ,objData.head_email
+            ,objData.password
+            ,objData.status
             ,objData.subscription_type_id
             ,rowid
         ]);   
@@ -248,6 +254,11 @@ SubscriptionGroup.addMemberToGroup = async function(objData, result) {
         
     
     try {
+
+        const datas2 = await dbConn.raw("DELETE FROM subscription_group_user WHERE email=? "
+        , [
+            objData.email
+        ]);
     
         const datas = await dbConn.raw("INSERT INTO  subscription_group_user ("+ 
         "subscription_group_id " 

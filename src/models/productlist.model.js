@@ -365,6 +365,122 @@ productList.approveOrderById = async function(objData, result) {
     
 };
 
+productList.SentFamliyInviteOrder = async function(objData, result) {   
+
+    const rowid = objData.id;    
+
+    try {
+        
+        const datas = await dbConn.raw("UPDATE membership_order_history SET "
+        +"sent_email_by=? "
+        +",sent_email_at=? "
+        +",note=? "
+        +",skip_invite=0 "
+        +" WHERE id = ? "
+        , [             
+            objData.sent_email_by  
+            ,objData.sent_email_at  
+            ,objData.note  
+            ,rowid
+            ]          
+        );
+        
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+    
+};
+
+productList.SkipFamliyInviteOrder = async function(objData, result) {   
+
+    const rowid = objData.id;    
+
+    try {
+        
+        const datas = await dbConn.raw("UPDATE membership_order_history SET "
+        +"sent_email_by=? "
+        +",sent_email_at=? "
+        +",note=? "
+        +",skip_invite=1 "
+        +" WHERE id = ? "
+        , [             
+            objData.sent_email_by  
+            ,objData.sent_email_at  
+            ,objData.note  
+            ,rowid
+            ]          
+        );
+        
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+    
+};
+
+productList.PaymentOrderWithSlip = async function(objData, result) {   
+
+    const rowid = objData.id;    
+
+    try {
+        
+        const datas = await dbConn.raw("UPDATE membership_order_history SET "
+        +"slip_file_url=? "
+        +",slip_file_at=? "
+        +",wait_check_payment=1 "
+        +",slip_correct=NULL "
+        +",check_slip_by='' "
+        +" WHERE id = ? "
+        , [             
+            objData.slip_file_url  
+            ,objData.slip_file_at  
+            ,rowid
+            ]          
+        );
+        
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+    
+};
+
+productList.VerifySlipOrder = async function(objData, result) {   
+
+    const rowid = objData.id;    
+
+    try {
+        
+        const datas = await dbConn.raw("UPDATE membership_order_history SET "
+        +"wait_check_payment=0 "
+        +",slip_correct=? "
+        +",check_slip_by=? "    
+        +",check_slip_at=? "    
+        +" WHERE id = ? "
+        , [             
+            objData.slip_correct  
+            ,objData.check_slip_by  
+            ,objData.check_slip_at
+            ,rowid
+            ]          
+        );
+        
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+    
+};
+
 productList.cancelOrderById = async function(objData, result) {   
 
     const rowid = objData.id;    
@@ -416,6 +532,89 @@ productList.GetHistorySubScribeOrderNotApprove = async function(result) {
     sqlStr += " AND (membership_order_history.approve_by is NULL || membership_order_history.approve_by ='') ";    
     sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
     
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetHistorySubScribeOrderWaitInvitation = async function(result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";   
+    sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";   
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND membership_order_history.canceled=0";
+    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";    
+    sqlStr += " AND (membership_order_history.sent_email_by is NULL OR membership_order_history.sent_email_by ='') ";    
+    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetHistorySubScribeOrderWaitCheckPayment = async function(result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";   
+    sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";   
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND membership_order_history.canceled=0";
+    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";    
+    sqlStr += " AND (membership_order_history.sent_email_by is not NULL AND membership_order_history.sent_email_by <>'') ";    
+    sqlStr += " AND (membership_order_history.wait_check_payment = 1 ) ";    
+    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetHistorySubScribeOrderCheckedPayment = async function(result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";   
+    sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";   
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND membership_order_history.canceled=0";
+    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";    
+    sqlStr += " AND (membership_order_history.sent_email_by is not NULL AND membership_order_history.sent_email_by <>'') ";    
+    sqlStr += " AND (membership_order_history.wait_check_payment = 0 ) ";    
+    sqlStr += " AND (membership_order_history.slip_correct is not NULL ) ";    
+    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetSubScribeOrderById = async function(id,email,result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";    
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += ` AND membership_order_history.id=${id} and membership_order_history.email='${email}'`;
+    sqlStr += " AND membership_order_history.canceled=0";
+    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";        
     
     let datas = await dbConn.raw(sqlStr);
 

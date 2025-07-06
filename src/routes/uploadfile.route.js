@@ -25,9 +25,13 @@ router.post('/uploadFile/', upload.single('file'), uploadFileController.uploadFi
 
 router.post('/uploadFileAndDeleteOldFile/', upload.single('file'), uploadFileController.uploadFileAndDeleteOldFile);
 
+router.post('/customerUploadFileAndDeleteOldFile/', upload.single('file'), uploadFileController.customerUploadFileAndDeleteOldFile);
+
 router.post('/uploadFileSlipAndCheck/', upload.single('file'), uploadFileController.uploadFileSlipAndCheck);
 
 router.post('/deleteFile/', uploadFileController.deleteFile);
+
+router.post('/customerDeleteFile/', uploadFileController.customerDeleteFile);
 
 router.post('/scanIDCardByURL/', uploadFileController.scanIDCardByURL);
 

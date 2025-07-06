@@ -38,8 +38,24 @@ router.post('/ApproveSubScribeOrder/', productController.ApproveSubScribeOrder);
 
 router.post('/CancelSubScribeOrder/', productController.CancelSubScribeOrder);
 
+router.post('/SentFamliyInviteOrder/', productController.SentFamliyInviteOrder);
+
+router.post('/SkipFamliyInviteOrder/', productController.SkipFamliyInviteOrder);
+
+router.post('/PaymentOrderWithSlip/', productController.PaymentOrderWithSlip);
+
+router.post('/VerifySlipOrder/', productController.VerifySlipOrder);
+
 router.post('/GetHistorySubScribeOrderByMemberID/', productController.GetHistorySubScribeOrderByMemberID);
 
 router.post('/GetHistorySubScribeOrderNotApprove/', productController.GetHistorySubScribeOrderNotApprove);
+
+router.post('/GetHistorySubScribeOrderWaitInvitation/', productController.GetHistorySubScribeOrderWaitInvitation);
+
+router.post('/GetHistorySubScribeOrderWaitCheckPayment/', productController.GetHistorySubScribeOrderWaitCheckPayment);
+
+router.post('/GetHistorySubScribeOrderCheckedPayment/', productController.GetHistorySubScribeOrderCheckedPayment);
+
+router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 
 module.exports = router
