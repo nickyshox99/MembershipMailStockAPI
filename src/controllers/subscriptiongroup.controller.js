@@ -803,8 +803,23 @@ exports.addMemberToGroup = async function(req, res) {
                         
                     }
 
+                    let tmpData3 = await SubscriptionGroup.findById(group_id);                    
+                    if (!tmpData3) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found this group.',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                        return;
+                    }
+
                     objData =
                     {
+                        subscription_type_id : tmpData3.subscription_type_id,
                         subscription_group_id : group_id,
                         user_id : user_id,
                         email : email,
@@ -1067,6 +1082,20 @@ exports.addMemberToGroupById = async function(req, res) {
                         return;
                     }
 
+                    let tmpData4 = await SubscriptionGroup.findById(group_id);                    
+                    if (!tmpData4) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found this group.',
+                                auth : false,
+                                data : [],
+                            }
+                            );
+                        return;
+                    }
+
                     let email = tmpData3[0].email;
                     let user_id = tmpData3[0].user_id;
 
@@ -1093,6 +1122,7 @@ exports.addMemberToGroupById = async function(req, res) {
 
                     objData =
                     {
+                        subscription_type_id : tmpData4.subscription_type_id,
                         subscription_group_id : group_id,
                         user_id : user_id,
                         email : email,

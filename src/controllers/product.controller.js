@@ -1582,6 +1582,87 @@ exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
     
 };
 
+exports.GetOrderNearExpire = async function(req, res) {
+    console.log('GetOrderNearExpire');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetOrderNearExpire();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
 exports.GetSubScribeOrderById = async function(req, res) {
     console.log('GetSubScribeOrderById');
 
@@ -2568,6 +2649,150 @@ exports.PaymentOrderWithSlip = async function(req, res) {
                     };
                     
                     let tmpData = await productList.PaymentOrderWithSlip(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            { 
+                                status: 'success', 
+                                message: '',
+                                auth : true,                        
+                                data : [],
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Payment order failed.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+                    
+                    
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                    return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
+exports.SentPaymentMessageOrder = async function(req, res) {
+    console.log('SentPaymentMessageOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                //let IsAuth = true;
+
+                if (IsAuth) 
+                {                
+                    let order_id = req.body.order_id??0;
+                    
+                    if (order_id==0) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found slip or order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_order = await productList.getOrderById(order_id);  
+                    if (row_order.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found order.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length<=0) 
+                    {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Not found user.',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                        
+                    let objData = {                                                                                                
+                        "offer_at" : timerHelper.getDateTimeNowString(), 
+                        "to_email" : row_order.email,
+                        "to_userid" : row_order.user_id,
+                        "subscription_type_id" : row_order.subscription_type_id,
+                        "offer_by" : userid,
+                    };
+                    
+                    let tmpData = await productList.SentPaymentMessageOrder(objData);
                     if (tmpData) {
                         res.status(200).json(
                             { 

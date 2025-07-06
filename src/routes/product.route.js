@@ -44,6 +44,8 @@ router.post('/SkipFamliyInviteOrder/', productController.SkipFamliyInviteOrder);
 
 router.post('/PaymentOrderWithSlip/', productController.PaymentOrderWithSlip);
 
+router.post('/SentPaymentMessageOrder/', productController.SentPaymentMessageOrder);
+
 router.post('/VerifySlipOrder/', productController.VerifySlipOrder);
 
 router.post('/GetHistorySubScribeOrderByMemberID/', productController.GetHistorySubScribeOrderByMemberID);
@@ -55,6 +57,8 @@ router.post('/GetHistorySubScribeOrderWaitInvitation/', productController.GetHis
 router.post('/GetHistorySubScribeOrderWaitCheckPayment/', productController.GetHistorySubScribeOrderWaitCheckPayment);
 
 router.post('/GetHistorySubScribeOrderCheckedPayment/', productController.GetHistorySubScribeOrderCheckedPayment);
+
+router.post('/GetOrderNearExpire/', productController.GetOrderNearExpire);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 

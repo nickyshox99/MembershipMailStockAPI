@@ -229,33 +229,6 @@ exports.getMemberEmail = async function(req, res) {
 
                 if (IsAuth) 
                 {
-                    // const admin_id = userid;
-                    // const page_name = req.body.page_name;
-                                        
-                    // let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
-
-                    // let memberlistId = [];
-                    // let tmpData = [];
-                    // if (adminPagePermission.canViewAll!=1) 
-                    // {
-                    //     // Get Only Relate Member
-                    //     // Get Loan Id From Share Person
-                    //     const loanIdBySharePerson = await LoanList.getLoanBySharePersonId(admin_id);
-
-                    //     // Get Loan Id From Assign
-                    //     const loanIdByAssign = await LoanList.getLoanByAssignId(admin_id);
-
-                    //     // Get member_id from Loan Id
-                    //     memberlistId = await LoanList.getLoanByListId([...loanIdBySharePerson,...loanIdByAssign]);
-
-                    //     tmpData = await MemberList.findByListId(req.body.searchWord,memberlistId);
-                     
-                    // }
-                    // else
-                    // {
-                    //     tmpData = await MemberList.findAll(req.body.searchWord);
-                    // }
-
                     let tmpData = await MemberList.getMemberEmail(req.body.selected_id);
                                         
                     res.status(200).json(

@@ -61,10 +61,10 @@ SubscriptionGroup.findById = async function(id, result) {
         let sqlStr = "Select "+tableName+".*, "+tableName+".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";        
         sqlStr += " FROM "+tableName;        
         sqlStr += " LEFT JOIN subscription_type ON "+tableName+".subscription_type_id = subscription_type.id ";
-        sqlStr += " where 1=1 AND (id = "+id+") ";        
+        sqlStr += " where 1=1 AND ("+tableName+".id = "+id+") ";        
         
         const datas = await dbConn.raw(sqlStr);    
-        return datas[0];
+        return datas[0][0];
     } catch (error) {
         console.log(error);
         return [];
@@ -108,8 +108,8 @@ SubscriptionGroup.getSubscribePaymentById = async function(group_id, result) {
 SubscriptionGroup.getGroupOfMemberByMemberId = async function(user_id, result) {   
 
     try {
-        let sqlStr = "Select subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";        
-        sqlStr += " FROM "+tableName;  
+        let sqlStr = "Select group_name, subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";        
+        sqlStr += " FROM "+tableName;          
         sqlStr += " INNER JOIN subscription_type ON "+tableName+".subscription_type_id = subscription_type.id ";              
         sqlStr += " INNER JOIN subscription_group_user ON "+tableName+".id = subscription_group_user.subscription_group_id ";
         sqlStr += " where 1=1 AND (subscription_group_user.user_id = '"+user_id+"') ";        
@@ -252,12 +252,18 @@ SubscriptionGroup.checkDuplicateMember = async function(objData, result) {
 
 SubscriptionGroup.addMemberToGroup = async function(objData, result) {   
         
-    
+    console.log(objData);
     try {
 
-        const datas2 = await dbConn.raw("DELETE FROM subscription_group_user WHERE email=? "
+        const datas2 = await dbConn.raw(`
+            DELETE FROM subscription_group_user WHERE subscription_group_user.email=? 
+            and subscription_group_user.subscription_group_id IN (
+            SELECT subscription_group.id FROM subscription_group
+            WHERE subscription_group.subscription_type_id=?
+            ) `
         , [
-            objData.email
+            objData.email,
+            objData.subscription_type_id,
         ]);
     
         const datas = await dbConn.raw("INSERT INTO  subscription_group_user ("+ 
