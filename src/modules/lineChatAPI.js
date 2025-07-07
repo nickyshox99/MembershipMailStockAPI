@@ -21,6 +21,7 @@ class LineChatAPI {
     }
 
     async getBotProfile() {
+        // console.log("getBotProfile ");
         try {
         let headers = {
             "Content-Type": "application/json",
@@ -41,6 +42,7 @@ class LineChatAPI {
     }
 
     async getProfile(userId) {
+        // console.log("getProfile :",userId);
             try {
             let headers = {
                 "Content-Type": "application/json",
@@ -81,6 +83,8 @@ class LineChatAPI {
     }
 
     async pushMessage(toUser,message) {
+
+        // console.log("pushMessage");
         try {
 
             let body = {
@@ -112,6 +116,7 @@ class LineChatAPI {
     }
 
     async replyMessage(replyToken,message) {
+        // console.log("replyMessage : ",replyToken,message);
         try {
 
             let body = {
@@ -128,6 +133,8 @@ class LineChatAPI {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${this.channelToken}`,
             };
+
+            // console.log(headers);
             
             const url = `${this.api}bot/message/reply`;
         
@@ -136,7 +143,7 @@ class LineChatAPI {
             });
     
             return res.data;
-        } catch (error) {          
+        } catch (error) {                      
             console.log(error.message);
             return {error: error.message};
         }

@@ -639,6 +639,29 @@ productList.GetHistorySubScribeOrderCheckedPayment = async function(result) {
     return datas[0];
 };
 
+productList.GetHistorySubScribeOrderAll = async function(result) {   
+
+    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";   
+    sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";   
+    sqlStr += " FROM membership_order_history ";        
+    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " WHERE 1=1 ";
+    sqlStr += " AND membership_order_history.canceled=0";
+    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";    
+    sqlStr += " AND (membership_order_history.sent_email_by is not NULL AND membership_order_history.sent_email_by <>'') ";    
+    sqlStr += " AND (membership_order_history.wait_check_payment = 0 ) ";    
+    sqlStr += " AND (membership_order_history.slip_correct is not NULL ) ";    
+    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
 productList.GetOrderNearExpire = async function(result) {   
 
     let sqlStr = `
@@ -674,6 +697,7 @@ productList.GetOrderNearExpire = async function(result) {
         LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
         WHERE moh.slip_correct = 1
         AND DATEDIFF(latest.max_end_date,CURDATE())<7
+        AND DATEDIFF(latest.max_end_date,CURDATE())>0
         AND moh.canceled<>1
         ORDER BY days_left ASC;
     `;
@@ -686,7 +710,87 @@ productList.GetOrderNearExpire = async function(result) {
     return datas[0];
 };
 
+productList.GetOrderExpired = async function(result) {   
 
+    let sqlStr = `
+    SELECT 
+        moh.*, 
+        st.subscription_name, 
+        st.subscription_img,
+        DATEDIFF(latest.max_end_date,CURDATE()) AS days_left,
+        offerlatest.max_offer_at as latest_offer_message_at,
+        offerlatest.offer_by
+        FROM membership_order_history moh 
+        INNER JOIN (
+            SELECT 
+                email, 
+                MAX(end_date) AS max_end_date,
+                subscription_type_id
+            FROM membership_order_history
+            WHERE slip_correct=1
+            GROUP BY email, subscription_type_id
+        ) latest 
+        ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date
+        LEFT JOIN ( 
+            SELECT 
+                to_email, 
+                MAX(offer_at) AS max_offer_at,
+                subscription_type_id,
+                offer_by
+            FROM offer_message
+            GROUP BY to_email,subscription_type_id
+        ) offerlatest ON moh.email = offerlatest.to_email AND moh.subscription_type_id = offerlatest.subscription_type_id
+        LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+        WHERE moh.slip_correct = 1
+        AND DATEDIFF(latest.max_end_date,CURDATE())<=0
+        AND moh.canceled<>1
+        ORDER BY days_left ASC;
+    `;
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
+productList.GetDayExpireByUserId = async function(userid,result) {   
+
+    let sqlStr = `
+    SELECT 
+		DATEDIFF(latest.max_end_date,CURDATE()) AS days_left,
+        moh.*, 
+        st.subscription_name, 
+        st.subscription_img      
+        FROM membership_order_history moh 
+        INNER JOIN (
+            SELECT 
+                email, 
+                MAX(end_date) AS max_end_date,
+                subscription_type_id
+            FROM membership_order_history
+            WHERE slip_correct=1
+            GROUP BY email, subscription_type_id
+        ) latest 
+        ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date        
+        LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+        WHERE moh.slip_correct = 1        
+        AND moh.user_id='${userid}' 
+        AND moh.canceled<>1
+        ORDER BY days_left ASC;
+    `;
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
 
 productList.GetSubScribeOrderById = async function(id,email,result) {   
 

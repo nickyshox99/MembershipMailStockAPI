@@ -105,15 +105,27 @@ MemberList.getEmailByLineSourceId = async function(line_source_id, result) {
     return datas[0];
 };
 
+MemberList.getUserByLineSourceId = async function(line_source_id, result) {   
+    
+    let sqlStr = "Select sl_users.* ";            
+    sqlStr += " FROM sl_users ";    
+    sqlStr += " where 1=1 AND sl_users.line_userid='"+ line_source_id+"'";
+
+    const datas = await dbConn.raw(sqlStr);
+    //console.log(datas);
+    return datas[0];
+};
+
 MemberList.getLineProfileByLineSourceId = async function(line_source_id, result) {   
     
     let sqlStr = "Select line_contact.*,sl_users.id as userid ";            
     sqlStr += " FROM line_contact ";    
-    sqlStr += " INNER JOIN sl_users ON sl_users.line_userid = line_contact.user_id ";
-    sqlStr += " where 1=1 AND user_id='"+ line_source_id+"'";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.line_userid = line_contact.user_id ";
+    sqlStr += " where 1=1 AND line_contact.user_id='"+ line_source_id+"'";
     
     const datas = await dbConn.raw(sqlStr);
     // console.log(datas);
+    //console.log(sqlStr);
     return datas[0];
 };
 

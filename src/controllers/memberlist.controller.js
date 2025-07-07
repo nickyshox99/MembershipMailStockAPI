@@ -395,10 +395,8 @@ exports.getLineProfileByLineSourceId = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
-                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
-            } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
-                res.status(400).send({ status: 'error', message: 'Please provide all required field' });
+            if (false) {
+            
             } else {
 
                 // console.log(req.body.userid);
@@ -412,34 +410,8 @@ exports.getLineProfileByLineSourceId = async function(req, res) {
 
                 if (IsAuth) 
                 {
-                    const admin_id = userid;
-                    const page_name = req.body.page_name;
-                                        
-                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
-
-                    let memberlistId = [];
-                    let tmpData = [];
-                    // if (adminPagePermission.canViewAll!=1) 
-                    // {
-                    //     // Get Only Relate Member
-                    //     // Get Loan Id From Share Person
-                    //     const loanIdBySharePerson = await LoanList.getLoanBySharePersonId(admin_id);
-
-                    //     // Get Loan Id From Assign
-                    //     const loanIdByAssign = await LoanList.getLoanByAssignId(admin_id);
-
-                    //     // Get member_id from Loan Id
-                    //     memberlistId = await LoanList.getLoanByListId([...loanIdBySharePerson,...loanIdByAssign]);
-
-                    //     tmpData = await MemberList.findByListId(req.body.searchWord,memberlistId);
-                     
-                    // }
-                    // else
-                    // {
-                    //     tmpData = await MemberList.findAll(req.body.searchWord);
-                    // }
-
-                    tmpData = await MemberList.getLineProfileByLineSourceId(req.body.line_source_id);
+                    
+                    const tmpData = await MemberList.getLineProfileByLineSourceId(req.body.line_source_id);
                                         
                     res.status(200).json(
                         { 
@@ -2053,28 +2025,12 @@ exports.registermemberWithEmail = async function(req, res) {
                     let bank_acc_no = req.body.bank_acc_no?req.body.bank_acc_no:'';
                     let bank_id = req.body.bank_id?req.body.bank_id:1;
                     let knowus = req.body.knowus?req.body.knowus:'';
-                    let fullname = req.body.fullname?req.body.fullname:'';
+                    let fullname = req.body.display_name?req.body.display_name:'';
                     let email = req.body.line_id?req.body.email:'';
 
                     let line_id = req.body.line_id?req.body.line_id:'';
                     let line_displayurl = req.body.line_displayurl?req.body.line_displayurl:'https://static-00.iconduck.com/assets.00/user-icon-2048x2048-ihoxz4vq.png';
                     
-                    if (line_id.length!=0) 
-                    {
-                        let checkLineAcc = await MainModel.query(`SELECT id FROM sl_users WHERE line_userid ='${line_id}' `);
-                        if (checkLineAcc.length>0) {
-                            res.status(200).json(
-                                { 
-                                    status: 'error', 
-                                    message: 'This line account is used register.',
-                                    auth : true,
-                                    data : [],
-                                }
-                                );
-                            return;
-                        }
-                    }
-
                     let checkEmail = await MainModel.query(`SELECT id FROM user_email WHERE email='${email}' `);
                     if (checkEmail.length>0) {  
 
@@ -2088,7 +2044,30 @@ exports.registermemberWithEmail = async function(req, res) {
                         );
                         return;
                     }
-                    
+
+                    if (line_id.length!=0) 
+                    {
+                        let checkLineAcc = await MemberList.getUserByLineSourceId(line_id);
+                        if (checkLineAcc.length>0) {
+
+                            // Add email to user_email table
+                            let emailData = {
+                                user_id: checkLineAcc[0]['id'],
+                                email: email,                            
+                            };
+                            const datasEmail = MainModel.insert("user_email",emailData);  
+
+                            res.status(200).json(
+                                { 
+                                    status: 'success', 
+                                    message: 'สมัครสำเร็จ',
+                                    auth : true,
+                                    data : [],
+                                }
+                            );
+                            return;
+                        }
+                    }
                     
                     const salt = await Cryptof.getSalt();                                                    
                     const hashPassword = await Cryptof.hashPassword(password,salt.data);
@@ -2226,7 +2205,7 @@ exports.registermemberWithEmail = async function(req, res) {
                             }
                         }
                         
-                        let userdata = await  MemberList.findById(username);
+                        let userdata = await MemberList.findById(username);
                         NoticeManage.createAdmin(userdata, 'success', '', 'สมัครสมาชิกเรียบร้อยแล้ว' + timerHelper.convertDatetimeToString(cTime), '', 1);     
                         
                         

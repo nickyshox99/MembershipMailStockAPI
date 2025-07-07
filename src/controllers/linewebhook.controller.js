@@ -1,7 +1,6 @@
 "use strict";
 const { json } = require("body-parser");
 const jwt = require("jsonwebtoken");
-const Secret = require("../../config/secret");
 const Cryptof = require("../models/cryptof.model");
 const IpAllowList = require('../models/ipallowlist.model');
 
@@ -23,6 +22,8 @@ const MainModel = require("../models/main.model");
 const lineChatSetting = require('../models/linechatsetting.model');
 const LineChatAPI = require('./../modules/lineChatAPI');
 const oSecretkey = require("../../config/secret");
+const MemberList = require("../models/memberlist.model");
+const ProductList = require("../models/productlist.model");
 
 
 function encodeToUTF8(str) {
@@ -163,6 +164,7 @@ module.exports = function(wsConnections) {
       else
       {
         tmpChatSetting =  await MainModel.queryFirstRow(`SELECT * FROM line_setting WHERE pair_key='${pairKey}'`);
+        
         if (tmpChatSetting.length==0) 
         {
           console.log("Invalid Pair Key");
@@ -223,7 +225,8 @@ module.exports = function(wsConnections) {
             tmpChatSetting['basic_id'] = profile.basicId?profile.basicId:"";
             tmpChatSetting['picture_url'] = profile.pictureUrl?profile.pictureUrl:"";                        
             tmpChatSetting['last_login'] = cTime;
-            tmpChatSetting['note'] = "";            
+            tmpChatSetting['note'] = "";           
+             
   
             // if (isUnicodeString(profileData['display_name'])) 
             //   {
@@ -231,7 +234,7 @@ module.exports = function(wsConnections) {
             //   }
             
             tmpChatSetting = await lineChatSetting.updateByID(tmpChatSetting);
-            if(tmpChatSetting['affectedRows'])
+            if(tmpChatSetting)
             {
                 res.status(202).json(
                   { 
@@ -531,56 +534,71 @@ module.exports = function(wsConnections) {
           let tmp_msg_detail = msg;
           //tmp_msg_detail contain "สมัคร"          
             if ( tmp_msg_detail.includes("สมัคร")) {
-              let replyMessage = oSecretkey.webDomain+ "/registeremail?sourceUserId="+sourceUserId;
+              let replyMessage = oSecretkey.webDomain+ "registeremail?sourceUserId="+sourceUserId;
                 lineChatAPI.replyMessage(                  
                   reply_token,
-                  {
-                    type: 'text',
-                    text: "เปิดลิงค์นี้เพื่อทำการสมัคร "+replyMessage,
-                  }
+                  "เปิดลิงค์นี้เพื่อทำการสมัคร "+replyMessage
                 );
             }
             else if(tmp_msg_detail.includes("ต่ออายุ")||tmp_msg_detail.includes("ซื้อ"))
             {
               //let replyMessage = oSecretkey.webDomain+ "/register?sourceUserId="+sourceUserId;
-              let userList = await MainModel.query(`SELECT * FROM sl_users WHERE line_sourceid ='${profileData['user_id']}' `);
+              let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
               if (userList.length>0) 
               {
                 let userData = userList[0];
-                let replyMessage = oSecretkey.webDomain+ "/buyproduct?userId="+profileData['user_id'];
+                let replyMessage = oSecretkey.webDomain+ "buyproduct?userId="+profileData['user_id'];
                 lineChatAPI.replyMessage(                  
                   reply_token,
-                  {
-                    type: 'text',
-                    text: "เปิดลิงค์นี้เพื่อทำการซื้อ " +replyMessage,
-                  }
+                  "เปิดลิงค์นี้เพื่อทำการซื้อ " +replyMessage,
                 );
               }
               else
               {
                 lineChatAPI.replyMessage(
                   reply_token,
-                  {
-                    type: 'text',
-                    text: 'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม',
-                  }
+                  'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม'
                 );
                 
               }
             }
             else if(tmp_msg_detail.includes("เช็ควัน"))
             {
-
+                let replyMessage="ไม่มีข้อมูล";
+                let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
+                if (userList.length>0) 
+                {
+                    let products = await ProductList.GetDayExpireByUserId(userList[0].id);
+                    if (products.length>0) {
+                        replyMessage = "";
+                        for (let index = 0; index < products.length; index++) {
+                          const element = products[index];
+                          const dayLeft = element['days_left']<0?" หมดอายุ ":" เหลือ "+ element['days_left']+" วัน";
+                          replyMessage +=  element['email'] + " หมดอายุวันที่ "+ element['end_date']  + element['subscription_name']+ dayLeft+ "\n";
+                        }
+                      
+                    }
+                   
+                  lineChatAPI.replyMessage(
+                          reply_token,
+                          replyMessage
+                        );
+                }
+                else
+                {
+                  lineChatAPI.replyMessage(
+                    reply_token,
+                    'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม'
+                  );
+                  
+                }
             }
             else if(tmp_msg_detail)
             {
               let replyMessage = 'พิมพ์คำสั่ง เช่น "สมัคร", "ต่ออายุ", "ซื้อ", "เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
               lineChatAPI.replyMessage(
                   reply_token,
-                  {
-                    type: 'text',
-                    text: replyMessage,
-                  }
+                  replyMessage
                 );
             }
         }

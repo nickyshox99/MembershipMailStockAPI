@@ -8,7 +8,7 @@ const AdminList = require('../models/adminlist.model');
 const IpAllowList = require('../models/ipallowlist.model');
 const ScanIdCard = require('../models/scanidcard.model');
 const MainModel = require('../models/main.model');
-const productList = require('../models/productList.model');
+const productList = require('../models/productlist.model');
 
 const timerHelper = require('../modules/timehelper');
 const fs = require('fs');

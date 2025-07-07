@@ -80,11 +80,47 @@ lineChatSetting.findByID = async function(id, result) {
     
 };
 
+lineChatSetting.findByBotUserId = async function(id, result) {   
+    try {
+        let sqlStr = "Select *  ";        
+        sqlStr += " FROM "+tableName;        
+        sqlStr += " where 1=1 AND (user_id = '"+id+"') ";
+        
+        
+        const datas = await dbConn.raw(sqlStr);    
+        dbConn.end;
+        return datas[0][0]?datas[0][0]:[];
+    } catch (error) {
+        console.log(error);
+        return {errorMessage : error.message};
+        
+    }
+    
+};
+
 lineChatSetting.getContact = async function(bot_user_id, result) {
     try {   
         let sqlStr = "Select *  ";        
         sqlStr += " FROM line_contact ";
         sqlStr += " where 1=1 AND (bot_user_id = '"+bot_user_id+"') ";
+        
+        let datas = await dbConn.raw(sqlStr);
+        
+        return datas[0];
+    } catch (error) {
+        console.log(error);
+        return {errorMessage : error.message};
+        
+    }
+};
+
+lineChatSetting.getContactByUserId = async function(user_id, result) {
+    try {   
+        let sqlStr = "Select *  ";        
+        sqlStr += " FROM line_contact ";
+        sqlStr += " where 1=1 AND (user_id = '"+user_id+"') ";
+
+        
         
         let datas = await dbConn.raw(sqlStr);
         
@@ -359,7 +395,7 @@ lineChatSetting.updateByID = async function(objData, result) {
         +",status=? "       
         +"WHERE "+tableKey+" = ?"
         , [     
-            ,objData.channel_token?objData.channel_token:'' 
+            objData.channel_token?objData.channel_token:'' 
             ,objData.bot_name?objData.bot_name:''
             ,objData.line_url?objData.line_url:''
             ,objData.display_name?objData.display_name:''

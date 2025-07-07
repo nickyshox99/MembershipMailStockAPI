@@ -30,7 +30,7 @@ NoticeManage.createAdmin = async function(userData,icon,title,text,meta_data,sta
         // console.log(rowid);
         //console.log(tmpData);
         const datas = await dbConn.raw("INSERT INTO notice_admin ("+ 
-        ",username "
+        "username "
         +",mobile_no "
         +",icon "
         +",title "
@@ -78,7 +78,7 @@ NoticeManage.createMember = async function(userData,icon,title,text,meta_data,st
         // console.log(rowid);
         // console.log(tmpData);
         const datas = await dbConn.raw("INSERT INTO notice_user ("+ 
-        ",username "
+        "username "
         +",mobile_no "
         +",icon "
         +",title "

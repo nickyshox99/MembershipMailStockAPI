@@ -5,9 +5,12 @@ const MemberList = require('../models/memberlist.model');
 const AdminBankList = require('../models/adminbanklist.model');
 const IpAllowList = require('../models/ipallowlist.model');
 const MainModel = require('../models/main.model');
-const productList = require('../models/productList.model');
+const productList = require('../models/productlist.model');
+const lineChatSetting = require('../models/linechatsetting.model');
+const LineChatAPI = require('./../modules/lineChatAPI');
 
-const Secret = require('../../config/secret');
+const oSecretkey = require('../../config/secret');
+
 
 // const bcrypt = require('bcrypt');
 // const saltRounds = 60;
@@ -1582,6 +1585,87 @@ exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
     
 };
 
+exports.GetHistorySubScribeOrderAll = async function(req, res) {
+    console.log('GetHistorySubScribeOrderAll');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetHistorySubScribeOrderAll();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
 exports.GetOrderNearExpire = async function(req, res) {
     console.log('GetOrderNearExpire');
 
@@ -1618,6 +1702,87 @@ exports.GetOrderNearExpire = async function(req, res) {
                 if (IsAuth) 
                 {
                     let tmpData = await productList.GetOrderNearExpire();
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,                        
+                            data : tmpData,
+                        }
+                    );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+    
+
+    
+};
+
+exports.GetOrderExpired = async function(req, res) {
+    console.log('GetOrderExpired');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+        
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+            return;
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                // let IsAuth = true;
+
+                if (IsAuth) 
+                {
+                    let tmpData = await productList.GetOrderExpired();
                     
                     res.status(200).json(
                         { 
@@ -1827,7 +1992,6 @@ exports.GetHistoryOrderByMemberID = async function(req, res) {
 
     
 };
-
 
 exports.CreateSubScribeOrder = async function(req, res) {
     console.log('CreateSubScribeOrder');
@@ -2741,6 +2905,7 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                 if (IsAuth) 
                 {                
                     let order_id = req.body.order_id??0;
+                    let days_left = req.body.days_left??0;
                     
                     if (order_id==0) {
                         res.status(202).json(
@@ -2782,7 +2947,60 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                         return;
                     }
 
+                    let sourceUserId = row_user["line_userid"];
+                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
 
+                    if (tmpChatSetting['status']!=1) 
+                    {
+                        res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'This line is not active',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                    }
+
+                    let channelToken ="";
+                    channelToken = tmpChatSetting['channel_token'];
+                    
+                    const lineChatAPI = new LineChatAPI();
+                    lineChatAPI.setToken(channelToken);
+
+                    let msg ="";
+
+
+                    if (days_left<=0) 
+                    {
+                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ได้หมดอายุแล้ว\n";
+                        msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
+                    }
+                    else
+                    {
+                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " เหลือ "+ days_left +"วัน\n";
+                        msg += "ท่านสามารถเพิ่มวันโดยกดซื้อได้ตามลิงค์นี้ \n";
+                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
+                    }
+
+                    console.log(msg);
+
+                    const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+                    if (tmpSend['error']) 
+                    {
+                        res.status(200).json(
+                            { 
+                            status: 'success', 
+                            message: tmpSend['error'],
+                            auth : true,                          
+                            data : tmpReturnData,
+                            }
+                        );
+                        return;
+                    }
                         
                     let objData = {                                                                                                
                         "offer_at" : timerHelper.getDateTimeNowString(), 

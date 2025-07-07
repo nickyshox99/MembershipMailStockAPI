@@ -58,7 +58,11 @@ router.post('/GetHistorySubScribeOrderWaitCheckPayment/', productController.GetH
 
 router.post('/GetHistorySubScribeOrderCheckedPayment/', productController.GetHistorySubScribeOrderCheckedPayment);
 
+router.post('/GetHistorySubScribeOrderAll/', productController.GetHistorySubScribeOrderAll);
+
 router.post('/GetOrderNearExpire/', productController.GetOrderNearExpire);
+
+router.post('/GetOrderExpired/', productController.GetOrderExpired);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 
