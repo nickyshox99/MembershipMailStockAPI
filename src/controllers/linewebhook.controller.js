@@ -547,7 +547,7 @@ module.exports = function(wsConnections) {
               if (userList.length>0) 
               {
                 let userData = userList[0];
-                let replyMessage = oSecretkey.webDomain+ "buyproduct?userId="+profileData['user_id'];
+                let replyMessage = oSecretkey.webDomain+ "buyproduct?sourceUserId="+profileData['user_id'];
                 lineChatAPI.replyMessage(                  
                   reply_token,
                   "เปิดลิงค์นี้เพื่อทำการซื้อ " +replyMessage,

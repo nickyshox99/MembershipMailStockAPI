@@ -2681,6 +2681,44 @@ exports.SkipFamliyInviteOrder = async function(req, res) {
                                 data : [],
                             }
                         );
+
+                        let sourceUserId = row_user["line_userid"];
+                        let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                        let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+                        if (tmpChatSetting['status']!=1) 
+                        {
+                            return;
+                        }
+
+                        let channelToken ="";
+                        channelToken = tmpChatSetting['channel_token'];
+                        
+                        const lineChatAPI = new LineChatAPI();
+                        lineChatAPI.setToken(channelToken);
+
+                        let msg ="";
+                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " รอการชำระเงิน\n";
+                        msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
+                        msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+
+                        
+
+                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+                        if (tmpSend['error']) 
+                        {
+                            res.status(200).json(
+                                { 
+                                status: 'success', 
+                                message: tmpSend['error'],
+                                auth : true,                          
+                                data : tmpReturnData,
+                                }
+                            );
+                            return;
+                        }
+
+
                     }
                     else
                     {
@@ -2985,8 +3023,6 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                         msg += "ท่านสามารถเพิ่มวันโดยกดซื้อได้ตามลิงค์นี้ \n";
                         msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
                     }
-
-                    console.log(msg);
 
                     const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
                     if (tmpSend['error']) 

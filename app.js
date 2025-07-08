@@ -49,9 +49,12 @@ const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
 
 const lineRoutes = require('./src/routes/line.route');
+const LineChatAPI = require('./src/modules/lineChatAPI');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
+
+const oSecretkey = require('./config/secret');
 
 // Setup server port
 const port = process.env.PORT || 10600;
@@ -159,6 +162,9 @@ var curDate = new Date();
 const LineLog = require('./src/modules/linelog');
 const lineLog = new LineLog();
 
+const imaps = require("imap-simple");
+const { simpleParser } = require("mailparser");
+
 //Run Line Log
 // cron.schedule('0 * * * *', async () => {
 //  //cron.schedule('* * * * *', async () => {
@@ -171,6 +177,244 @@ const lineLog = new LineLog();
 //         console.log(error);
 //     }    
 // });
+
+cron.schedule('*/10 * * * *', async () => {
+    console.log("Read Email ", new Date().toISOString())
+    try{
+        const lineChatAPI = new LineChatAPI();
+
+        let msg ="";
+
+        let emailHead = await MainModel.query(`SELECT * FROM subscription_group WHERE status=1 AND head_email<>'' AND password<>'' `);
+        for (let index = 0; index < emailHead.length; index++) {
+            const element = emailHead[index];
+
+            const config = {
+                imap: {
+                    //user: "enemybehindbehind@gmail.com",
+                    //password: "fgby kpwo fuoc okob", //สร้างจาก https://myaccount.google.com/apppasswords
+                    user: element['head_email'],
+                    password: element['password'],    
+                    host: "imap.gmail.com",
+                    port: 993,
+                    tls: true,
+                    authTimeout: 3000,
+                    tlsOptions: { rejectUnauthorized: false },
+                },
+            };
+
+            let connection;
+
+            imaps
+                .connect(config)
+                .then((conn) => {
+                    connection = conn;
+                    return connection.openBox("INBOX");
+                })
+                .then(async () => {
+                    const searchCriteria = ["UNSEEN", ["SINCE", "01-Jun-2025"]];
+                    const fetchOptions = {
+                    bodies: [""], // 👈 raw email
+                    markSeen: true,
+                    };
+
+                    const messages = await connection.search(searchCriteria, fetchOptions);
+                    console.log(`📬 Found ${messages.length} unread messages`);
+
+                    for (const message of messages) {
+                        const all = message.parts.find((part) => part.which === "");
+                        if (!all?.body) {
+                            console.log("⚠️ ไม่มีเนื้อหาในอีเมลนี้");
+                            continue;
+                        }
+
+                        const parsed = await simpleParser(all.body);
+                        const body = parsed.text || parsed.html || "";
+                        let tmpRemark="";
+
+                        if (body.includes("คำเชิญเข้าร่วมกลุ่มครอบครัวได้รับการตอบรับแล้ว")) 
+                        {
+                        
+                        // console.log("📧 Subject:", parsed.subject || "ไม่พบ");
+                        // console.log("👤 From:", parsed.from?.text || "ไม่พบ");
+                        // console.log("📝 Body:", body.trim().substring(0, 600) + "...");
+
+                        const match = body.match(/\(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+                        if (match) {
+                            const email = match[1];
+                            console.log("มีอีเมลล์ตอบรับเข้ากลุ่มใหม่ : ",email);
+                            
+                            const tmpOrder = await MainModel.queryFirstRow(`SELECT * FROM membership_order_history WHERE 
+                                email='${email}' AND canceled=0 
+                                AND membership_order_history.canceled=0
+                                AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'')
+                                AND (membership_order_history.sent_email_by is NULL OR membership_order_history.sent_email_by ='')
+                                ORDER BY subscription_type_id , email,end_date DESC 
+                            `);
+
+                            if (tmpOrder.length>0) 
+                            {
+                                let row_user = await MemberList.findById(tmpOrder['user_id']);
+                                if (row_user.length<=0) 
+                                {
+                                    tmpRemark ="Not found user : "+tmpOrder['user_id'];
+                                    console.log(tmpRemark);
+                                    MainModel.insert("email_accept_member",{email:email,read_at:timerHelper.getDateTimeNowString(),send_line_complete:0,remark:tmpRemark});
+                                }
+                                else
+                                {
+                                    let sourceUserId = row_user["line_userid"];
+                                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+                                    if (tmpChatSetting['status']!=1) 
+                                    {   
+                                        tmpRemark ="Line Bot Not Active for : "+tmpOrder['user_id'];
+                                        console.log(tmpRemark);
+                                        MainModel.insert("email_accept_member",{email:email,read_at:timerHelper.getDateTimeNowString(),send_line_complete:0,remark:tmpRemark});
+                                    }
+                                    else
+                                    {
+                                        let msg ="";
+                                        msg = "ขณะนี้แพ็คเก็จ "+tmpOrder['product_name']+" ของ "+ tmpOrder['email']+ " รอการชำระเงิน\n";
+                                        msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
+                                        msg += oSecretkey.webDomain+ "confirmpayment?id="+tmpOrder['id']+"&email="+tmpOrder['email'];
+
+                                        let channelToken ="";
+                                        channelToken = tmpChatSetting['channel_token'];
+                                        lineChatAPI.setToken(channelToken);
+                                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+                                        if (tmpSend['error']) 
+                                        {
+                                            tmpRemark ="Line Push Message : "+tmpSend['error'];
+                                            console.log(tmpRemark);
+                                            MainModel.insert("email_accept_member",{email:email,read_at:timerHelper.getDateTimeNowString(),send_line_complete:0,remark:tmpRemark});
+                                        }
+                                        else
+                                        {
+                                            tmpRemark=msg;
+                                            MainModel.insert("email_accept_member",{email:email,read_at:timerHelper.getDateTimeNowString(),send_line_complete:1,remark:tmpRemark});
+                                        }
+                                    }
+                                }
+                            }   
+                        } else {
+                            
+                        }
+                    }
+                }
+                })
+                .catch((err) => {
+                    console.error("❌ Error:", err);
+                })
+                .finally(() => {
+                    if (connection) {
+                    connection.end();
+                    }
+                });
+            }
+
+    }
+    catch (error) 
+    {
+        console.log(error);
+    }    
+});
+
+cron.schedule('0 * * * *', async () => {
+    
+    try{
+
+        console.log("Check Daily Sent Line", new Date().toISOString())
+        const lineChatAPI = new LineChatAPI();
+
+        const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='"+ timerHelper.getDateNowString() +"'");
+        if (dailysent.length==0) {
+            const justExpiredOrder = await productList.GetOrderJustExpired();
+            for (let index = 0; index < justExpiredOrder.length; index++) {
+                const tmpOrder = justExpiredOrder[index];
+                const tmpRemark = tmpOrder['user_id']+" "+tmpOrder['email']+" "+tmpOrder['product_name']+" เหลือ "+ tmpOrder['days_left'] +" วัน"
+                console.log(tmpRemark);
+                let row_user = await MemberList.findById(tmpOrder['user_id']);
+                if (row_user.length<=0) 
+                {
+                    tmpRemark ="Not found user : "+tmpOrder['user_id'];
+                    console.log(tmpRemark);
+                    MainModel.insert("line_sent_message",{
+                        email:tmpOrder['email']
+                        ,user_id:tmpOrder['user_id']
+                        ,product_name:tmpOrder['product_name']
+                        ,send_at:timerHelper.getDateTimeNowString()                        
+                        ,send_line_complete:0
+                        ,remark:tmpRemark});
+                }
+                else
+                {
+                    let sourceUserId = row_user["line_userid"];
+                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+                    if (tmpChatSetting['status']!=1) 
+                    {   
+                        tmpRemark ="Line Bot Not Active for : "+tmpOrder['user_id'];
+                        console.log(tmpRemark);
+                        MainModel.insert("line_sent_message",{
+                            email:tmpOrder['email']
+                            ,user_id:tmpOrder['user_id']
+                            ,product_name:tmpOrder['product_name']
+                            ,send_at:timerHelper.getDateTimeNowString()                        
+                            ,send_line_complete:0
+                            ,remark:tmpRemark});
+                    }
+                    else
+                    {
+                        let msg ="";
+                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ได้หมดอายุแล้ว\n";
+                        msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
+
+                        let channelToken ="";
+                        channelToken = tmpChatSetting['channel_token'];
+                        lineChatAPI.setToken(channelToken);
+                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+                        if (tmpSend['error']) 
+                        {
+                            tmpRemark ="Line Push Message : "+tmpSend['error'];
+                            console.log(tmpRemark);
+                            MainModel.insert("line_sent_message",{
+                                email:tmpOrder['email']
+                                ,user_id:tmpOrder['user_id']
+                                ,product_name:tmpOrder['product_name']
+                                ,send_at:timerHelper.getDateTimeNowString()                        
+                                ,send_line_complete:0
+                                ,remark:tmpRemark});
+                        }
+                        else
+                        {
+                            tmpRemark=msg;
+                            MainModel.insert("line_sent_message",{
+                            email:tmpOrder['email']
+                            ,user_id:tmpOrder['user_id']
+                            ,product_name:tmpOrder['product_name']
+                            ,send_at:timerHelper.getDateTimeNowString()                        
+                            ,send_line_complete:1
+                            ,remark:tmpRemark});
+                        }
+                    }
+                }
+            }            
+            MainModel.insert("daily_sent",{last_sent:timerHelper.getDateNowString()});
+        }
+        
+    }
+    catch (error) 
+    {
+        console.log(error);
+    }  
+});
+
+
+
 
 // using as middleware
 
@@ -236,6 +480,9 @@ app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
 
 const expressWs = require('express-ws')(app);
 const uuid = require('uuid');
+const MainModel = require('./src/models/main.model');
+const timerHelper = require('./src/modules/timehelper');
+const productList = require('./src/models/productlist.model');
 
 let wsConnections = [];
 let lineWebhookRoutes2 = lineWebhookRoutes(wsConnections); 

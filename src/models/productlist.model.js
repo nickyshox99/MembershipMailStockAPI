@@ -757,6 +757,54 @@ productList.GetOrderExpired = async function(result) {
     return datas[0];
 };
 
+productList.GetOrderJustExpired = async function(result) {   
+
+    let sqlStr = `
+    SELECT 
+        moh.*, 
+        st.subscription_name, 
+        st.subscription_img,
+        DATEDIFF(latest.max_end_date,CURDATE()) AS days_left,
+        offerlatest.max_offer_at as latest_offer_message_at,
+        offerlatest.offer_by
+        FROM membership_order_history moh 
+        INNER JOIN (
+            SELECT 
+                email, 
+                MAX(end_date) AS max_end_date,
+                subscription_type_id
+            FROM membership_order_history
+            WHERE slip_correct=1
+            GROUP BY email, subscription_type_id
+        ) latest 
+        ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date
+        LEFT JOIN ( 
+            SELECT 
+                to_email, 
+                MAX(offer_at) AS max_offer_at,
+                subscription_type_id,
+                offer_by
+            FROM offer_message
+            GROUP BY to_email,subscription_type_id
+        ) offerlatest ON moh.email = offerlatest.to_email AND moh.subscription_type_id = offerlatest.subscription_type_id
+        LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+        WHERE moh.slip_correct = 1
+        AND DATEDIFF(latest.max_end_date,CURDATE())<=1
+        AND DATEDIFF(latest.max_end_date,CURDATE())>-2
+        AND moh.canceled<>1
+        ORDER BY days_left ASC;
+    `;
+    
+    
+    let datas = await dbConn.raw(sqlStr);
+
+   
+    //dbConn.end;
+    return datas[0];
+};
+
 productList.GetDayExpireByUserId = async function(userid,result) {   
 
     let sqlStr = `
