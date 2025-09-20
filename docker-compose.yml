@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: membership_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: membership
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - membership_network
+    command: --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: membership_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: ""
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - membership_network
+
+  # Membership API
+  api:
+    build: .
+    container_name: membership_api
+    restart: unless-stopped
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ""
+      MYSQL_DATABASE: membership
+      PORT: 10600
+      API_DOMAIN: "http://localhost:10600/"
+      WEB_DOMAIN: "http://localhost:9900/"
+      SECRET_KEY: "BSTBSTBSTBSTBSTB"
+      NODE_ENV: production
+    ports:
+      - "10600:10600"
+    depends_on:
+      - mysql
+    networks:
+      - membership_network
+    volumes:
+      - ./assets:/LoanAPI/assets
+
+volumes:
+  mysql_data:
+
+networks:
+  membership_network:
+    driver: bridge
