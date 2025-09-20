@@ -75,6 +75,14 @@ install_infra() {
         fi
     fi
     
+    # Copy SQL data file to mysql-init directory
+    if [ -f "$PROJECT_DIR/data/membership.sql" ]; then
+        cp "$PROJECT_DIR/data/membership.sql" "$PROJECT_DIR/mysql-init/01-membership.sql"
+        print_success "Copied membership.sql to mysql-init directory"
+    else
+        print_warning "data/membership.sql not found. Database will start empty."
+    fi
+    
     # Pull Docker images
     print_info "Pulling Docker images..."
     docker-compose -f "$COMPOSE_FILE" pull
@@ -82,6 +90,31 @@ install_infra() {
     # Build API image
     print_info "Building API image..."
     docker-compose -f "$COMPOSE_FILE" build api
+    
+    # Start MySQL first to initialize database
+    print_info "Starting MySQL to initialize database..."
+    docker-compose -f "$COMPOSE_FILE" up -d mysql
+    
+    # Wait for MySQL to be ready
+    print_info "Waiting for MySQL to be ready..."
+    sleep 10
+    
+    # Check if MySQL is ready
+    print_info "Checking MySQL status..."
+    until docker-compose -f "$COMPOSE_FILE" exec mysql mysqladmin ping -h localhost --silent; do
+        print_info "MySQL is not ready yet, waiting..."
+        sleep 5
+    done
+    
+    print_success "MySQL is ready!"
+    
+    # Check if database was initialized
+    print_info "Checking if membership database exists..."
+    if docker-compose -f "$COMPOSE_FILE" exec mysql mysql -e "USE membership; SHOW TABLES;" | grep -q "address_list"; then
+        print_success "Database initialized successfully with membership data!"
+    else
+        print_warning "Database may not have been initialized properly"
+    fi
     
     print_success "Infrastructure installation completed!"
     print_info "Run './docker-manager.sh start' to start all services"
@@ -155,6 +188,54 @@ show_logs() {
     docker-compose -f "$COMPOSE_FILE" logs -f
 }
 
+# Import database
+import_database() {
+    print_header
+    print_info "Importing membership database..."
+    
+    check_docker
+    
+    # Check if SQL file exists
+    if [ ! -f "$PROJECT_DIR/data/membership.sql" ]; then
+        print_error "data/membership.sql not found!"
+        exit 1
+    fi
+    
+    # Copy SQL file to mysql-init
+    cp "$PROJECT_DIR/data/membership.sql" "$PROJECT_DIR/mysql-init/01-membership.sql"
+    print_success "Copied membership.sql to mysql-init directory"
+    
+    # Start MySQL if not running
+    if ! docker-compose -f "$COMPOSE_FILE" ps mysql | grep -q "Up"; then
+        print_info "Starting MySQL..."
+        docker-compose -f "$COMPOSE_FILE" up -d mysql
+        
+        # Wait for MySQL to be ready
+        print_info "Waiting for MySQL to be ready..."
+        sleep 10
+        
+        until docker-compose -f "$COMPOSE_FILE" exec mysql mysqladmin ping -h localhost --silent; do
+            print_info "MySQL is not ready yet, waiting..."
+            sleep 5
+        done
+    fi
+    
+    # Restart MySQL to trigger initialization
+    print_info "Restarting MySQL to import data..."
+    docker-compose -f "$COMPOSE_FILE" restart mysql
+    
+    # Wait for initialization
+    sleep 15
+    
+    # Check if database was imported
+    print_info "Checking if membership database exists..."
+    if docker-compose -f "$COMPOSE_FILE" exec mysql mysql -e "USE membership; SHOW TABLES;" | grep -q "address_list"; then
+        print_success "Database imported successfully!"
+    else
+        print_warning "Database may not have been imported properly"
+    fi
+}
+
 # Clean up
 clean_up() {
     print_header
@@ -199,11 +280,14 @@ case "${1:-}" in
     logs)
         show_logs
         ;;
+    import)
+        import_database
+        ;;
     clean)
         clean_up
         ;;
     *)
-        echo "Usage: $0 {install|start|stop|restart|status|logs|clean}"
+        echo "Usage: $0 {install|start|stop|restart|status|logs|import|clean}"
         echo ""
         echo "Commands:"
         echo "  install  - Install Docker infrastructure"
@@ -212,6 +296,7 @@ case "${1:-}" in
         echo "  restart  - Restart all services"
         echo "  status   - Show services status"
         echo "  logs     - Show services logs"
+        echo "  import   - Import membership database"
         echo "  clean    - Clean up all Docker resources"
         exit 1
         ;;
