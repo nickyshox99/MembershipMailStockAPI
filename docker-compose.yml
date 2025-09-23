@@ -37,29 +37,29 @@ services:
       - membership_network
 
   # Membership API
-  api:
-    build: .
-    container_name: membership_api
-    restart: unless-stopped
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ""
-      MYSQL_DATABASE: membership
-      PORT: 10600
-      API_DOMAIN: "http://localhost:10600/"
-      WEB_DOMAIN: "http://localhost:9900/"
-      SECRET_KEY: "BSTBSTBSTBSTBSTB"
-      NODE_ENV: production
-    ports:
-      - "10600:10600"
-    depends_on:
-      - mysql
-    networks:
-      - membership_network
-    volumes:
-      - ./assets:/LoanAPI/assets
+  # api:
+  #   build: .
+  #   container_name: membership_api
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_HOST: mysql
+  #     MYSQL_PORT: 3306
+  #     MYSQL_USER: root
+  #     MYSQL_PASSWORD: ""
+  #     MYSQL_DATABASE: membership
+  #     PORT: 10600
+  #     API_DOMAIN: "http://localhost:10600/"
+  #     WEB_DOMAIN: "http://localhost:9900/"
+  #     SECRET_KEY: "BSTBSTBSTBSTBSTB"
+  #     NODE_ENV: production
+  #   ports:
+  #     - "10600:10600"
+  #   depends_on:
+  #     - mysql
+  #   networks:
+  #     - membership_network
+  #   volumes:
+  #     - ./assets:/LoanAPI/assets
 
 volumes:
   mysql_data:
