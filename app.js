@@ -321,99 +321,299 @@ cron.schedule('*/10 * * * *', async () => {
     }    
 });
 
-cron.schedule('0 * * * *', async () => {
+// cron.schedule('0 * * * *', async () => {
     
-    try{
+//     try{
 
+//         console.log("Check Daily Sent Line", new Date().toISOString())
+//         const lineChatAPI = new LineChatAPI();
+
+//         const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='"+ timerHelper.getDateNowString() +"'");
+//         if (dailysent.length==0) {
+//             const justExpiredOrder = await productList.GetOrderJustExpired();
+//             for (let index = 0; index < justExpiredOrder.length; index++) {
+//                 const tmpOrder = justExpiredOrder[index];
+//                 const tmpRemark = tmpOrder['user_id']+" "+tmpOrder['email']+" "+tmpOrder['product_name']+" เหลือ "+ tmpOrder['days_left'] +" วัน"
+//                 console.log(tmpRemark);
+//                 let row_user = await MemberList.findById(tmpOrder['user_id']);
+//                 if (row_user.length<=0) 
+//                 {
+//                     tmpRemark ="Not found user : "+tmpOrder['user_id'];
+//                     console.log(tmpRemark);
+//                     MainModel.insert("line_sent_message",{
+//                         email:tmpOrder['email']
+//                         ,user_id:tmpOrder['user_id']
+//                         ,product_name:tmpOrder['product_name']
+//                         ,send_at:timerHelper.getDateTimeNowString()                        
+//                         ,send_line_complete:0
+//                         ,remark:tmpRemark});
+//                 }
+//                 else
+//                 {
+//                     let sourceUserId = row_user["line_userid"];
+//                     let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+//                     let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+//                     if (tmpChatSetting['status']!=1) 
+//                     {   
+//                         tmpRemark ="Line Bot Not Active for : "+tmpOrder['user_id'];
+//                         console.log(tmpRemark);
+//                         MainModel.insert("line_sent_message",{
+//                             email:tmpOrder['email']
+//                             ,user_id:tmpOrder['user_id']
+//                             ,product_name:tmpOrder['product_name']
+//                             ,send_at:timerHelper.getDateTimeNowString()                        
+//                             ,send_line_complete:0
+//                             ,remark:tmpRemark});
+//                     }
+//                     else
+//                     {
+//                         let msg ="";
+//                         msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ได้หมดอายุแล้ว\n";
+//                         msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+//                         msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
+
+//                         let channelToken ="";
+//                         channelToken = tmpChatSetting['channel_token'];
+//                         lineChatAPI.setToken(channelToken);
+//                         const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+//                         if (tmpSend['error']) 
+//                         {
+//                             tmpRemark ="Line Push Message : "+tmpSend['error'];
+//                             console.log(tmpRemark);
+//                             MainModel.insert("line_sent_message",{
+//                                 email:tmpOrder['email']
+//                                 ,user_id:tmpOrder['user_id']
+//                                 ,product_name:tmpOrder['product_name']
+//                                 ,send_at:timerHelper.getDateTimeNowString()                        
+//                                 ,send_line_complete:0
+//                                 ,remark:tmpRemark});
+//                         }
+//                         else
+//                         {
+//                             tmpRemark=msg;
+//                             MainModel.insert("line_sent_message",{
+//                             email:tmpOrder['email']
+//                             ,user_id:tmpOrder['user_id']
+//                             ,product_name:tmpOrder['product_name']
+//                             ,send_at:timerHelper.getDateTimeNowString()                        
+//                             ,send_line_complete:1
+//                             ,remark:tmpRemark});
+//                         }
+//                     }
+//                 }
+//             }            
+//             MainModel.insert("daily_sent",{last_sent:timerHelper.getDateNowString()});
+//         }
+        
+//     }
+//     catch (error) 
+//     {
+//         console.log(error);
+//     }  
+// });
+
+
+// cron.schedule('0 * * * *', async () => {
+    
+//     try{
+
+//         console.log("Check Daily Sent Line", new Date().toISOString())
+//         const lineChatAPI = new LineChatAPI();
+
+//         const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='"+ timerHelper.getDateNowString() +"'");
+//         if (dailysent.length==0) {
+//             // const justExpiredOrder = await productList.GetOrderJustExpired();
+//             const expiredOrders = await productList.GetOrderExpired();
+//             for (let index = 0; index < expiredOrders.length; index++) {
+//                 const tmpOrder = expiredOrders[index];
+//                 const tmpRemark = tmpOrder['user_id']+" "+tmpOrder['email']+" "+tmpOrder['product_name']+" เหลือ "+ tmpOrder['days_left'] +" วัน"
+//                 console.log(tmpRemark);
+//                 let row_user = await MemberList.findById(tmpOrder['user_id']);
+//                 if (row_user.length<=0) 
+//                 {
+//                     tmpRemark ="Not found user : "+tmpOrder['user_id'];
+//                     console.log(tmpRemark);
+//                     MainModel.insert("line_sent_message",{
+//                         email:tmpOrder['email']
+//                         ,user_id:tmpOrder['user_id']
+//                         ,product_name:tmpOrder['product_name']
+//                         ,send_at:timerHelper.getDateTimeNowString()                        
+//                         ,send_line_complete:0
+//                         ,remark:tmpRemark});
+//                 }
+//                 else
+//                 {
+//                     let sourceUserId = row_user["line_userid"];
+//                     let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+//                     let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+//                     if (tmpChatSetting['status']!=1) 
+//                     {   
+//                         tmpRemark ="Line Bot Not Active for : "+tmpOrder['user_id'];
+//                         console.log(tmpRemark);
+//                         MainModel.insert("line_sent_message",{
+//                             email:tmpOrder['email']
+//                             ,user_id:tmpOrder['user_id']
+//                             ,product_name:tmpOrder['product_name']
+//                             ,send_at:timerHelper.getDateTimeNowString()                        
+//                             ,send_line_complete:0
+//                             ,remark:tmpRemark});
+//                     }
+//                     else
+//                     {
+//                         let msg ="";
+//                         msg = "ขณะนี้แพ็คเก็จ "+tmpOrder['product_name']+" ของ "+ tmpOrder['email']+ " ได้หมดอายุแล้ว\n";
+//                         msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+//                         msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+tmpOrder['email'];
+
+//                         let channelToken ="";
+//                         channelToken = tmpChatSetting['channel_token'];
+//                         lineChatAPI.setToken(channelToken);
+//                         const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
+//                         if (tmpSend['error']) 
+//                         {
+//                             tmpRemark ="Line Push Message : "+tmpSend['error'];
+//                             console.log(tmpRemark);
+//                             MainModel.insert("line_sent_message",{
+//                                 email:tmpOrder['email']
+//                                 ,user_id:tmpOrder['user_id']
+//                                 ,product_name:tmpOrder['product_name']
+//                                 ,send_at:timerHelper.getDateTimeNowString()                        
+//                                 ,send_line_complete:0
+//                                 ,remark:tmpRemark});
+//                         }
+//                         else
+//                         {
+//                             tmpRemark=msg;
+//                             MainModel.insert("line_sent_message",{
+//                             email:tmpOrder['email']
+//                             ,user_id:tmpOrder['user_id']
+//                             ,product_name:tmpOrder['product_name']
+//                             ,send_at:timerHelper.getDateTimeNowString()                        
+//                             ,send_line_complete:1
+//                             ,remark:tmpRemark});
+//                         }
+//                     }
+//                 }
+//             }            
+//             MainModel.insert("daily_sent",{last_sent:timerHelper.getDateNowString()});
+//         }
+        
+//     }
+//     catch (error) 
+//     {
+//         console.log(error);
+//     }  
+// });
+
+cron.schedule('0 * * * *', async () => {
+    try {
         console.log("Check Daily Sent Line", new Date().toISOString())
         const lineChatAPI = new LineChatAPI();
 
-        const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='"+ timerHelper.getDateNowString() +"'");
-        if (dailysent.length==0) {
-            const justExpiredOrder = await productList.GetOrderJustExpired();
-            for (let index = 0; index < justExpiredOrder.length; index++) {
-                const tmpOrder = justExpiredOrder[index];
-                const tmpRemark = tmpOrder['user_id']+" "+tmpOrder['email']+" "+tmpOrder['product_name']+" เหลือ "+ tmpOrder['days_left'] +" วัน"
-                console.log(tmpRemark);
-                let row_user = await MemberList.findById(tmpOrder['user_id']);
-                if (row_user.length<=0) 
-                {
-                    tmpRemark ="Not found user : "+tmpOrder['user_id'];
-                    console.log(tmpRemark);
-                    MainModel.insert("line_sent_message",{
-                        email:tmpOrder['email']
-                        ,user_id:tmpOrder['user_id']
-                        ,product_name:tmpOrder['product_name']
-                        ,send_at:timerHelper.getDateTimeNowString()                        
-                        ,send_line_complete:0
-                        ,remark:tmpRemark});
-                }
-                else
-                {
-                    let sourceUserId = row_user["line_userid"];
-                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
-                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+        const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='" + timerHelper.getDateNowString() + "'");
+        if (dailysent.length == 0) {
+            
+            // === 1) หมดอายุแล้ว ===
+            const expiredOrders = await productList.GetOrderExpired();
+            for (let index = 0; index < expiredOrders.length; index++) {
+                const tmpOrder = expiredOrders[index];
+                await sendLineMessage(tmpOrder, lineChatAPI, "expired");
+            }
 
-                    if (tmpChatSetting['status']!=1) 
-                    {   
-                        tmpRemark ="Line Bot Not Active for : "+tmpOrder['user_id'];
-                        console.log(tmpRemark);
-                        MainModel.insert("line_sent_message",{
-                            email:tmpOrder['email']
-                            ,user_id:tmpOrder['user_id']
-                            ,product_name:tmpOrder['product_name']
-                            ,send_at:timerHelper.getDateTimeNowString()                        
-                            ,send_line_complete:0
-                            ,remark:tmpRemark});
-                    }
-                    else
-                    {
-                        let msg ="";
-                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ได้หมดอายุแล้ว\n";
-                        msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
-                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
+            // === 2) เหลือ 3 วันก่อนหมดอายุ ===
+            const meta_setting = await adminSettingList.findById("line_token");
+            const lineSetting = JSON.parse(meta_setting.value);
 
-                        let channelToken ="";
-                        channelToken = tmpChatSetting['channel_token'];
-                        lineChatAPI.setToken(channelToken);
-                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
-                        if (tmpSend['error']) 
-                        {
-                            tmpRemark ="Line Push Message : "+tmpSend['error'];
-                            console.log(tmpRemark);
-                            MainModel.insert("line_sent_message",{
-                                email:tmpOrder['email']
-                                ,user_id:tmpOrder['user_id']
-                                ,product_name:tmpOrder['product_name']
-                                ,send_at:timerHelper.getDateTimeNowString()                        
-                                ,send_line_complete:0
-                                ,remark:tmpRemark});
-                        }
-                        else
-                        {
-                            tmpRemark=msg;
-                            MainModel.insert("line_sent_message",{
-                            email:tmpOrder['email']
-                            ,user_id:tmpOrder['user_id']
-                            ,product_name:tmpOrder['product_name']
-                            ,send_at:timerHelper.getDateTimeNowString()                        
-                            ,send_line_complete:1
-                            ,remark:tmpRemark});
-                        }
-                    }
+            const nearExpireOrders = await productList.GetOrderNearExpire();
+            for (let index = 0; index < nearExpireOrders.length; index++) {
+                const tmpOrder = nearExpireOrders[index];
+                if (tmpOrder['days_left'] < int.parse(lineSetting['SetNearDate']) && tmpOrder['days_left']>0 ) { 
+                    await sendLineMessage(tmpOrder, lineChatAPI, "near");
                 }
-            }            
-            MainModel.insert("daily_sent",{last_sent:timerHelper.getDateNowString()});
+            }
+
+            MainModel.insert("daily_sent", { last_sent: timerHelper.getDateNowString() });
         }
-        
-    }
-    catch (error) 
-    {
+    } catch (error) {
         console.log(error);
-    }  
+    }
 });
 
 
+async function sendLineMessage(tmpOrder, lineChatAPI, type) {
+    let tmpRemark = tmpOrder['user_id'] + " " + tmpOrder['email'] + " " + tmpOrder['product_name'] + " เหลือ " + tmpOrder['days_left'] + " วัน";
+    console.log(tmpRemark);
+
+    let row_user = await MemberList.findById(tmpOrder['user_id']);
+    if (row_user.length <= 0) {
+        tmpRemark = "Not found user : " + tmpOrder['user_id'];
+        console.log(tmpRemark);
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_name'],
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 0,
+            remark: tmpRemark
+        });
+    }
+
+    let sourceUserId = row_user["line_userid"];
+    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+    if (tmpChatSetting['status'] != 1) {
+        tmpRemark = "Line Bot Not Active for : " + tmpOrder['user_id'];
+        console.log(tmpRemark);
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_name'],
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 0,
+            remark: tmpRemark
+        });
+    }
+
+    let msg = "";
+    if (type === "expired") {
+        msg = "ขณะนี้แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " ได้หมดอายุแล้ว\n";
+    } else if (type === "near") {
+        msg = "แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " กำลังจะหมดอายุในอีก 3 วัน\n";
+    }
+    msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+    msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&email=" + tmpOrder['email'];
+
+    // ส่ง LINE
+    let channelToken = tmpChatSetting['channel_token'];
+    lineChatAPI.setToken(channelToken);
+    const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+
+    if (tmpSend['error']) {
+        tmpRemark = "Line Push Message : " + tmpSend['error'];
+        console.log(tmpRemark);
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_name'],
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 0,
+            remark: tmpRemark
+        });
+    } else {
+        tmpRemark = msg;
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_name'],
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 1,
+            remark: tmpRemark
+        });
+    }
+}
 
 
 // using as middleware
@@ -485,6 +685,7 @@ const uuid = require('uuid');
 const MainModel = require('./src/models/main.model');
 const timerHelper = require('./src/modules/timehelper');
 const productList = require('./src/models/productlist.model');
+const adminSettingList = require('./src/models/adminsetting.model');
 
 let wsConnections = [];
 let lineWebhookRoutes2 = lineWebhookRoutes(wsConnections); 

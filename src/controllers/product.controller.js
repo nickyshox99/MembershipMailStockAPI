@@ -29,27 +29,25 @@ const OffsetTime = require('../../config/offsettime');
 const offsetTime = OffsetTime.offsetTime;
 const offsetTime24hrs = OffsetTime.offsetTime24hrs;
 
-exports.default = async function(req, res) {
+exports.default = async function (req, res) {
     const ipAddress = await IpAllowList.getIPv4Address(req);
     // const ipAddress = req.socket.remoteAddress;
-        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
-    const ipAllowList = await IpAllowList.findById(ipAddress);    
-    
-    if (ipAllowList.length==0)
-    {
-        res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+    // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+    const ipAllowList = await IpAllowList.findById(ipAddress);
+
+    if (ipAllowList.length == 0) {
+        res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         return;
     }
-    else
-    {
+    else {
         res.send('admin bank api');
         return;
     }
-    
+
 };
 
-exports.addProduct = async function(req, res) {
-    
+exports.addProduct = async function (req, res) {
+
     console.log('addProduct');
 
     try {
@@ -58,14 +56,12 @@ exports.addProduct = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -82,75 +78,72 @@ exports.addProduct = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
                 const objData = req.body;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     const result = await productList.create(objData);
                     if (result) {
 
                         res.status(202).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                                
+                                auth: true,
                             }
                         );
                         return;
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Error Create Product',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.updatebyId = async function(req, res) {
-    
+exports.updatebyId = async function (req, res) {
+
     console.log('updatebyId');
 
     try {
@@ -159,14 +152,12 @@ exports.updatebyId = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -183,89 +174,85 @@ exports.updatebyId = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
                 const objData = req.body;
 
-                if (objData.id==undefined || objData.id==null || objData.id=="")
-                {
+                if (objData.id == undefined || objData.id == null || objData.id == "") {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Product ID not found',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
-                    
+
                 }
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     const result = await productList.updateByID(objData);
                     if (result) {
 
                         res.status(202).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                                
+                                auth: true,
                             }
                         );
                         return;
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Error Create Product',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.deleteProduct = async function(req, res) {
-    
+exports.deleteProduct = async function (req, res) {
+
     console.log('deleteProduct');
 
     try {
@@ -274,14 +261,12 @@ exports.deleteProduct = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -298,73 +283,70 @@ exports.deleteProduct = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     const result = await productList.deleteByID(req.body);
                     if (result) {
 
                         res.status(202).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                                
+                                auth: true,
                             }
                         );
                         return;
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Error Create Product',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.inActiveProduct = async function(req, res) {
-    
+exports.inActiveProduct = async function (req, res) {
+
     console.log('inActiveProduct');
 
     try {
@@ -373,14 +355,12 @@ exports.inActiveProduct = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -397,72 +377,69 @@ exports.inActiveProduct = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     const result = await productList.inActiveProduct(req.body);
                     if (result) {
 
                         res.status(202).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                                
+                                auth: true,
                             }
                         );
                         return;
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Error Create Product',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetActiveProduct = async function(req, res) {
+exports.GetActiveProduct = async function (req, res) {
     console.log('GetActiveproduct');
 
     try {
@@ -471,14 +448,12 @@ exports.GetActiveProduct = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -489,62 +464,60 @@ exports.GetActiveProduct = async function(req, res) {
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
 
-                const userid = headers.userid?headers.userid:'';
-                const token = headers.token?headers.token:'';
+                const userid = headers.userid ? headers.userid : '';
+                const token = headers.token ? headers.token : '';
 
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (true) 
-                {
-                    
+                if (true) {
+
                     let tmpData = await productList.findAllActive();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetProductSetting = async function(req, res) {
+exports.GetProductSetting = async function (req, res) {
     console.log('GetProductSetting');
 
     try {
@@ -553,14 +526,12 @@ exports.GetProductSetting = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -571,62 +542,60 @@ exports.GetProductSetting = async function(req, res) {
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
 
-                const userid = headers.userid?headers.userid:'';
-                const token = headers.token?headers.token:'';
+                const userid = headers.userid ? headers.userid : '';
+                const token = headers.token ? headers.token : '';
 
-                let IsAuth = await MemberList.isAuthenicated(userid,token);
+                let IsAuth = await MemberList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (true) 
-                {
-                    
+                if (true) {
+
                     let tmpData = await productList.findAll();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.OrderProduct = async function(req, res) {
+exports.OrderProduct = async function (req, res) {
     console.log('Orderproduct');
 
     try {
@@ -635,14 +604,12 @@ exports.OrderProduct = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -656,29 +623,26 @@ exports.OrderProduct = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await MemberList.isAuthenicated(userid,token);
+                let IsAuth = await MemberList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let username = req.body.username;
                     let productId = req.body.productId;
                     let addressproduct = req.body.address;
 
                     let row_user = await MemberList.findById(username);
-                    let row_product = await productList.findById(productId);  
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
-                        if (row_product['type']!="credit" && addressproduct=="") 
-                        {
+                    let row_product = await productList.findById(productId);
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
+                        if (row_product['type'] != "credit" && addressproduct == "") {
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Please Enter Address for receive product',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
@@ -688,157 +652,150 @@ exports.OrderProduct = async function(req, res) {
                         let currentpoint = parseFloat(row_user['Point']);
                         let usepoint = parseFloat(row_product['use_point']);
 
-                        if (currentpoint < usepoint )
-                        {
-                            
+                        if (currentpoint < usepoint) {
+
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Point not enough to get product',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
                         }
 
-                        let data = {                            
-                            "username" : row_user["id"] ,
-                            "mobile_no" : row_user["mobile_no"] ,
-                            "type" : row_product["type"] ,
-                            "product_id" : row_product["id"] ,
-                            "date" : timerHelper.getDateTimeNowString() ,
-                            "status" : 1 ,
-                            "product_name" : row_product["product_name"] ,
-                            "address" : addressproduct ,
-                            "credit" : row_product['credit']  ,
+                        let data = {
+                            "username": row_user["id"],
+                            "mobile_no": row_user["mobile_no"],
+                            "type": row_product["type"],
+                            "product_id": row_product["id"],
+                            "date": timerHelper.getDateTimeNowString(),
+                            "status": 1,
+                            "product_name": row_product["product_name"],
+                            "address": addressproduct,
+                            "credit": row_product['credit'],
                         };
 
-                        
-                        if (row_product['type']=="credit")
-                        {
+
+                        if (row_product['type'] == "credit") {
                             let id = TransactionList.generateRequestID();
-                            let response = AgentMain.depositCredit("",username,row_product['credit']);
-                            if (response.msgerror) 
-                            {
+                            let response = AgentMain.depositCredit("", username, row_product['credit']);
+                            if (response.msgerror) {
                                 res.status(202).json(
-                                    { 
-                                        status: 'error', 
+                                    {
+                                        status: 'error',
                                         message: 'Agent Problem : ' + response.msgerror,
-                                        auth : true,
-                                        data : [],
+                                        auth: true,
+                                        data: [],
                                     }
                                 );
                                 return;
                             }
-                            else
-                            {
+                            else {
                                 let aff = {
-                                    aff_user:null,
-                                    aff_user_credit:0,
+                                    aff_user: null,
+                                    aff_user_credit: 0,
                                 };
 
                                 TransactionManage.create(id, row_user, "SYSTEM",
-                                parseFloat(row_product['credit']), 0, currentcredit, currentcredit + parseFloat(row_product['credit']), "product"
+                                    parseFloat(row_product['credit']), 0, currentcredit, currentcredit + parseFloat(row_product['credit']), "product"
                                     , row_user['bank_acc_no'], row_user['bank_name']
                                     , timerHelper.convertDatetimeToString(new Date()), ''
                                     , null
                                     , null
-                                    , null,'SYSTEM', 1
+                                    , null, 'SYSTEM', 1
                                     , timerHelper.convertDatetimeToString(new Date()), 0, timerHelper.convertDatetimeToString(new Date())
                                     , 'เติมเครดิตจากการแลกรางวัล'
-                                    ,null,null,null
+                                    , null, null, null
                                     , aff['aff_user'], null, aff['aff_user_credit']
                                 )
 
-                                await MainModel.update("sl_users",{credit: currentcredit + parseFloat(row_product['credit'])},{id:username});                                
-                                await MainModel.insert("get_product_history",data);							
-                                await MainModel.update("sl_users",{Point: currentpoint - usepoint},{id:username});           
-                                
+                                await MainModel.update("sl_users", { credit: currentcredit + parseFloat(row_product['credit']) }, { id: username });
+                                await MainModel.insert("get_product_history", data);
+                                await MainModel.update("sl_users", { Point: currentpoint - usepoint }, { id: username });
+
                                 res.status(200).json(
-                                    { 
-                                        status: 'success', 
-                                        message: 'Received credit :'+row_product['credit'],
-                                        auth : true,                        
-                                        data : [],
+                                    {
+                                        status: 'success',
+                                        message: 'Received credit :' + row_product['credit'],
+                                        auth: true,
+                                        data: [],
                                     }
                                 );
                                 return;
                             }
 
-                            
+
                         }
-                        else
-                        {
-                            MainModel.insert("get_product_history",data);
-                            MainModel.update("sl_users",{Point: currentpoint - usepoint},{id:username});
+                        else {
+                            MainModel.insert("get_product_history", data);
+                            MainModel.update("sl_users", { Point: currentpoint - usepoint }, { id: username });
 
                             res.status(200).json(
-                                { 
-                                    status: 'success', 
+                                {
+                                    status: 'success',
                                     message: 'Staff will send product to your address.',
-                                    auth : true,                        
-                                    data : [],
+                                    auth: true,
+                                    data: [],
                                 }
                             );
 
                             return;
                         }
-                        
-                        
+
+
 
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.SendProductByID = async function(req, res) {
-    
+exports.SendProductByID = async function (req, res) {
+
     console.log('SendProductByID');
 
     try {
@@ -847,14 +804,12 @@ exports.SendProductByID = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -871,13 +826,12 @@ exports.SendProductByID = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = MemberList.isAuthenicated(userid,token);
+                let IsAuth = MemberList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let username = req.body.username;
-                    let sendToUserId = req.body.sendToUserId;                    
+                    let sendToUserId = req.body.sendToUserId;
                     let productId = req.body.productId;
                     let quantity = req.body.quantity;
 
@@ -886,23 +840,21 @@ exports.SendProductByID = async function(req, res) {
                         sent_to_user,
                         row_product
                     ] = await Promise.all([
-                
+
                         MemberList.findById(username),
                         MemberList.findById(sendToUserId),
                         productList.findById(productId),
                     ]);
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
-                        if (quantity<=0) 
-                        {
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
+                        if (quantity <= 0) {
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Please Enter Quantity',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
@@ -910,121 +862,118 @@ exports.SendProductByID = async function(req, res) {
 
                         let currentcredit = parseFloat(row_user['credit']);
                         let useTotalCredit = parseFloat(row_product['use_credit']) * parseFloat(quantity);
-                        
-                        if (currentcredit < useTotalCredit )
-                        {
-                            
+
+                        if (currentcredit < useTotalCredit) {
+
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Not enough Point',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
                         }
 
-                        let data = {                            
-                            "gift_to" : sent_to_user["id"] ,
-                            "gift_to_name" : sent_to_user["fullname"] ,
-                            "order_by" : row_user["id"] ,                            
-                            "order_by_name" : row_user["fullname"] ,
-                            "product_id" : row_product["id"] ,
-                            "product_name" : row_product["product_name"] ,
-                            "product_buy_price" : row_product["use_credit"] ,
-                            "product_sell_price" : row_product["give_credit"] ,
-                            "date" : timerHelper.convertDatetimeToString(cTime) ,
-                            "exchanged" : false,
-                            "quantity" : quantity
+                        let data = {
+                            "gift_to": sent_to_user["id"],
+                            "gift_to_name": sent_to_user["fullname"],
+                            "order_by": row_user["id"],
+                            "order_by_name": row_user["fullname"],
+                            "product_id": row_product["id"],
+                            "product_name": row_product["product_name"],
+                            "product_buy_price": row_product["use_credit"],
+                            "product_sell_price": row_product["give_credit"],
+                            "date": timerHelper.convertDatetimeToString(cTime),
+                            "exchanged": false,
+                            "quantity": quantity
                         };
-                        
+
                         let id = await TransactionList.generateRequestID();
-                       
+
                         let aff = {
-                            aff_user:null,
-                            aff_user_credit:0,
+                            aff_user: null,
+                            aff_user_credit: 0,
                         };
 
                         await TransactionManage.create(id, row_user, "SYSTEM",
-                        parseFloat(row_product['use_credit']), 0, currentcredit, currentcredit - parseFloat(useTotalCredit), "product"
+                            parseFloat(row_product['use_credit']), 0, currentcredit, currentcredit - parseFloat(useTotalCredit), "product"
                             , row_user['bank_acc_no'], row_user['bank_name']
                             , timerHelper.convertDatetimeToString(new Date()), ''
                             , null
                             , null
-                            , null,'SYSTEM', 1
+                            , null, 'SYSTEM', 1
                             , timerHelper.convertDatetimeToString(new Date()), 0, timerHelper.convertDatetimeToString(new Date())
-                            , 'ลดเครดิตจากการซื้อสินค้า Id: '+row_product["id"]+", Name: "+row_product["product_name"]+", Buy Price: "+row_product["use_credit"]+", Sell Price: "+row_product["give_credit"]+", Quantity: "+quantity
-                            ,null,null,null
+                            , 'ลดเครดิตจากการซื้อสินค้า Id: ' + row_product["id"] + ", Name: " + row_product["product_name"] + ", Buy Price: " + row_product["use_credit"] + ", Sell Price: " + row_product["give_credit"] + ", Quantity: " + quantity
+                            , null, null, null
                             , aff['aff_user'], null, aff['aff_user_credit']
                         )
 
-                        await MainModel.update("sl_users",{credit: currentcredit - parseFloat(useTotalCredit)},{id:username});                                
-                        await MainModel.insert("product_order_history",data);							
-                                                
+                        await MainModel.update("sl_users", { credit: currentcredit - parseFloat(useTotalCredit) }, { id: username });
+                        await MainModel.insert("product_order_history", data);
+
                         res.status(200).json(
-                            { 
-                                status: 'success', 
-                                message: 'Use total point :'+useTotalCredit,
-                                auth : true,                        
-                                data : [],
+                            {
+                                status: 'success',
+                                message: 'Use total point :' + useTotalCredit,
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
-                        
+
 
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.ExchangeProductByID = async function(req, res) {
-    
+exports.ExchangeProductByID = async function (req, res) {
+
     console.log('ExchangeProductByID');
 
     try {
@@ -1033,14 +982,12 @@ exports.ExchangeProductByID = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1057,128 +1004,124 @@ exports.ExchangeProductByID = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = MemberList.isAuthenicated(userid,token);
+                let IsAuth = MemberList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let username = req.body.username;                                     
+                if (IsAuth) {
+                    let username = req.body.username;
                     let productOrderId = req.body.productOrderId;
-                    
+
                     const [
-                        row_user,                        
+                        row_user,
                         row_product
                     ] = await Promise.all([
-                
-                        MemberList.findById(username),                        
+
+                        MemberList.findById(username),
                         productList.findById(productId),
                     ]);
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
                         let currentcredit = parseFloat(row_user['credit']);
                         let useTotalCredit = parseFloat(row_product['product_sell_price']) * parseFloat(row_product['quantity']);
-                        
-                        let data = {                            
-                            "gift_to" : sent_to_user["id"] ,
-                            "gift_to_name" : sent_to_user["fullname"] ,
-                            "order_by" : row_user["id"] ,                            
-                            "order_by_name" : row_user["fullname"] ,
-                            "product_id" : row_product["id"] ,
-                            "product_name" : row_product["product_name"] ,
-                            "product_buy_price" : row_product["use_credit"] ,
-                            "product_sell_price" : row_product["give_credit"] ,
-                            "date" : timerHelper.convertDatetimeToString(cTime) ,
-                            "exchanged" : false,
-                            "quantity" : quantity
+
+                        let data = {
+                            "gift_to": sent_to_user["id"],
+                            "gift_to_name": sent_to_user["fullname"],
+                            "order_by": row_user["id"],
+                            "order_by_name": row_user["fullname"],
+                            "product_id": row_product["id"],
+                            "product_name": row_product["product_name"],
+                            "product_buy_price": row_product["use_credit"],
+                            "product_sell_price": row_product["give_credit"],
+                            "date": timerHelper.convertDatetimeToString(cTime),
+                            "exchanged": false,
+                            "quantity": quantity
                         };
-                        
+
                         let id = await TransactionList.generateRequestID();
-                       
+
                         let aff = {
-                            aff_user:null,
-                            aff_user_credit:0,
+                            aff_user: null,
+                            aff_user_credit: 0,
                         };
 
                         await TransactionManage.create(id, row_user, "SYSTEM",
-                        parseFloat(row_product['use_credit']), 0, currentcredit, currentcredit - parseFloat(useTotalCredit), "product"
+                            parseFloat(row_product['use_credit']), 0, currentcredit, currentcredit - parseFloat(useTotalCredit), "product"
                             , row_user['bank_acc_no'], row_user['bank_name']
                             , timerHelper.convertDatetimeToString(new Date()), ''
                             , null
                             , null
-                            , null,'SYSTEM', 1
+                            , null, 'SYSTEM', 1
                             , timerHelper.convertDatetimeToString(new Date()), 0, timerHelper.convertDatetimeToString(new Date())
-                            , 'ลดเครดิตจากการซื้อสินค้า Id: '+row_product["id"]+", Name: "+row_product["product_name"]+", Buy Price: "+row_product["use_credit"]+", Sell Price: "+row_product["give_credit"]+", Quantity: "+quantity
-                            ,null,null,null
+                            , 'ลดเครดิตจากการซื้อสินค้า Id: ' + row_product["id"] + ", Name: " + row_product["product_name"] + ", Buy Price: " + row_product["use_credit"] + ", Sell Price: " + row_product["give_credit"] + ", Quantity: " + quantity
+                            , null, null, null
                             , aff['aff_user'], null, aff['aff_user_credit']
                         )
 
-                        await MainModel.update("sl_users",{credit: currentcredit - parseFloat(useTotalCredit)},{id:username});                                
-                        await MainModel.insert("product_order_history",data);							
-                                                
+                        await MainModel.update("sl_users", { credit: currentcredit - parseFloat(useTotalCredit) }, { id: username });
+                        await MainModel.insert("product_order_history", data);
+
                         res.status(200).json(
-                            { 
-                                status: 'success', 
-                                message: 'Use total point :'+useTotalCredit,
-                                auth : true,                        
-                                data : [],
+                            {
+                                status: 'success',
+                                message: 'Use total point :' + useTotalCredit,
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
-                        
+
 
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderByMemberID = async function(req, res) {
+exports.GetHistorySubScribeOrderByMemberID = async function (req, res) {
     console.log('GetHistorySubScribeOrderByMemberID');
 
     try {
@@ -1187,14 +1130,12 @@ exports.GetHistorySubScribeOrderByMemberID = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1208,60 +1149,58 @@ exports.GetHistorySubScribeOrderByMemberID = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let memberId = req.body.member_id;
-                    
+
                     let tmpData = await productList.GetHistorySubScribeOrderByMemberID(memberId);
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderNotApprove = async function(req, res) {
+exports.GetHistorySubScribeOrderNotApprove = async function (req, res) {
     console.log('GetHistorySubScribeOrderNotApprove');
 
     try {
@@ -1270,14 +1209,12 @@ exports.GetHistorySubScribeOrderNotApprove = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1291,58 +1228,56 @@ exports.GetHistorySubScribeOrderNotApprove = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetHistorySubScribeOrderNotApprove();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderWaitInvitation = async function(req, res) {
+exports.GetHistorySubScribeOrderWaitInvitation = async function (req, res) {
     console.log('GetHistorySubScribeOrderWaitInvitation');
 
     try {
@@ -1351,14 +1286,12 @@ exports.GetHistorySubScribeOrderWaitInvitation = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1372,58 +1305,56 @@ exports.GetHistorySubScribeOrderWaitInvitation = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetHistorySubScribeOrderWaitInvitation();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderWaitCheckPayment = async function(req, res) {
+exports.GetHistorySubScribeOrderWaitCheckPayment = async function (req, res) {
     console.log('GetHistorySubScribeOrderWaitCheckPayment');
 
     try {
@@ -1432,14 +1363,12 @@ exports.GetHistorySubScribeOrderWaitCheckPayment = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1453,58 +1382,56 @@ exports.GetHistorySubScribeOrderWaitCheckPayment = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetHistorySubScribeOrderWaitCheckPayment();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
+exports.GetHistorySubScribeOrderCheckedPayment = async function (req, res) {
     console.log('GetHistorySubScribeOrderCheckedPayment');
 
     try {
@@ -1513,14 +1440,12 @@ exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1534,58 +1459,56 @@ exports.GetHistorySubScribeOrderCheckedPayment = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetHistorySubScribeOrderCheckedPayment();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistorySubScribeOrderAll = async function(req, res) {
+exports.GetHistorySubScribeOrderAll = async function (req, res) {
     console.log('GetHistorySubScribeOrderAll');
 
     try {
@@ -1594,14 +1517,12 @@ exports.GetHistorySubScribeOrderAll = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1615,58 +1536,56 @@ exports.GetHistorySubScribeOrderAll = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetHistorySubScribeOrderAll();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetOrderNearExpire = async function(req, res) {
+exports.GetOrderNearExpire = async function (req, res) {
     console.log('GetOrderNearExpire');
 
     try {
@@ -1675,14 +1594,12 @@ exports.GetOrderNearExpire = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1696,58 +1613,57 @@ exports.GetOrderNearExpire = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetOrderNearExpire();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
-                message: error.message,
-                auth : false,
-                data : [],
+            {
+                status: 'error',
+                // message: error.message,
+                message: 'Internal error: cannot load near-expire orders.',
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetOrderExpired = async function(req, res) {
+exports.GetOrderExpired = async function (req, res) {
     console.log('GetOrderExpired');
 
     try {
@@ -1756,14 +1672,12 @@ exports.GetOrderExpired = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1777,58 +1691,57 @@ exports.GetOrderExpired = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await productList.GetOrderExpired();
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
-                message: error.message,
-                auth : false,
-                data : [],
+            {
+                status: 'error',
+                // message: error.message,
+                message: 'Internal error: cannot load expired orders.',
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetSubScribeOrderById = async function(req, res) {
+exports.GetSubScribeOrderById = async function (req, res) {
     console.log('GetSubScribeOrderById');
 
     try {
@@ -1837,14 +1750,12 @@ exports.GetSubScribeOrderById = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1852,7 +1763,7 @@ exports.GetSubScribeOrderById = async function(req, res) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
-                const {id,email}  = req.body;
+                const { id, email } = req.body;
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
 
@@ -1862,15 +1773,17 @@ exports.GetSubScribeOrderById = async function(req, res) {
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
+
                 if (IsAuth) 
                 {
                     let tmpData = await productList.GetSubScribeOrderById(id,email);
                     let bankData = await AdminBankList.findAllActive();
                     
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
+
                             auth : true,                        
                             data : tmpData,
                             bank_data : bankData.length > 0 ? bankData[0] : {},
@@ -1878,41 +1791,40 @@ exports.GetSubScribeOrderById = async function(req, res) {
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.GetHistoryOrderByMemberID = async function(req, res) {
+exports.GetHistoryOrderByMemberID = async function (req, res) {
     console.log('GetHistoryOrderByMemberID');
 
     try {
@@ -1921,14 +1833,12 @@ exports.GetHistoryOrderByMemberID = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -1942,60 +1852,58 @@ exports.GetHistoryOrderByMemberID = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await MemberList.isAuthenicated(userid,token);
+                let IsAuth = await MemberList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let startTime = req.body.start;
                     let endTime = req.body.end;
-                    let tmpData = await productList.getHistoryOrderByMemberID(userid,timerHelper.convertDatetimeToString(startTime),timerHelper.convertDatetimeToString(endTime));
-                    
+                    let tmpData = await productList.getHistoryOrderByMemberID(userid, timerHelper.convertDatetimeToString(startTime), timerHelper.convertDatetimeToString(endTime));
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
                     );
                     return;
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
-                        return;
+                    );
+                    return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.CreateSubScribeOrder = async function(req, res) {
+exports.CreateSubScribeOrder = async function (req, res) {
     console.log('CreateSubScribeOrder');
 
     try {
@@ -2004,19 +1912,17 @@ exports.CreateSubScribeOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2028,121 +1934,115 @@ exports.CreateSubScribeOrder = async function(req, res) {
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let user_id = req.body.user_id;
-                    let product_id = req.body.product_id;                    
+                    let product_id = req.body.product_id;
                     let email = req.body.email;
                     let note = req.body.note;
 
-                    let row_product = await productList.findById(product_id);  
+                    let row_product = await productList.findById(product_id);
                     let row_user = await MemberList.findById(user_id);
 
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
-                        
-                        let data = {                            
-                            "user_id" : row_user["id"] ,
-                            "email" : email ,                            
-                            "product_id" : row_product["id"] ,
-                            "subscription_type_id":  row_product["subscription_type_id"] ,
-                            "product_name": row_product["product_name"] ,
-                            "create_by": admin ,
-                            "create_date" : timerHelper.getDateTimeNowString() ,                            
-                            "buy_date" : timerHelper.getDateTimeNowString() , 
-                            "note" : note,
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
+
+                        let data = {
+                            "user_id": row_user["id"],
+                            "email": email,
+                            "product_id": row_product["id"],
+                            "subscription_type_id": row_product["subscription_type_id"],
+                            "product_name": row_product["product_name"],
+                            "create_by": admin,
+                            "create_date": timerHelper.getDateTimeNowString(),
+                            "buy_date": timerHelper.getDateTimeNowString(),
+                            "note": note,
                         };
-                        
+
                         let tmpData = await productList.createSubScribeOrder(data);
                         if (tmpData) {
                             res.status(200).json(
-                                { 
-                                    status: 'success', 
+                                {
+                                    status: 'success',
                                     message: 'Order created successfully.',
-                                    auth : true,                        
-                                    data : [],
+                                    auth: true,
+                                    data: [],
                                 }
                             );
                         }
-                        else
-                        {
+                        else {
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Create order failed.',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
                         }
-                        
+
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
-    
 
-    
+
+
+
 };
 
-exports.CreateAndApproveSubScribeOrder = async function(req, res) {
+exports.CreateAndApproveSubScribeOrder = async function (req, res) {
     console.log('CreateAndApproveSubScribeOrder');
 
     try {
@@ -2151,19 +2051,17 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2175,134 +2073,127 @@ exports.CreateAndApproveSubScribeOrder = async function(req, res) {
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let user_id = req.body.user_id;
-                    let product_id = req.body.product_id;                    
+                    let product_id = req.body.product_id;
                     let email = req.body.email;
                     let note = req.body.note;
 
-                    let row_product = await productList.findById(product_id);  
+                    let row_product = await productList.findById(product_id);
                     let row_user = await MemberList.findById(user_id);
 
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
                         let start_date = new Date();
                         let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
 
                         //calculate start_date,end_date
-                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,email);
-                        
-                        if (lastHistData.length > 0) 
-                        {
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"], row_product["subscription_type_id"], email);
+
+                        if (lastHistData.length > 0) {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
                             end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
                         }
-                        
-                        let data = {                            
-                            "user_id" : row_user["id"] ,
-                            "email" : email ,                            
-                            "product_id" : row_product["id"] ,
-                            "subscription_type_id":  row_product["subscription_type_id"] ,
-                            "product_name": row_product["product_name"] ,
-                            "create_by": admin ,
-                            "create_date" : timerHelper.getDateTimeNowString() ,     
-                            "approve_by": admin ,
-                            "approve_date" : timerHelper.getDateTimeNowString() ,                            
-                            "buy_date" : timerHelper.getDateTimeNowString() ,        
-                            "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
-                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,    
-                            "note":note,
+
+                        let data = {
+                            "user_id": row_user["id"],
+                            "email": email,
+                            "product_id": row_product["id"],
+                            "subscription_type_id": row_product["subscription_type_id"],
+                            "product_name": row_product["product_name"],
+                            "create_by": admin,
+                            "create_date": timerHelper.getDateTimeNowString(),
+                            "approve_by": admin,
+                            "approve_date": timerHelper.getDateTimeNowString(),
+                            "buy_date": timerHelper.getDateTimeNowString(),
+                            "start_date": timerHelper.convertDatetimeToString(start_date),
+                            "end_date": timerHelper.convertDatetimeToString(end_date),
+                            "note": note,
                         };
-                        
+
                         let tmpData = await productList.createAndApproveSubScribeOrder(data);
                         if (tmpData) {
                             res.status(200).json(
-                                { 
-                                    status: 'success', 
+                                {
+                                    status: 'success',
                                     message: '',
-                                    auth : true,                        
-                                    data : [],
+                                    auth: true,
+                                    data: [],
                                 }
                             );
                         }
-                        else
-                        {
+                        else {
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Create order failed.',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
                         }
-                        
+
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.ApproveSubScribeOrder = async function(req, res) {
+exports.ApproveSubScribeOrder = async function (req, res) {
     console.log('ApproveSubScribeOrder');
 
     try {
@@ -2311,19 +2202,17 @@ exports.ApproveSubScribeOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2332,141 +2221,133 @@ exports.ApproveSubScribeOrder = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 //let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";                    
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let order_id = req.body.order_id;
                     let note = req.body.note;
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
 
-                    let row_product = await productList.findById(row_order['product_id']);  
+                    let row_product = await productList.findById(row_order['product_id']);
                     let row_user = await MemberList.findById(row_order['user_id']);
 
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    let chkproduct = row_product['id']?true:false;
-                    if (chkproduct)
-                    {
+
+                    let chkproduct = row_product['id'] ? true : false;
+                    if (chkproduct) {
                         let start_date = new Date();
                         let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
 
                         //calculate start_date,end_date
-                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"],row_product["subscription_type_id"] ,row_order["email"]);
-                        if (lastHistData.length > 0) 
-                        {
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"], row_product["subscription_type_id"], row_order["email"]);
+                        if (lastHistData.length > 0) {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
                             end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
                         }
-                        
-                        let objData = {                            
-                            "id" : order_id ,
-                            "approve_by": admin ,
-                            "approve_date" : timerHelper.getDateTimeNowString() ,                                                            
-                            "start_date" : timerHelper.convertDatetimeToString(start_date) ,        
-                            "end_date" : timerHelper.convertDatetimeToString(end_date) ,       
-                            "note" :note,
+
+                        let objData = {
+                            "id": order_id,
+                            "approve_by": admin,
+                            "approve_date": timerHelper.getDateTimeNowString(),
+                            "start_date": timerHelper.convertDatetimeToString(start_date),
+                            "end_date": timerHelper.convertDatetimeToString(end_date),
+                            "note": note,
                         };
-                        
+
                         let tmpData = await productList.approveOrderById(objData);
                         if (tmpData) {
                             res.status(200).json(
-                                { 
-                                    status: 'success', 
+                                {
+                                    status: 'success',
                                     message: '',
-                                    auth : true,                        
-                                    data : [],
+                                    auth: true,
+                                    data: [],
                                 }
                             );
                         }
-                        else
-                        {
+                        else {
                             res.status(202).json(
-                                { 
-                                    status: 'error', 
+                                {
+                                    status: 'error',
                                     message: 'Approve order failed.',
-                                    auth : false,
-                                    data : [],
+                                    auth: false,
+                                    data: [],
                                 }
                             );
                             return;
                         }
-                        
+
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found product please contact support team.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.SentFamliyInviteOrder = async function(req, res) {
+exports.SentFamliyInviteOrder = async function (req, res) {
     console.log('SentFamliyInviteOrder');
 
     try {
@@ -2475,19 +2356,17 @@ exports.SentFamliyInviteOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2496,108 +2375,103 @@ exports.SentFamliyInviteOrder = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 //let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";                    
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let order_id = req.body.order_id;
                     let note = req.body.note;
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
                     let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                        
-                    let objData = {                            
-                        "id" : order_id ,
-                        "sent_email_by": admin ,
-                        "sent_email_at" : timerHelper.getDateTimeNowString(),      
-                        "note": note ,
+
+                    let objData = {
+                        "id": order_id,
+                        "sent_email_by": admin,
+                        "sent_email_at": timerHelper.getDateTimeNowString(),
+                        "note": note,
                     };
-                    
+
                     let tmpData = await productList.SentFamliyInviteOrder(objData);
                     if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Approve order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.SkipFamliyInviteOrder = async function(req, res) {
+exports.SkipFamliyInviteOrder = async function (req, res) {
     console.log('SkipFamliyInviteOrder');
 
     try {
@@ -2606,19 +2480,17 @@ exports.SkipFamliyInviteOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2627,60 +2499,57 @@ exports.SkipFamliyInviteOrder = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 //let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";                    
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let order_id = req.body.order_id;
                     let note = req.body.note;
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
                     let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                        
-                    let objData = {                            
-                        "id" : order_id ,
-                        "sent_email_by": admin ,
-                        "sent_email_at" : timerHelper.getDateTimeNowString(),        
-                        "note": note ,
+
+                    let objData = {
+                        "id": order_id,
+                        "sent_email_by": admin,
+                        "sent_email_at": timerHelper.getDateTimeNowString(),
+                        "note": note,
                     };
-                    
+
                     let tmpData = await productList.SkipFamliyInviteOrder(objData);
                     if (tmpData) {
 
                         //Sent Message for payment
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
 
@@ -2688,33 +2557,31 @@ exports.SkipFamliyInviteOrder = async function(req, res) {
                         let contact = await lineChatSetting.getContactByUserId(sourceUserId);
                         let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
 
-                        if (tmpChatSetting['status']!=1) 
-                        {
+                        if (tmpChatSetting['status'] != 1) {
                             return;
                         }
 
-                        let channelToken ="";
+                        let channelToken = "";
                         channelToken = tmpChatSetting['channel_token'];
-                        
+
                         const lineChatAPI = new LineChatAPI();
                         lineChatAPI.setToken(channelToken);
 
-                        let msg ="";
-                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " รอการชำระเงิน\n";
+                        let msg = "";
+                        msg = "ขณะนี้แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email'] + " รอการชำระเงิน\n";
                         msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
-                        msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+                        msg += oSecretkey.webDomain + "confirmpayment?id=" + row_order['id'] + "&email=" + row_order['email'];
 
-                        
 
-                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
-                        if (tmpSend['error']) 
-                        {
+
+                        const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+                        if (tmpSend['error']) {
                             res.status(200).json(
-                                { 
-                                status: 'success', 
-                                message: tmpSend['error'],
-                                auth : true,                          
-                                data : tmpReturnData,
+                                {
+                                    status: 'success',
+                                    message: tmpSend['error'],
+                                    auth: true,
+                                    data: tmpReturnData,
                                 }
                             );
                             return;
@@ -2722,53 +2589,51 @@ exports.SkipFamliyInviteOrder = async function(req, res) {
 
 
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Approve order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.PaymentOrderWithSlip = async function(req, res) {
+exports.PaymentOrderWithSlip = async function (req, res) {
     console.log('PaymentOrderWithSlip');
 
     try {
@@ -2777,19 +2642,17 @@ exports.PaymentOrderWithSlip = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2801,115 +2664,110 @@ exports.PaymentOrderWithSlip = async function(req, res) {
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {                
-                    let order_id = req.body.order_id??0;
-                    let slip_file_url = req.body.slip_file_url??'';
+                if (IsAuth) {
+                    let order_id = req.body.order_id ?? 0;
+                    let slip_file_url = req.body.slip_file_url ?? '';
 
-                    if (order_id==0||slip_file_url=="") {
+                    if (order_id == 0 || slip_file_url == "") {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found slip or order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
                     let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                        
-                    let objData = {                            
-                        "id" : order_id ,
-                        "slip_file_url": slip_file_url ,
-                        "slip_file_at" : timerHelper.getDateTimeNowString(),      
+
+                    let objData = {
+                        "id": order_id,
+                        "slip_file_url": slip_file_url,
+                        "slip_file_at": timerHelper.getDateTimeNowString(),
                     };
-                    
+
                     let tmpData = await productList.PaymentOrderWithSlip(objData);
                     if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Payment order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.SentPaymentMessageOrder = async function(req, res) {
+exports.SentPaymentMessageOrder = async function (req, res) {
     console.log('SentPaymentMessageOrder');
 
     try {
@@ -2918,19 +2776,17 @@ exports.SentPaymentMessageOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -2939,49 +2795,46 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 //let IsAuth = true;
 
-                if (IsAuth) 
-                {                
-                    let order_id = req.body.order_id??0;
-                    let days_left = req.body.days_left??0;
-                    
-                    if (order_id==0) {
+                if (IsAuth) {
+                    let order_id = req.body.order_id ?? 0;
+                    let days_left = req.body.days_left ?? 0;
+
+                    if (order_id == 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found slip or order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
                     let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
@@ -2991,112 +2844,110 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                     let contact = await lineChatSetting.getContactByUserId(sourceUserId);
                     let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
 
-                    if (tmpChatSetting['status']!=1) 
-                    {
+                    if (tmpChatSetting['status'] != 1) {
                         res.status(202).json(
-                        { 
-                            status: 'error', 
-                            message: 'This line is not active',
-                            auth : false,
-                            data : [],
-                        }
+                            {
+                                status: 'error',
+                                message: 'This line is not active',
+                                auth: false,
+                                data: [],
+                            }
                         );
                         return;
                     }
 
-                    let channelToken ="";
+                    let channelToken = "";
                     channelToken = tmpChatSetting['channel_token'];
-                    
+
                     const lineChatAPI = new LineChatAPI();
                     lineChatAPI.setToken(channelToken);
 
-                    let msg ="";
+                    let msg = "";
+
 
 
                     msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " รอการชำระเงิน\n";
                     msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
                     msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
 
-                    const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
-                    if (tmpSend['error']) 
-                    {
+                    const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+                    if (tmpSend['error']) {
                         res.status(200).json(
-                            { 
-                            status: 'success', 
-                            message: tmpSend['error'],
-                            auth : true,                          
-                            data : tmpReturnData,
+                            {
+                                status: 'success',
+                                message: tmpSend['error'],
+                                auth: true,
+                                // data : tmpReturnData,
+                                data: [],
                             }
                         );
                         return;
                     }
-                        
-                    let objData = {                                                                                                
-                        "offer_at" : timerHelper.getDateTimeNowString(), 
-                        "to_email" : row_order.email,
-                        "to_userid" : row_order.user_id,
-                        "subscription_type_id" : row_order.subscription_type_id,
-                        "offer_by" : userid,
+
+                    let objData = {
+                        "offer_at": timerHelper.getDateTimeNowString(),
+                        "to_email": row_order.email,
+                        "to_userid": row_order.user_id,
+                        "subscription_type_id": row_order.subscription_type_id,
+                        "offer_by": userid,
                     };
-                    
+
                     let tmpData = await productList.SentPaymentMessageOrder(objData);
                     if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Payment order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.VerifySlipOrder = async function(req, res) {
+exports.VerifySlipOrder = async function (req, res) {
     console.log('VerifySlipOrder');
 
     try {
@@ -3105,19 +2956,17 @@ exports.VerifySlipOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -3126,119 +2975,114 @@ exports.VerifySlipOrder = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
                 //let IsAuth = true;
 
-                if (IsAuth) 
-                {                
-                    let order_id = req.body.order_id??0;
+                if (IsAuth) {
+                    let order_id = req.body.order_id ?? 0;
                     let slip_correct = req.body.slip_correct;
 
-                    if (!slip_correct ||order_id==0) {
+                    if (!slip_correct || order_id == 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found slip or order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
 
                     let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length<=0) 
-                    {
+                    if (row_user.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found user.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                        
-                    let objData = {                            
-                        "id" : order_id ,
-                        "slip_correct": slip_correct ,
-                        "check_slip_by" : userid,      
-                        "check_slip_at" : timerHelper.getDateTimeNowString(),      
+
+                    let objData = {
+                        "id": order_id,
+                        "slip_correct": slip_correct,
+                        "check_slip_by": userid,
+                        "check_slip_at": timerHelper.getDateTimeNowString(),
                     };
-                    
+
                     let tmpData = await productList.VerifySlipOrder(objData);
                     if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Payment order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
 
-exports.CancelSubScribeOrder = async function(req, res) {
+exports.CancelSubScribeOrder = async function (req, res) {
     console.log('CancelSubScribeOrder');
 
     try {
@@ -3247,19 +3091,17 @@ exports.CancelSubScribeOrder = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-        
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
             return;
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
             if (false) {
-                
+
             } else {
 
                 // console.log(req.body.userid);
@@ -3271,85 +3113,81 @@ exports.CancelSubScribeOrder = async function(req, res) {
                 //let IsAuth = await AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    let admin = req.body.username? req.body.username:"System";                    
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";
                     let order_id = req.body.order_id;
                     let note = req.body.note;
 
-                    let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
-                    {
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Not found order.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                   
-                    
-                    let objData = {                            
-                        "id" : order_id ,
+
+
+                    let objData = {
+                        "id": order_id,
                         "note": note,
                     };
-                    
-                    let tmpData = await productList.cancelOrderById(objData);                    
+
+                    let tmpData = await productList.cancelOrderById(objData);
                     if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,                        
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'canceled order failed.',
-                                auth : false,
-                                data : [],
+                                auth: false,
+                                data: [],
                             }
                         );
                         return;
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
                     );
                     return;
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         console.log(error);
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
         return;
     }
-    
+
 };
