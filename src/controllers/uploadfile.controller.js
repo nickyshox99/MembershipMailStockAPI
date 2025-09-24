@@ -102,9 +102,8 @@ exports.uploadFile =  async (req, res) => {
                         return;
                     }
 
-                    const splitExtensionName =uploadedFile.filename.split('.')[1];
-                            
-                    const destFileName= userid+ (new Date().getTime()).toString() + req.body.tofilename+'.'+splitExtensionName;
+                    // Use the provided tofilename directly (already includes extension)
+                    const destFileName = userid + (new Date().getTime()).toString() + req.body.tofilename;
                     // Example: Save the uploaded file to a specific location
                     const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
@@ -150,7 +149,7 @@ exports.uploadFile =  async (req, res) => {
                             res.status(200).json(
                             {   status : 'success' ,
                                 message: 'File uploaded successfully',
-                                url: Secret.apiDomain+'getfile/'+ destFileName,
+                                file_url: Secret.apiDomain+'getfile/'+ destFileName,
                             });        
                             return;
                         });
@@ -233,9 +232,8 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
 
                     let oldFilePath = req.body.oldFilePath??'';
 
-                    const splitExtensionName =uploadedFile.filename.split('.')[1];
-                            
-                    const destFileName= userid+ (new Date().getTime()).toString() + req.body.tofilename+'.'+splitExtensionName;
+                    // Use the provided tofilename directly (already includes extension)
+                    const destFileName = userid + (new Date().getTime()).toString() + req.body.tofilename;
                     // Example: Save the uploaded file to a specific location
                     const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
@@ -410,9 +408,9 @@ exports.customerUploadFileAndDeleteOldFile =  async (req, res) => {
 
                     let oldFilePath = req.body.oldFilePath??'';
 
-                    const splitExtensionName =uploadedFile.filename.split('.')[1];
-                            
-                    const destFileName= req.body.tofilename+'.'+splitExtensionName;
+                    // Use the provided tofilename directly (already includes extension)
+                    const destFileName = req.body.tofilename;
+                    
                     // Example: Save the uploaded file to a specific location
                     const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );

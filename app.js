@@ -43,6 +43,7 @@ const subscriptionTypeRoutes = require('./src/routes/subscriptiontype.route');
 const loanListRoutes = require('./src/routes/loanlist.route');
 const reportRoutes = require('./src/routes/report.route');
 const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
+const reportZendRoutes = require('./src/routes/report.zend.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
@@ -664,6 +665,8 @@ app.use('/api/loan', loanListRoutes);
 app.use('/api/line', lineRoutes);
 
 app.use('/api/report', reportRoutes);
+
+app.use('/api/reportzend', reportZendRoutes);
 
 const lineWebhookRoutes  =require('./src/routes/linewebhook.route');
 
