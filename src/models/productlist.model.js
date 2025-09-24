@@ -444,8 +444,6 @@ productList.PaymentOrderWithSlip = async function(objData, result) {
             ,rowid
             ]          
         );
-        
-
         return true;
     } catch (error) {
         console.log(error);
