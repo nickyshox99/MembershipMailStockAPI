@@ -1865,6 +1865,7 @@ exports.GetSubScribeOrderById = async function(req, res) {
                 if (IsAuth) 
                 {
                     let tmpData = await productList.GetSubScribeOrderById(id,email);
+                    let bankData = await AdminBankList.findAllActive();
                     
                     res.status(200).json(
                         { 
@@ -1872,6 +1873,7 @@ exports.GetSubScribeOrderById = async function(req, res) {
                             message: '',
                             auth : true,                        
                             data : tmpData,
+                            bank_data : bankData.length > 0 ? bankData[0] : {},
                         }
                     );
                     return;
@@ -3011,18 +3013,9 @@ exports.SentPaymentMessageOrder = async function(req, res) {
                     let msg ="";
 
 
-                    if (days_left<=0) 
-                    {
-                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ได้หมดอายุแล้ว\n";
-                        msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
-                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
-                    }
-                    else
-                    {
-                        msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " เหลือ "+ days_left +"วัน\n";
-                        msg += "ท่านสามารถเพิ่มวันโดยกดซื้อได้ตามลิงค์นี้ \n";
-                        msg += oSecretkey.webDomain+ "buyproduct?sourceUserId="+sourceUserId+"&email="+row_order['email'];
-                    }
+                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " รอการชำระเงิน\n";
+                    msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
+                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
 
                     const tmpSend = await lineChatAPI.pushMessage(sourceUserId ,msg);  
                     if (tmpSend['error']) 

@@ -21,6 +21,7 @@ const MainModel = require("../models/main.model");
 
 const lineChatSetting = require('../models/linechatsetting.model');
 const LineChatAPI = require('./../modules/lineChatAPI');
+const lineReply = require('./../modules/lineReply');
 const oSecretkey = require("../../config/secret");
 const MemberList = require("../models/memberlist.model");
 const ProductList = require("../models/productlist.model");
@@ -499,67 +500,18 @@ module.exports = function (wsConnections) {
         }
         else if (message_type == 0 && msg) {
           let tmp_msg_detail = msg;
-          //tmp_msg_detail contain "สมัคร"          
+               
           if (tmp_msg_detail.includes("สมัคร")) {
-            let replyMessage = oSecretkey.webDomain + "registeremail?sourceUserId=" + sourceUserId;
-            lineChatAPI.replyMessage(
-              reply_token,
-              "เปิดลิงค์นี้เพื่อทำการสมัคร " + replyMessage
-            );
+            await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey);
           }
           else if (tmp_msg_detail.includes("ต่ออายุ") || tmp_msg_detail.includes("ซื้อ")) {
-            //let replyMessage = oSecretkey.webDomain+ "/register?sourceUserId="+sourceUserId;
-            let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
-            if (userList.length > 0) {
-              let userData = userList[0];
-              let replyMessage = oSecretkey.webDomain + "buyproduct?sourceUserId=" + profileData['user_id'];
-              lineChatAPI.replyMessage(
-                reply_token,
-                "เปิดลิงค์นี้เพื่อทำการซื้อ " + replyMessage,
-              );
-            }
-            else {
-              lineChatAPI.replyMessage(
-                reply_token,
-                'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม'
-              );
-
-            }
+            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey);
           }
           else if (tmp_msg_detail.includes("เช็ควัน")) {
-            let replyMessage = "ไม่มีข้อมูล";
-            let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
-            if (userList.length > 0) {
-              let products = await ProductList.GetDayExpireByUserId(userList[0].id);
-              if (products.length > 0) {
-                replyMessage = "";
-                for (let index = 0; index < products.length; index++) {
-                  const element = products[index];
-                  const dayLeft = element['days_left'] < 0 ? " หมดอายุ " : " เหลือ " + element['days_left'] + " วัน";
-                  replyMessage += element['email'] + " หมดอายุวันที่ " + element['end_date'] + element['subscription_name'] + dayLeft + "\n";
-                }
-
-              }
-
-              lineChatAPI.replyMessage(
-                reply_token,
-                replyMessage
-              );
-            }
-            else {
-              lineChatAPI.replyMessage(
-                reply_token,
-                'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม'
-              );
-
-            }
+            await lineReply.handleCheckDays(reply_token, profileData);
           }
           else if (tmp_msg_detail) {
-            let replyMessage = 'พิมพ์คำสั่ง เช่น "สมัคร", "ต่ออายุ", "ซื้อ", "เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
-            lineChatAPI.replyMessage(
-              reply_token,
-              replyMessage
-            );
+            lineReply.handleDefaultMessage(reply_token);
           }
         }
 
