@@ -855,4 +855,458 @@ productList.GetSubScribeOrderById = async function(id,email,result) {
     return datas[0];
 };
 
+productList.getAccountSummaryReport = async function(result) {   
+
+    let sqlStr = `
+    SELECT 
+        'active' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) > 0
+    AND moh.canceled<>1
+    
+    UNION ALL
+    
+    SELECT 
+        'expired' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) <= 0
+    AND moh.canceled<>1
+    
+    UNION ALL
+    
+    SELECT 
+        'expiring_3_days' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 1 AND 3
+    AND moh.canceled<>1
+    
+    UNION ALL
+    
+    SELECT 
+        'expiring_7_days' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 4 AND 7
+    AND moh.canceled<>1
+    
+    UNION ALL
+    
+    SELECT 
+        'expiring_30_days' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 8 AND 30
+    AND moh.canceled<>1
+    
+    UNION ALL
+    
+    SELECT 
+        'more_than_30_days' as status_type,
+        COUNT(DISTINCT moh.email) as count
+    FROM membership_order_history moh 
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1
+        GROUP BY email, subscription_type_id
+    ) latest 
+    ON moh.email = latest.email 
+    AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) > 30
+    AND moh.canceled<>1
+    `;
+    
+    let datas = await dbConn.raw(sqlStr);
+    
+    // Transform data to object format
+    let resultData = {
+        activeAccounts: 0,
+        expiredAccounts: 0,
+        expiringIn3Days: 0,
+        expiringIn7Days: 0,
+        expiringIn30Days: 0,
+        moreThan30Days: 0
+    };
+    
+    if (datas[0] && datas[0].length > 0) {
+        datas[0].forEach(row => {
+            switch(row.status_type) {
+                case 'active':
+                    resultData.activeAccounts = parseInt(row.count);
+                    break;
+                case 'expired':
+                    resultData.expiredAccounts = parseInt(row.count);
+                    break;
+                case 'expiring_3_days':
+                    resultData.expiringIn3Days = parseInt(row.count);
+                    break;
+                case 'expiring_7_days':
+                    resultData.expiringIn7Days = parseInt(row.count);
+                    break;
+                case 'expiring_30_days':
+                    resultData.expiringIn30Days = parseInt(row.count);
+                    break;
+                case 'more_than_30_days':
+                    resultData.moreThan30Days = parseInt(row.count);
+                    break;
+            }
+        });
+    }
+    
+    return resultData;
+};
+
+productList.getSubscriptionTypeReport = async function(result) {   
+
+    let sqlStr = `
+    SELECT 
+        CASE 
+            WHEN moh.product_name LIKE '%Youtube Premium%' THEN 'Youtube Premium'
+            WHEN moh.product_name LIKE '%Netflix%' THEN 'Netflix'
+            WHEN moh.product_name LIKE '%Viu%' THEN 'Viu'
+            WHEN moh.product_name LIKE '%WeTV%' THEN 'WeTV'
+            ELSE 'อื่นๆ'
+        END as subscription_name,
+        CASE 
+            WHEN moh.product_name LIKE '%1 เดือน%' THEN '1 เดือน'
+            WHEN moh.product_name LIKE '%2 เดือน%' THEN '2 เดือน'
+            WHEN moh.product_name LIKE '%3 เดือน%' THEN '3 เดือน'
+            WHEN moh.product_name LIKE '%6 เดือน%' THEN '6 เดือน'
+            WHEN moh.product_name LIKE '%1 ปี%' THEN '1 ปี'
+            ELSE 'ไม่ระบุ'
+        END as duration_text,
+        COUNT(DISTINCT moh.email) as total_accounts,
+        COUNT(DISTINCT CASE WHEN DATEDIFF(latest.max_end_date,CURDATE()) > 0 THEN moh.email END) as active_accounts,
+        COUNT(DISTINCT CASE WHEN DATEDIFF(latest.max_end_date,CURDATE()) <= 0 THEN moh.email END) as expired_accounts,
+        COUNT(DISTINCT CASE WHEN DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 1 AND 7 THEN moh.email END) as expiring_soon
+    FROM membership_order_history moh
+    LEFT JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1 AND canceled<>1
+        GROUP BY email, subscription_type_id
+    ) latest ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1 AND moh.canceled <> 1
+    GROUP BY subscription_name, duration_text
+    ORDER BY total_accounts DESC
+    `;
+    
+    let datas = await dbConn.raw(sqlStr);
+    return datas[0] || [];
+};
+
+productList.getOrderStatusReport = async function(result) {   
+
+    let sqlStr = `
+    SELECT 
+        'wait_invite' as status_type,
+        COUNT(*) as count,
+        'รอการเชิญเข้ากลุ่ม' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND slip_correct = 1 
+    AND approve_by IS NOT NULL 
+    AND approve_by != ''
+    AND (sent_email_by IS NULL OR sent_email_by = '')
+    
+    UNION ALL
+    
+    SELECT 
+        'wait_approve' as status_type,
+        COUNT(*) as count,
+        'รอการอนุมัติ' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND (approve_by IS NULL OR approve_by = '')
+    AND wait_check_payment = 1
+    
+    UNION ALL
+    
+    SELECT 
+        'wait_payment' as status_type,
+        COUNT(*) as count,
+        'รอชำระเงิน' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND (approve_by IS NULL OR approve_by = '')
+    AND (wait_check_payment = 0 OR wait_check_payment IS NULL)
+    
+    UNION ALL
+    
+    SELECT 
+        'checked_payment' as status_type,
+        COUNT(*) as count,
+        'ตรวจสอบแล้ว' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND slip_correct = 1 
+    AND approve_by IS NOT NULL 
+    AND approve_by != ''
+    AND sent_email_by IS NOT NULL 
+    AND sent_email_by != ''
+    AND wait_check_payment = 0
+    
+    UNION ALL
+    
+    SELECT 
+        'near_expire' as status_type,
+        COUNT(DISTINCT email) as count,
+        'ใกล้หมดอายุ' as status_name
+    FROM membership_order_history moh
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1 AND canceled<>1
+        GROUP BY email, subscription_type_id
+    ) latest ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1 
+    AND moh.canceled<>1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 1 AND 7
+    
+    UNION ALL
+    
+    SELECT 
+        'expired' as status_type,
+        COUNT(DISTINCT email) as count,
+        'หมดอายุแล้ว' as status_name
+    FROM membership_order_history moh
+    INNER JOIN (
+        SELECT 
+            email, 
+            MAX(end_date) AS max_end_date,
+            subscription_type_id
+        FROM membership_order_history
+        WHERE slip_correct=1 AND canceled<>1
+        GROUP BY email, subscription_type_id
+    ) latest ON moh.email = latest.email 
+        AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.end_date = latest.max_end_date
+    WHERE moh.slip_correct = 1 
+    AND moh.canceled<>1
+    AND DATEDIFF(latest.max_end_date,CURDATE()) <= 0
+    `;
+    
+    let datas = await dbConn.raw(sqlStr);
+    
+    // Transform data to object format
+    let resultData = {
+        waitInvite: 0,
+        waitApprove: 0,
+        waitPayment: 0,
+        checkedPayment: 0,
+        nearExpire: 0,
+        expired: 0
+    };
+    
+    if (datas[0] && datas[0].length > 0) {
+        datas[0].forEach(row => {
+            switch(row.status_type) {
+                case 'wait_invite':
+                    resultData.waitInvite = parseInt(row.count);
+                    break;
+                case 'wait_approve':
+                    resultData.waitApprove = parseInt(row.count);
+                    break;
+                case 'wait_payment':
+                    resultData.waitPayment = parseInt(row.count);
+                    break;
+                case 'checked_payment':
+                    resultData.checkedPayment = parseInt(row.count);
+                    break;
+                case 'near_expire':
+                    resultData.nearExpire = parseInt(row.count);
+                    break;
+                case 'expired':
+                    resultData.expired = parseInt(row.count);
+                    break;
+            }
+        });
+    }
+    
+    return resultData;
+};
+
+productList.getMonthlyRevenueReport = async function(fromDate, toDate) {   
+
+    let sqlStr = `
+    SELECT 
+        DATE_FORMAT(moh.create_date, '%Y-%m') as month_year,
+        COUNT(*) as total_orders,
+        COUNT(DISTINCT moh.email) as unique_customers,
+        SUM(CASE WHEN moh.slip_correct = 1 THEN pl.use_credit ELSE 0 END) as total_revenue,
+        COUNT(CASE WHEN moh.slip_correct = 1 THEN 1 ELSE NULL END) as successful_orders,
+        CASE 
+            WHEN COUNT(CASE WHEN moh.slip_correct = 1 THEN 1 ELSE NULL END) > 0 
+            THEN SUM(CASE WHEN moh.slip_correct = 1 THEN pl.use_credit ELSE 0 END) / COUNT(CASE WHEN moh.slip_correct = 1 THEN 1 ELSE NULL END)
+            ELSE 0 
+        END as average_order_value
+    FROM membership_order_history moh
+    LEFT JOIN product_list pl ON pl.id = moh.product_id
+    WHERE moh.create_date >= ? AND moh.create_date <= ?
+    GROUP BY DATE_FORMAT(moh.create_date, '%Y-%m')
+    ORDER BY month_year DESC
+    `;
+    
+    let datas = await dbConn.raw(sqlStr, [fromDate, toDate]);
+    return datas[0] || [];
+};
+
+productList.testOrderStatusData = async function(result) {   
+
+    let sqlStr = `
+    SELECT 
+        'wait_invite' as status_type,
+        COUNT(*) as count,
+        'รอการเชิญเข้ากลุ่ม' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND slip_correct = 1 
+    AND approve_by IS NOT NULL 
+    AND approve_by != ''
+    AND (sent_email_by IS NULL OR sent_email_by = '')
+    
+    UNION ALL
+    
+    SELECT 
+        'wait_approve' as status_type,
+        COUNT(*) as count,
+        'รอการอนุมัติ' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND (approve_by IS NULL OR approve_by = '')
+    AND wait_check_payment = 1
+    
+    UNION ALL
+    
+    SELECT 
+        'wait_payment' as status_type,
+        COUNT(*) as count,
+        'รอชำระเงิน' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND (approve_by IS NULL OR approve_by = '')
+    AND (wait_check_payment = 0 OR wait_check_payment IS NULL)
+    
+    UNION ALL
+    
+    SELECT 
+        'checked_payment' as status_type,
+        COUNT(*) as count,
+        'ตรวจสอบแล้ว' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0 
+    AND slip_correct = 1 
+    AND approve_by IS NOT NULL 
+    AND approve_by != ''
+    AND sent_email_by IS NOT NULL 
+    AND sent_email_by != ''
+    AND wait_check_payment = 0
+    
+    UNION ALL
+    
+    SELECT 
+        'total_orders' as status_type,
+        COUNT(*) as count,
+        'คำสั่งซื้อทั้งหมด' as status_name
+    FROM membership_order_history 
+    WHERE canceled = 0
+    
+    UNION ALL
+    
+    SELECT 
+        'sample_data' as status_type,
+        COUNT(*) as count,
+        'ข้อมูลตัวอย่าง' as status_name
+    FROM membership_order_history 
+    WHERE 1=1
+    LIMIT 5
+    `;
+    
+    let datas = await dbConn.raw(sqlStr);
+    return datas[0] || [];
+};
+
 module.exports = productList;

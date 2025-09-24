@@ -5,6 +5,7 @@ const IpAllowList = require('../models/ipallowlist.model');
 const AdminList = require('../models/adminlist.model');
 const MemberList = require('../models/memberlist.model');
 const LoanList = require('../models/loanlist.model');
+const ProductList = require('../models/productlist.model');
 
 const AdminSetting = require('../models/adminsetting.model');
 
@@ -1259,6 +1260,418 @@ exports.getDashboardDataByDate = async function(req, res) {
     
 };
 
+exports.testOrderStatusData = async function(req, res) {
+    console.log('testOrderStatusData');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let testData = await ProductList.testOrderStatusData();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : testData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getSubscriptionTypeReport = async function(req, res) {
+    console.log('getSubscriptionTypeReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let subscriptionData = await ProductList.getSubscriptionTypeReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : subscriptionData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getOrderStatusReport = async function(req, res) {
+    console.log('getOrderStatusReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let orderStatusData = await ProductList.getOrderStatusReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : orderStatusData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getMonthlyRevenueReport = async function(req, res) {
+    console.log('getMonthlyRevenueReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let revenueData = await ProductList.getMonthlyRevenueReport(fromDate, toDate);
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : revenueData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getAccountSummaryReport = async function(req, res) {
+    console.log('getAccountSummaryReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    // Get account summary data
+                    let summaryData = await ProductList.getAccountSummaryReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : summaryData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
 exports.getDashboardDataByDate2 = async function(req, res) {
     console.log('getDashboardDataByDate2');
     try {
@@ -1547,6 +1960,418 @@ exports.getDashboardDataByDate2 = async function(req, res) {
         console.log(error);
     }
     
+};
+
+exports.testOrderStatusData = async function(req, res) {
+    console.log('testOrderStatusData');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let testData = await ProductList.testOrderStatusData();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : testData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getSubscriptionTypeReport = async function(req, res) {
+    console.log('getSubscriptionTypeReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let subscriptionData = await ProductList.getSubscriptionTypeReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : subscriptionData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getOrderStatusReport = async function(req, res) {
+    console.log('getOrderStatusReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let orderStatusData = await ProductList.getOrderStatusReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : orderStatusData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getMonthlyRevenueReport = async function(req, res) {
+    console.log('getMonthlyRevenueReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let revenueData = await ProductList.getMonthlyRevenueReport(fromDate, toDate);
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : revenueData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getAccountSummaryReport = async function(req, res) {
+    console.log('getAccountSummaryReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    // Get account summary data
+                    let summaryData = await ProductList.getAccountSummaryReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : summaryData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
 };
 
 // exports.getLastTransaction = async function(req, res) {  
@@ -2027,3 +2852,430 @@ exports.getOldSummaryReport = async function(req, res) {
     }
     
 };
+
+exports.testOrderStatusData = async function(req, res) {
+    console.log('testOrderStatusData');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let testData = await ProductList.testOrderStatusData();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : testData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getSubscriptionTypeReport = async function(req, res) {
+    console.log('getSubscriptionTypeReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let subscriptionData = await ProductList.getSubscriptionTypeReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : subscriptionData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getOrderStatusReport = async function(req, res) {
+    console.log('getOrderStatusReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let orderStatusData = await ProductList.getOrderStatusReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : orderStatusData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getMonthlyRevenueReport = async function(req, res) {
+    console.log('getMonthlyRevenueReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let revenueData = await ProductList.getMonthlyRevenueReport(fromDate, toDate);
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : revenueData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+exports.getAccountSummaryReport = async function(req, res) {
+    console.log('getAccountSummaryReport');
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                if (IsAuth) 
+                {
+                    const admin_id = userid;
+                    const page_name = req.body.page_name || "report_summary";
+                    const fromDate = req.body.from_date || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+                    const toDate = req.body.to_date || new Date().toISOString().split('T')[0];
+                    
+                    let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                    if (!(adminPagePermission.canView || adminPagePermission.canViewAll)) {
+                        res.status(202).json(
+                            { 
+                                status: 'error', 
+                                message: 'Authenication Failed',
+                                auth : false,
+                                data : [],
+                            }
+                        );
+                        return;
+                    }
+
+                    // Get account summary data
+                    let summaryData = await ProductList.getAccountSummaryReport();
+
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            data : summaryData,
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                    );
+                }
+            }
+        }
+        
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+    }
+};
+
+
+
+exports.getMonthlyExpenseReport = async function(req, res) {
+    res.status(200).json({
+        status: 'success',
+        message: '',
+        auth : true,
+        data : await Report.getMonthlyExpenseReport(),
+    });
+};
+
+
+
+

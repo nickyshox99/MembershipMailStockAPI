@@ -48,6 +48,19 @@ router.post('/getdashboarddatabydate2/', reportController.getDashboardDataByDate
 
 router.post('/getOldSummaryReport/', reportController.getOldSummaryReport);
 
+router.post('/getAccountSummaryReport/', reportController.getAccountSummaryReport);
+
+router.post('/getSubscriptionTypeReport/', reportController.getSubscriptionTypeReport);
+
+router.post('/getOrderStatusReport/', reportController.getOrderStatusReport);
+
+router.post('/getMonthlyRevenueReport/', reportController.getMonthlyRevenueReport);
+
+router.post('/testOrderStatusData/', reportController.testOrderStatusData);
+
+router.get('/getMonthlyExpenseReport/', reportController.getMonthlyExpenseReport);
+
+
 
 
 module.exports = router

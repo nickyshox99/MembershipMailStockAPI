@@ -38,6 +38,10 @@
   },
   "scripts": {
     "start": "nodemon app",
-    "test": "jest --watchAll --coverage"
+    "test": "jest --watchAll --coverage",
+    "test:unit": "jest --testPathPattern=lineReply.test.js --coverage",
+    "test:integration": "jest --testPathPattern=lineReply.integration.test.js --coverage",
+    "test:integration:real": "ENABLE_REAL_LINE_SENDING=true jest --testPathPattern=lineReply.integration.test.js --coverage",
+    "test:all": "jest --coverage"
   }
 }
