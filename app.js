@@ -509,10 +509,32 @@ cron.schedule('*/10 * * * *', async () => {
 
 cron.schedule('0 * * * *', async () => {
     try {
+       await checkAndSendLineNotify()
+        
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+app.get('/api/sendLine', function(req, res, next) {
+    console.log("wstest");
+    checkAndSendLineNotify()
+  
+    res.status(200).json({
+        status: "success",
+      });
+      return;
+    }
+)
+
+
+async function checkAndSendLineNotify(){
+    try {
         console.log("Check Daily Sent Line", new Date().toISOString())
         const lineChatAPI = new LineChatAPI();
 
-        const dailysent = MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='" + timerHelper.getDateNowString() + "'");
+        const dailysent = await MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='" + timerHelper.getDateNowString() + "'");
+        console.log("olm",dailysent)
         if (dailysent.length == 0) {
             
             // === 1) หมดอายุแล้ว ===
@@ -539,8 +561,7 @@ cron.schedule('0 * * * *', async () => {
     } catch (error) {
         console.log(error);
     }
-});
-
+}
 
 async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     let tmpRemark = tmpOrder['user_id'] + " " + tmpOrder['email'] + " " + tmpOrder['product_name'] + " เหลือ " + tmpOrder['days_left'] + " วัน";
@@ -686,6 +707,8 @@ const MainModel = require('./src/models/main.model');
 const timerHelper = require('./src/modules/timehelper');
 const productList = require('./src/models/productlist.model');
 const adminSettingList = require('./src/models/adminsetting.model');
+const MemberList = require('./src/models/memberlist.model')
+const lineChatSetting = require('./src/models/linechatsetting.model')
 
 let wsConnections = [];
 let lineWebhookRoutes2 = lineWebhookRoutes(wsConnections); 

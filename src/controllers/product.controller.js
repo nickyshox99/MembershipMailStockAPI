@@ -3191,3 +3191,450 @@ exports.CancelSubScribeOrder = async function (req, res) {
     }
 
 };
+
+exports.SentPaymentMessageNearOrder = async function (req, res) {
+    console.log('SentPaymentMessageNearOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
+                //let IsAuth = true;
+
+                if (IsAuth) {
+                    let order_id = req.body.order_id ?? 0;
+                    let days_left = req.body.days_left ?? 0;
+
+                    if (order_id == 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found slip or order.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found order.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length <= 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found user.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let sourceUserId = row_user["line_userid"];
+                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+                    if (tmpChatSetting['status'] != 1) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'This line is not active',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let channelToken = "";
+                    channelToken = tmpChatSetting['channel_token'];
+
+                    const lineChatAPI = new LineChatAPI();
+                    lineChatAPI.setToken(channelToken);
+
+                    let msg = "";
+
+
+
+                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ใกล้หมดอายุ\n";
+                    msg += "ท่านสามารถชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
+                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+
+                    const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+                    if (tmpSend['error']) {
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: tmpSend['error'],
+                                auth: true,
+                                // data : tmpReturnData,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let objData = {
+                        "offer_at": timerHelper.getDateTimeNowString(),
+                        "to_email": row_order.email,
+                        "to_userid": row_order.user_id,
+                        "subscription_type_id": row_order.subscription_type_id,
+                        "offer_by": userid,
+                    };
+
+                    let tmpData = await productList.SentPaymentMessageOrder(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: '',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                    }
+                    else {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Payment order failed.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+};
+
+exports.SentNearExpireMessageOrder = async function (req, res) {
+    console.log('SentNearExpireMessageOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+
+        const userid = req.headers.userid;
+        const token = req.headers.token;
+        let IsAuth = await AdminList.isAuthenicated(userid, token);
+
+        if (!IsAuth) {
+            res.status(202).json({ status: 'error', message: 'Authenication Failed', auth: false, data: [] });
+            return;
+        }
+
+        let order_id = req.body.order_id ?? 0;
+        let days_left = req.body.days_left ?? 0;
+
+        if (order_id == 0) {
+            res.status(202).json({ status: 'error', message: 'Not found order id.', auth: false, data: [] });
+            return;
+        }
+
+        let row_order = await productList.getOrderById(order_id);
+        if (row_order.length <= 0) {
+            res.status(202).json({ status: 'error', message: 'Not found order.', auth: false, data: [] });
+            return;
+        }
+
+        let row_user = await MemberList.findById(row_order['user_id']);
+        if (row_user.length <= 0) {
+            res.status(202).json({ status: 'error', message: 'Not found user.', auth: false, data: [] });
+            return;
+        }
+
+        let sourceUserId = row_user["line_userid"];
+        let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+        let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+        if (tmpChatSetting['status'] != 1) {
+            res.status(202).json({ status: 'error', message: 'This line is not active', auth: false, data: [] });
+            return;
+        }
+
+        let channelToken = tmpChatSetting['channel_token'];
+        const lineChatAPI = new LineChatAPI();
+        lineChatAPI.setToken(channelToken);
+
+        // 🔹 เปลี่ยนข้อความสำหรับ near expire
+        let msg = "แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email']
+                + " กำลังจะหมดอายุในอีก " + days_left + " วัน\n";
+        msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
+        msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&email=" + row_order['email'];
+
+        const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+        if (tmpSend['error']) {
+            res.status(200).json({ status: 'error', message: tmpSend['error'], auth: true, data: [] });
+            return;
+        }
+
+        let objData = {
+            "offer_at": timerHelper.getDateTimeNowString(),
+            "to_email": row_order.email,
+            "to_userid": row_order.user_id,
+            "subscription_type_id": row_order.subscription_type_id,
+            "offer_by": userid,
+        };
+
+        let tmpData = await productList.SentPaymentMessageOrder(objData);
+        if (tmpData) {
+            res.status(200).json({ status: 'success', message: '', auth: true, data: [] });
+        } else {
+            res.status(202).json({ status: 'error', message: 'Near expire message failed.', auth: false, data: [] });
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({ status: 'error', message: error.message, auth: false, data: [] });
+    }
+};
+
+exports.SentPaymentMessageExpired = async function (req, res) {
+    console.log('SentPaymentMessageNearOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
+                //let IsAuth = true;
+
+                if (IsAuth) {
+                    let order_id = req.body.order_id ?? 0;
+                    let days_left = req.body.days_left ?? 0;
+
+                    if (order_id == 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found slip or order.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_order = await productList.getOrderById(order_id);
+                    if (row_order.length <= 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found order.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let row_user = await MemberList.findById(row_order['user_id']);
+                    if (row_user.length <= 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found user.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let sourceUserId = row_user["line_userid"];
+                    let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+                    let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
+
+                    if (tmpChatSetting['status'] != 1) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'This line is not active',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let channelToken = "";
+                    channelToken = tmpChatSetting['channel_token'];
+
+                    const lineChatAPI = new LineChatAPI();
+                    lineChatAPI.setToken(channelToken);
+
+                    let msg = "";
+
+
+
+                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " หมดอายุแล้ว\n";
+                    msg += "ท่านสามารถชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
+                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+
+                    const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
+                    if (tmpSend['error']) {
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: tmpSend['error'],
+                                auth: true,
+                                // data : tmpReturnData,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let objData = {
+                        "offer_at": timerHelper.getDateTimeNowString(),
+                        "to_email": row_order.email,
+                        "to_userid": row_order.user_id,
+                        "subscription_type_id": row_order.subscription_type_id,
+                        "offer_by": userid,
+                    };
+
+                    let tmpData = await productList.SentPaymentMessageOrder(objData);
+                    if (tmpData) {
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: '',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                    }
+                    else {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Payment order failed.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+};

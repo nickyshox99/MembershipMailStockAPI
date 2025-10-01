@@ -502,16 +502,16 @@ module.exports = function (wsConnections) {
           let tmp_msg_detail = msg;
                
           if (tmp_msg_detail.includes("สมัคร")) {
-            await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey);
+            await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey, channelToken);
           }
           else if (tmp_msg_detail.includes("ต่ออายุ") || tmp_msg_detail.includes("ซื้อ")) {
-            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey);
+            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken);
           }
           else if (tmp_msg_detail.includes("เช็ควัน")) {
-            await lineReply.handleCheckDays(reply_token, profileData);
+            await lineReply.handleCheckDays(reply_token, profileData, oSecretkey, channelToken);
           }
           else if (tmp_msg_detail) {
-            lineReply.handleDefaultMessage(reply_token);
+            await lineReply.handleDefaultMessage(reply_token, oSecretkey, channelToken);
           }
         }
 

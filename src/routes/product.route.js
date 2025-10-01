@@ -66,4 +66,8 @@ router.post('/GetOrderExpired/', productController.GetOrderExpired);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 
+router.post('/SentPaymentMessageNearOrder/', productController.SentPaymentMessageNearOrder);
+
+router.post('/SentPaymentMessageExpired/', productController.SentPaymentMessageExpired);
+
 module.exports = router
