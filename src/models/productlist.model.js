@@ -556,8 +556,12 @@ productList.GetHistorySubScribeOrderByMemberID = async function (memberId, resul
 productList.GetHistorySubScribeOrderNotApprove = async function (result) {
 
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,line_contact.display_name as line_display_name ";
+    sqlStr += " ,line_contact.picture_url as line_profile_url ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.id = membership_order_history.user_id ";
+    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = sl_users.line_userid ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND (membership_order_history.approve_by is NULL || membership_order_history.approve_by ='') ";
     sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
@@ -575,8 +579,12 @@ productList.GetHistorySubScribeOrderWaitInvitation = async function (result) {
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
     sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email AND subscription_group.subscription_type_id = membership_order_history.subscription_type_id  LIMIT 1) as group_name ";
     sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email AND subscription_group.subscription_type_id = membership_order_history.subscription_type_id LIMIT 1) as group_id ";
+    sqlStr += " ,line_contact.display_name as line_display_name ";
+    sqlStr += " ,line_contact.picture_url as line_profile_url ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.id = membership_order_history.user_id ";
+    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = sl_users.line_userid ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND membership_order_history.canceled=0";
     sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
@@ -596,8 +604,12 @@ productList.GetHistorySubScribeOrderWaitCheckPayment = async function (result) {
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
     sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";
     sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";
+    sqlStr += " ,line_contact.display_name as line_display_name ";
+    sqlStr += " ,line_contact.picture_url as line_profile_url ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.id = membership_order_history.user_id ";
+    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = sl_users.line_userid ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND membership_order_history.canceled=0";
     sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
@@ -618,8 +630,12 @@ productList.GetHistorySubScribeOrderCheckedPayment = async function (result) {
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
     sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";
     sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";
+    sqlStr += " ,line_contact.display_name as line_display_name ";
+    sqlStr += " ,line_contact.picture_url as line_profile_url ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.id = membership_order_history.user_id ";
+    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = sl_users.line_userid ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND membership_order_history.canceled=0";
     sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
@@ -641,8 +657,12 @@ productList.GetHistorySubScribeOrderAll = async function (result) {
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
     sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";
     sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";
+    sqlStr += " ,line_contact.display_name as line_display_name ";
+    sqlStr += " ,line_contact.picture_url as line_profile_url ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
+    sqlStr += " LEFT JOIN sl_users ON sl_users.id = membership_order_history.user_id ";
+    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = sl_users.line_userid ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND membership_order_history.canceled=0";
     sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
@@ -708,7 +728,9 @@ productList.GetOrderNearExpire = async function (result) {
        st.subscription_img,
        DATEDIFF(latest.max_end_date, CURDATE()) AS days_left,
        offerlatest.max_offer_at AS latest_offer_message_at,
-       offerlatest.offer_by
+       offerlatest.offer_by,
+       lc.display_name as line_display_name,
+       lc.picture_url as line_profile_url
      FROM membership_order_history moh 
      INNER JOIN (
        SELECT email, subscription_type_id, MAX(end_date) AS max_end_date
@@ -737,6 +759,8 @@ productList.GetOrderNearExpire = async function (result) {
        ON offerlatest.to_email = moh.email
       AND offerlatest.subscription_type_id = moh.subscription_type_id
      LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+     LEFT JOIN sl_users su ON su.id = moh.user_id
+     LEFT JOIN line_contact lc ON lc.user_id = su.line_userid
      WHERE moh.slip_correct = 1
        AND DATEDIFF(latest.max_end_date, CURDATE()) < ${lineSetting.SetNearDate}
        AND DATEDIFF(latest.max_end_date, CURDATE()) > 0
@@ -797,7 +821,9 @@ SELECT
   st.subscription_img,
   DATEDIFF(latest.max_end_date, CURDATE()) AS days_left,
   offerlatest.max_offer_at AS latest_offer_message_at,
-  offerlatest.offer_by
+  offerlatest.offer_by,
+  lc.display_name as line_queue_name,
+  lc.picture_url as line_queue_url
 FROM membership_order_history moh 
 INNER JOIN (
   SELECT email, subscription_type_id, MAX(end_date) AS max_end_date
@@ -826,6 +852,8 @@ LEFT JOIN (
   ON offerlatest.to_email = moh.email
  AND offerlatest.subscription_type_id = moh.subscription_type_id
 LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+LEFT JOIN sl_users su ON su.id = moh.user_id
+LEFT JOIN line_contact lc ON lc.user_id = su.line_userid
 WHERE moh.slip_correct = 1
   AND DATEDIFF(latest.max_end_date, CURDATE()) <= 0
   AND moh.canceled <> 1
