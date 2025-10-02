@@ -28,16 +28,14 @@ docker-compose up -d mysql phpmyadmin
 echo "⏳ Waiting for MySQL to be ready..."
 sleep 15
 
-# Start API
-echo "🔌 Starting API service..."
-docker-compose up -d api
-
-echo -e "${GREEN}✅ All services started successfully!${NC}"
+echo -e "${GREEN}✅ Database services started successfully!${NC}"
 echo ""
 echo "🌐 Services available at:"
-echo "   • API: http://localhost:10600"
 echo "   • phpMyAdmin: http://localhost:8080"
 echo "   • MySQL: localhost:3306"
 echo ""
-echo "📊 Run './status.sh' to check service status"
+echo "🚀 To start the API locally, run:"
+echo "   npm start"
+echo ""
+echo "📊 Run './status.sh' to check database service status"
 echo "📋 Run './logs.sh' to view service logs"
