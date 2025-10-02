@@ -235,9 +235,6 @@ cron.schedule('*/10 * * * *', async () => {
                         if (body.includes("คำเชิญเข้าร่วมกลุ่มครอบครัวได้รับการตอบรับแล้ว")) 
                         {
                         
-                        // console.log("📧 Subject:", parsed.subject || "ไม่พบ");
-                        // console.log("👤 From:", parsed.from?.text || "ไม่พบ");
-                        // console.log("📝 Body:", body.trim().substring(0, 600) + "...");
 
                         const match = body.match(/\(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
                         if (match) {
@@ -549,6 +546,7 @@ async function checkAndSendLineNotify(){
             const lineSetting = JSON.parse(meta_setting.value);
 
             const nearExpireOrders = await productList.GetOrderNearExpire();
+            //if one timesend  ตรง if จะเป็น = แทน
             for (let index = 0; index < nearExpireOrders.length; index++) {
                 const tmpOrder = nearExpireOrders[index];
                 if (tmpOrder['days_left'] < int.parse(lineSetting['SetNearDate']) && tmpOrder['days_left']>0 ) { 
