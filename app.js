@@ -534,27 +534,62 @@ async function checkAndSendLineNotify(){
         console.log("olm",dailysent)
         if (dailysent.length == 0) {
             
-            // === 1) หมดอายุแล้ว ===
-            const expiredOrders = await productList.GetOrderExpired();
-            for (let index = 0; index < expiredOrders.length; index++) {
-                const tmpOrder = expiredOrders[index];
-                await sendLineMessage(tmpOrder, lineChatAPI, "expired");
-            }
+            // const expiredOrders = await productList.GetOrderExpired();
+            // for (let index = 0; index < expiredOrders.length; index++) {
+            //     const tmpOrder = expiredOrders[index];
+            //     await sendLineMessage(tmpOrder, lineChatAPI, "expired");
+            // }
 
-            // === 2) เหลือ 3 วันก่อนหมดอายุ ===
             const meta_setting = await adminSettingList.findById("line_token");
             const lineSetting = JSON.parse(meta_setting.value);
 
+            const autoExpire  = lineSetting.enableAutoExpireMessage === 1
+           || lineSetting.enableAutoExpireMessage === true
+           || lineSetting.enableAutoExpireMessage === '1';
+           const repeatDays  = Number(lineSetting.expireMessageRepeat) || 0;
+
+                 if (autoExpire && repeatDays > 0) {
+        const expiredOrders = await productList.GetOrderExpired();
+        for (const o of expiredOrders) {
+          const daysLeft = Number(o.days_left);            // <= 0
+          const daysSinceExpire = Math.max(0, -daysLeft);  // 0=วันหมด, 1=ถัดไป, ...
+          if (daysSinceExpire < repeatDays) {
+            await sendLineMessage(o, lineChatAPI, "expired");
+          }
+        }
+      }
+
+            
+            const nearOnce = lineSetting.enableExpireOnlyOnce === 1 || 
+                 lineSetting.enableExpireOnlyOnce === true || 
+                 lineSetting.enableExpireOnlyOnce === '1';
+
             const nearExpireOrders = await productList.GetOrderNearExpire();
             //if one timesend  ตรง if จะเป็น = แทน
-            for (let index = 0; index < nearExpireOrders.length; index++) {
-                const tmpOrder = nearExpireOrders[index];
-                if (tmpOrder['days_left'] < int.parse(lineSetting['SetNearDate']) && tmpOrder['days_left']>0 ) { 
-                    await sendLineMessage(tmpOrder, lineChatAPI, "near");
-                }
-            }
+            // for (let index = 0; index < nearExpireOrders.length; index++) {
+            //     const tmpOrder = nearExpireOrders[index];
+            //     if (tmpOrder['days_left'] < int.parse(lineSetting['SetNearDate']) && tmpOrder['days_left']>0 ) { 
+            //         await sendLineMessage(tmpOrder, lineChatAPI, "near");
+            //     }
+            // }
 
-            MainModel.insert("daily_sent", { last_sent: timerHelper.getDateNowString() });
+      for (const o of nearExpireOrders) {
+        const days = Number(o.days_left);
+        const threshold = Number(lineSetting.SetNearDate);
+        if (nearOnce ? (days === threshold) : (days > 0 && days < threshold)) {
+          await sendLineMessage(o, lineChatAPI, "near");
+        }
+      }
+//             for (const tmpOrder of nearExpireOrders) {
+//   const days = Number(tmpOrder.days_left);
+//   const threshold = Number(lineSetting.SetNearDate);
+
+//   if (nearOnce ? (days === threshold) : (days > 0 && days < threshold)) {
+//     await sendLineMessage(tmpOrder, lineChatAPI, "near");
+//   }
+// }
+
+          await MainModel.insert("daily_sent", { last_sent: timerHelper.getDateNowString() });
         }
     } catch (error) {
         console.log(error);
@@ -599,9 +634,14 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     let msg = "";
     if (type === "expired") {
         msg = "ขณะนี้แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " ได้หมดอายุแล้ว\n";
-    } else if (type === "near") {
-        msg = "แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " กำลังจะหมดอายุในอีก 3 วัน\n";
+    } else if (type === "near"){
+        msg = `แพ็คเก็จ ${tmpOrder.product_name} ของ ${tmpOrder.email} กำลังจะหมดอายุในอีก ${tmpOrder.days_left} วัน\n`;
     }
+    //  else if (type === "near") {
+    //     msg = "แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " กำลังจะหมดอายุในอีก 3 วัน\n";
+    // }
+
+    
     msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
     msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&email=" + tmpOrder['email'];
 
