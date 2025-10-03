@@ -762,7 +762,7 @@ productList.GetOrderNearExpire = async function (result) {
      LEFT JOIN sl_users su ON su.id = moh.user_id
      LEFT JOIN line_contact lc ON lc.user_id = su.line_userid
      WHERE moh.slip_correct = 1
-       AND DATEDIFF(latest.max_end_date, CURDATE()) < ${lineSetting.SetNearDate}
+       AND DATEDIFF(latest.max_end_date, CURDATE()) <= ${lineSetting.SetNearDate}
        AND DATEDIFF(latest.max_end_date, CURDATE()) > 0
        AND moh.canceled <> 1
      ORDER BY days_left ASC;
@@ -967,7 +967,7 @@ productList.GetSubScribeOrderById = async function (id, email, result) {
     return datas[0];
 };
 
-productList.getAccountSummaryReport = async function(result) {   
+productList.getAccountSummaryReport = async function (result) {
 
     let sqlStr = `
     SELECT 
@@ -1100,9 +1100,9 @@ productList.getAccountSummaryReport = async function(result) {
     AND DATEDIFF(latest.max_end_date,CURDATE()) > 30
     AND moh.canceled<>1
     `;
-    
+
     let datas = await dbConn.raw(sqlStr);
-    
+
     // Transform data to object format
     let resultData = {
         activeAccounts: 0,
@@ -1112,10 +1112,10 @@ productList.getAccountSummaryReport = async function(result) {
         expiringIn30Days: 0,
         moreThan30Days: 0
     };
-    
+
     if (datas[0] && datas[0].length > 0) {
         datas[0].forEach(row => {
-            switch(row.status_type) {
+            switch (row.status_type) {
                 case 'active':
                     resultData.activeAccounts = parseInt(row.count);
                     break;
@@ -1137,11 +1137,11 @@ productList.getAccountSummaryReport = async function(result) {
             }
         });
     }
-    
+
     return resultData;
 };
 
-productList.getSubscriptionTypeReport = async function(result) {   
+productList.getSubscriptionTypeReport = async function (result) {
 
     let sqlStr = `
     SELECT 
@@ -1180,12 +1180,12 @@ productList.getSubscriptionTypeReport = async function(result) {
     GROUP BY subscription_name, duration_text
     ORDER BY total_accounts DESC
     `;
-    
+
     let datas = await dbConn.raw(sqlStr);
     return datas[0] || [];
 };
 
-productList.getOrderStatusReport = async function(result) {   
+productList.getOrderStatusReport = async function (result) {
 
     let sqlStr = `
     SELECT 
@@ -1280,9 +1280,9 @@ productList.getOrderStatusReport = async function(result) {
     AND moh.canceled<>1
     AND DATEDIFF(latest.max_end_date,CURDATE()) <= 0
     `;
-    
+
     let datas = await dbConn.raw(sqlStr);
-    
+
     // Transform data to object format
     let resultData = {
         waitInvite: 0,
@@ -1292,10 +1292,10 @@ productList.getOrderStatusReport = async function(result) {
         nearExpire: 0,
         expired: 0
     };
-    
+
     if (datas[0] && datas[0].length > 0) {
         datas[0].forEach(row => {
-            switch(row.status_type) {
+            switch (row.status_type) {
                 case 'wait_invite':
                     resultData.waitInvite = parseInt(row.count);
                     break;
@@ -1317,11 +1317,11 @@ productList.getOrderStatusReport = async function(result) {
             }
         });
     }
-    
+
     return resultData;
 };
 
-productList.getMonthlyRevenueReport = async function(fromDate, toDate) {   
+productList.getMonthlyRevenueReport = async function (fromDate, toDate) {
 
     let sqlStr = `
     SELECT 
@@ -1341,12 +1341,12 @@ productList.getMonthlyRevenueReport = async function(fromDate, toDate) {
     GROUP BY DATE_FORMAT(moh.create_date, '%Y-%m')
     ORDER BY month_year DESC
     `;
-    
+
     let datas = await dbConn.raw(sqlStr, [fromDate, toDate]);
     return datas[0] || [];
 };
 
-productList.testOrderStatusData = async function(result) {   
+productList.testOrderStatusData = async function (result) {
 
     let sqlStr = `
     SELECT 
@@ -1416,7 +1416,7 @@ productList.testOrderStatusData = async function(result) {
     WHERE 1=1
     LIMIT 5
     `;
-    
+
     let datas = await dbConn.raw(sqlStr);
     return datas[0] || [];
 };
