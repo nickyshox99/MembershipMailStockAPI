@@ -501,10 +501,10 @@ module.exports = function (wsConnections) {
         else if (message_type == 0 && msg) {
           let tmp_msg_detail = msg;
                
-          if (tmp_msg_detail.includes("สมัคร")) {
-            await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey, channelToken);
-          }
-          else if (tmp_msg_detail.includes("ต่ออายุ") || tmp_msg_detail.includes("ซื้อ")) {
+          // if (tmp_msg_detail.includes("สมัคร")) {
+          //   await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey, channelToken);
+          // }
+           if (tmp_msg_detail.includes("ต่ออายุ") || tmp_msg_detail.includes("ซื้อ")) {
             await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken);
           }
           else if (tmp_msg_detail.includes("เช็ควัน")) {

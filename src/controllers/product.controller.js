@@ -8,7 +8,7 @@ const MainModel = require('../models/main.model');
 const productList = require('../models/productlist.model');
 const lineChatSetting = require('../models/linechatsetting.model');
 const LineChatAPI = require('./../modules/lineChatAPI');
-
+const EmailStock = require('../models/emailStock.model');
 const oSecretkey = require('../../config/secret');
 
 
@@ -1774,19 +1774,18 @@ exports.GetSubScribeOrderById = async function (req, res) {
                 let IsAuth = true;
 
 
-                if (IsAuth) 
-                {
-                    let tmpData = await productList.GetSubScribeOrderById(id,email);
+                if (IsAuth) {
+                    let tmpData = await productList.GetSubScribeOrderById(id, email);
                     let bankData = await AdminBankList.findAllActive();
-                    
+
                     res.status(200).json(
                         {
                             status: 'success',
                             message: '',
 
-                            auth : true,                        
-                            data : tmpData,
-                            bank_data : bankData.length > 0 ? bankData[0] : {},
+                            auth: true,
+                            data: tmpData,
+                            bank_data: bankData.length > 0 ? bankData[0] : {},
                         }
                     );
                     return;
@@ -1937,30 +1936,19 @@ exports.CreateSubScribeOrder = async function (req, res) {
                 if (IsAuth) {
                     let admin = req.body.username ? req.body.username : "System";
                     let user_id = req.body.user_id;
+                    let line_id = req.body.line_id || "";
                     let product_id = req.body.product_id;
-                    let email = req.body.email;
+                    let email = req.body.email || "";
                     let note = req.body.note;
 
                     let row_product = await productList.findById(product_id);
-                    let row_user = await MemberList.findById(user_id);
 
-                    if (row_user.length <= 0) {
-                        res.status(202).json(
-                            {
-                                status: 'error',
-                                message: 'Not found user.',
-                                auth: false,
-                                data: [],
-                            }
-                        );
-                        return;
-                    }
 
                     let chkproduct = row_product['id'] ? true : false;
                     if (chkproduct) {
 
                         let data = {
-                            "user_id": row_user["id"],
+                            "user_id": line_id,
                             "email": email,
                             "product_id": row_product["id"],
                             "subscription_type_id": row_product["subscription_type_id"],
@@ -2076,24 +2064,14 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                 if (IsAuth) {
                     let admin = req.body.username ? req.body.username : "System";
                     let user_id = req.body.user_id;
+                    let line_id = req.body.line_id || "";
                     let product_id = req.body.product_id;
-                    let email = req.body.email;
+                    let email = req.body.email || "";
                     let note = req.body.note;
 
                     let row_product = await productList.findById(product_id);
-                    let row_user = await MemberList.findById(user_id);
 
-                    if (row_user.length <= 0) {
-                        res.status(202).json(
-                            {
-                                status: 'error',
-                                message: 'Not found user.',
-                                auth: false,
-                                data: [],
-                            }
-                        );
-                        return;
-                    }
+
 
 
                     let chkproduct = row_product['id'] ? true : false;
@@ -2102,7 +2080,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                         let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
 
                         //calculate start_date,end_date
-                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(row_user["id"], row_product["subscription_type_id"], email);
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(line_id, row_product["subscription_type_id"], email);
 
                         if (lastHistData.length > 0) {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
@@ -2110,7 +2088,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                         }
 
                         let data = {
-                            "user_id": row_user["id"],
+                            "user_id": line_id,
                             "email": email,
                             "product_id": row_product["id"],
                             "subscription_type_id": row_product["subscription_type_id"],
@@ -2123,6 +2101,9 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                             "start_date": timerHelper.convertDatetimeToString(start_date),
                             "end_date": timerHelper.convertDatetimeToString(end_date),
                             "note": note,
+                            "sent_email_by": "system",
+                            "sent_email_at": timerHelper.getDateTimeNowString(),
+                            "wait_check_payment": 1,
                         };
 
                         let tmpData = await productList.createAndApproveSubScribeOrder(data);
@@ -2866,9 +2847,9 @@ exports.SentPaymentMessageOrder = async function (req, res) {
 
 
 
-                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " รอการชำระเงิน\n";
+                    msg = "ขณะนี้แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email'] + " รอการชำระเงิน\n";
                     msg += "ท่านสามารถชำระเงินได้ตามลิงค์นี้ \n";
-                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+                    msg += oSecretkey.webDomain + "confirmpayment?id=" + row_order['id'] + "&email=" + row_order['email'];
 
                     const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
                     if (tmpSend['error']) {
@@ -3001,24 +2982,12 @@ exports.VerifySlipOrder = async function (req, res) {
                                 status: 'error',
                                 message: 'Not found order.',
                                 auth: false,
-                                data: [],
+                                data: [user_id],
                             }
                         );
                         return;
                     }
 
-                    let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length <= 0) {
-                        res.status(202).json(
-                            {
-                                status: 'error',
-                                message: 'Not found user.',
-                                auth: false,
-                                data: [],
-                            }
-                        );
-                        return;
-                    }
 
                     let objData = {
                         "id": order_id,
@@ -3026,9 +2995,92 @@ exports.VerifySlipOrder = async function (req, res) {
                         "check_slip_by": userid,
                         "check_slip_at": timerHelper.getDateTimeNowString(),
                     };
+                    //get email from stock
+                    let tmpData2 = await productList.getOrderById(order_id);
+
+                    let user_id = tmpData2['user_id'];
+                    //เราจะเอา user_id นี้ไปเช็คก่อนว่าใช้ email stock อันไหนอยู่ไหม
+                    let emailStock = await EmailStock.getEmailStockByUserId(user_id);
+
+                    if (emailStock == null) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'email ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                    let tmpChatSetting = [];
+                    tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
+
+                    if (tmpChatSetting.length == 0) {
+
+                        res.status(202).json({
+                            status: "error",
+                            message: 'Not found line setting',
+                        });
+                        return;
+                    }
+
+                    if (tmpChatSetting['status'] != 1) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'This line is not active',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                    let tmpData3 = await EmailStock.reserveEmailStock(emailStock.id, user_id);
+                    if (!tmpData3) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'reserve email stock failed.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                    let channelToken = "";
+                    channelToken = tmpChatSetting['channel_token'];
+
+                    const lineChatAPI = new LineChatAPI();
+                    lineChatAPI.setToken(channelToken);
+
+                    let msg = "";
+                    msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + emailStock['email'] + "\n password : " + emailStock['password'] + " \n เพื่อเข้าสู่ระบบ \n";
+                    
+                    const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
+                    if (tmpSend['error']) {
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: 'send line message failed.' + tmpSend['error'],
+                                auth: true,
+                                // data : tmpReturnData,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
 
                     let tmpData = await productList.VerifySlipOrder(objData);
+
                     if (tmpData) {
+                        //update email stock
+
                         res.status(200).json(
                             {
                                 status: 'success',
@@ -3049,6 +3101,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         );
                         return;
                     }
+
 
 
                 }
@@ -3291,9 +3344,9 @@ exports.SentPaymentMessageNearOrder = async function (req, res) {
 
 
 
-                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " ใกล้หมดอายุ\n";
+                    msg = "ขณะนี้แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email'] + " ใกล้หมดอายุ\n";
                     msg += "ท่านสามารถชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
-                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+                    msg += oSecretkey.webDomain + "confirmpayment?id=" + row_order['id'] + "&email=" + row_order['email'];
 
                     const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
                     if (tmpSend['error']) {
@@ -3428,7 +3481,7 @@ exports.SentNearExpireMessageOrder = async function (req, res) {
 
         // 🔹 เปลี่ยนข้อความสำหรับ near expire
         let msg = "แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email']
-                + " กำลังจะหมดอายุในอีก " + days_left + " วัน\n";
+            + " กำลังจะหมดอายุในอีก " + days_left + " วัน\n";
         msg += "ท่านสามารถต่ออายุได้ตามลิงค์นี้ \n";
         msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&email=" + row_order['email'];
 
@@ -3558,9 +3611,9 @@ exports.SentPaymentMessageExpired = async function (req, res) {
 
 
 
-                    msg = "ขณะนี้แพ็คเก็จ "+row_order['product_name']+" ของ "+ row_order['email']+ " หมดอายุแล้ว\n";
+                    msg = "ขณะนี้แพ็คเก็จ " + row_order['product_name'] + " ของ " + row_order['email'] + " หมดอายุแล้ว\n";
                     msg += "ท่านสามารถชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
-                    msg += oSecretkey.webDomain+ "confirmpayment?id="+row_order['id']+"&email="+row_order['email'];
+                    msg += oSecretkey.webDomain + "confirmpayment?id=" + row_order['id'] + "&email=" + row_order['email'];
 
                     const tmpSend = await lineChatAPI.pushMessage(sourceUserId, msg);
                     if (tmpSend['error']) {

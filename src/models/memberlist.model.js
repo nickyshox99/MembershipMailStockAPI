@@ -107,9 +107,9 @@ MemberList.getEmailByLineSourceId = async function(line_source_id, result) {
 
 MemberList.getUserByLineSourceId = async function(line_source_id, result) {   
     
-    let sqlStr = "Select sl_users.* ";            
-    sqlStr += " FROM sl_users ";    
-    sqlStr += " where 1=1 AND sl_users.line_userid='"+ line_source_id+"'";
+    let sqlStr = "Select line_contact.* ";            
+    sqlStr += " FROM line_contact ";    
+    sqlStr += " where 1=1 AND line_contact.user_id='"+ line_source_id+"'";
 
     const datas = await dbConn.raw(sqlStr);
     //console.log(datas);
@@ -118,9 +118,8 @@ MemberList.getUserByLineSourceId = async function(line_source_id, result) {
 
 MemberList.getLineProfileByLineSourceId = async function(line_source_id, result) {   
     
-    let sqlStr = "Select line_contact.*,sl_users.id as userid ";            
+    let sqlStr = "Select * ";            
     sqlStr += " FROM line_contact ";    
-    sqlStr += " LEFT JOIN sl_users ON sl_users.line_userid = line_contact.user_id ";
     sqlStr += " where 1=1 AND line_contact.user_id='"+ line_source_id+"'";
     
     const datas = await dbConn.raw(sqlStr);
