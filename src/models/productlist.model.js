@@ -321,7 +321,11 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
         // const datas=[];
         // datas['affectedRows'] = 0;
         //dbConn.end;
-        return true;
+        return {
+            id: datas[0].insertId,
+            ...objData
+            
+        };
     } catch (error) {
         console.log(error);
         return false;
@@ -887,13 +891,13 @@ productList.GetDayExpireByUserId = async function (userid, result) {
     return datas[0];
 };
 
-productList.GetSubScribeOrderById = async function (id, email, result) {
+productList.GetSubScribeOrderById = async function (id, user_id, result) {
 
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
     sqlStr += " WHERE 1=1 ";
-    sqlStr += ` AND membership_order_history.id=${id} and membership_order_history.email='${email}'`;
+    sqlStr += ` AND membership_order_history.id=${id} and membership_order_history.user_id='${user_id}'`;
     sqlStr += " AND membership_order_history.canceled=0";
     sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
 
