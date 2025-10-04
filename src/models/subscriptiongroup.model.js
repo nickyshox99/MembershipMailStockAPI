@@ -138,56 +138,50 @@ function compareMeta(inputData,metaData)
 }
 
 SubscriptionGroup.create = async function(objData, result) {   
-        
     console.log(objData);
     try {
-    
-        const datas = await dbConn.raw("INSERT INTO "+tableName+" ("+ 
-        "group_name " 
-        +",update_at"
-        +",update_by"
-        +",subscription_type_id " 
-        +" ) VALUES (?,?,?,?)"
-        , [
-            objData.group_name
-            ,objData.update_at            
-            ,objData.update_by
-            ,objData.subscription_type_id
-        ]);   
+        const datas = await dbConn.raw(
+            "INSERT INTO " + tableName + " (" +
+            "group_name, update_at, update_by, subscription_type_id, head_email, password" +
+            ") VALUES (?,?,?,?,?,?)",
+            [
+                objData.group_name,
+                objData.update_at,            
+                objData.update_by,
+                objData.subscription_type_id,
+                objData.head_email,
+                objData.password
+            ]
+        );   
                 
         return datas[0];
     } catch (error) {
         console.log(error);
-        return {errorMessage : error.message};
+        return { errorMessage: error.message };
     }
-    
-    
 };
+
 
 SubscriptionGroup.updateByID = async function(objData, result) {   
 
     const rowid = objData.id;
 
     try {        
-        const datas = await dbConn.raw("UPDATE " +tableName+" SET "
-        +"group_name=?"
-        +",update_at=? "                
-        +",update_by=? "
-        +",head_email=? "
-        +",password=? "
-        +",status=? "
-        +",subscription_type_id=? "
-        +"WHERE id = ? "
-        , [
-            objData.group_name
-            ,objData.update_at            
-            ,objData.update_by
-            ,objData.head_email
-            ,objData.password
-            ,objData.status
-            ,objData.subscription_type_id
-            ,rowid
-        ]);   
+        const datas = await dbConn.raw(
+            "INSERT INTO " + tableName + " (" +
+            "group_name, update_at, update_by, subscription_type_id, head_email, password, status" +
+            ") VALUES (?,?,?,?,?,?,?)",
+            [
+              objData.group_name,
+              objData.update_at,            
+              objData.update_by,
+              objData.subscription_type_id,
+              objData.head_email,
+              objData.password,
+              objData.status || 1  // ถ้าไม่ได้ส่งมา ให้ default = 1
+            ]
+          );
+            
         
         return datas[0];
     } catch (error) {
@@ -271,14 +265,18 @@ SubscriptionGroup.addMemberToGroup = async function(objData, result) {
         +",update_at"
         +",update_by"
         +",user_id " 
-        +",email "        
-        +" ) VALUES (?,?,?,?,?)"
+        +",email "
+        +",line_user_id "
+        +",password "        
+        +" ) VALUES (?,?,?,?,?,?,?)"
         , [
             objData.subscription_group_id
             ,objData.update_at            
             ,objData.update_by
-            ,objData.user_id
+            ,objData.user_id || ''
             ,objData.email
+            ,objData.line_user_id || ''
+            ,objData.password || ''
         ]);   
                 
         return true;
@@ -396,6 +394,29 @@ SubscriptionGroup.addPaymentNoteGroup = async function(objData, result) {
     }
     
     
+};
+
+SubscriptionGroup.updateMemberData = async function(objData, result) {   
+        
+    console.log(objData);
+    try {
+        const datas = await dbConn.raw("UPDATE subscription_group_user SET "+
+        "email = ?, " 
+        + "password = ?, "
+        + "line_user_id = ? "
+        + "WHERE id = ?"
+        , [
+            objData.email
+            ,objData.password
+            ,objData.line_user_id || null
+            ,objData.id
+        ]);   
+                
+        return true;
+    } catch (error) {
+        console.log(error);
+        return {errorMessage : error.message};
+    }
 };
 
 module.exports = SubscriptionGroup;
