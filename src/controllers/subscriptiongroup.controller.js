@@ -766,6 +766,8 @@ exports.addMemberToGroup = async function(req, res) {
                     const page_name = req.body.page_name;
                     const user_id = req.body.user_id? req.body.user_id : "";
                     const email = req.body.email? req.body.email : "";
+                    const password = req.body.password? req.body.password : "";
+                    const line_user_id = req.body.line_user_id? req.body.line_user_id : "";
                     const group_id = req.body.group_id? req.body.group_id : 0;
                                         
                     let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
@@ -823,6 +825,8 @@ exports.addMemberToGroup = async function(req, res) {
                         subscription_group_id : group_id,
                         user_id : user_id,
                         email : email,
+                        password : password,
+                        line_user_id : line_user_id,
                         update_at : timerHelper.getDateTimeNowString(),
                         update_by : admin_id,
                     }
@@ -1632,4 +1636,49 @@ exports.deletePaymentHistoryByID = async function(req, res) {
         );
     }
 
+};
+exports.updateMemberData = async function(req, res) {
+    console.log("updateMemberData");
+    
+    try {
+        const headers = req.headers;
+        
+        if (!headers.userid || !headers.token) {
+            res.status(202).json({status: "error", message: "Missing userid or token", auth: false, data: []});
+            return;
+        } else {
+            const userid = headers.userid;
+            const token = headers.token;
+            let IsAuth = AdminList.isAuthenicated(userid,token);
+            
+            if (IsAuth) {
+                const admin_id = userid;
+                const page_name = req.body.page_name;
+                const id = req.body.id;
+                const email = req.body.email ? req.body.email : "";
+                const password = req.body.password ? req.body.password : "";
+                const line_user_id = req.body.line_user_id ? req.body.line_user_id : "";
+                                        
+                let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
+
+                if (!adminPagePermission.canEdit) {
+                    res.status(200).json({status: "error", message: "Authentication Failed", auth: false, data: []});
+                    return;
+                }
+
+                let objData = {id: id, email: email, password: password, line_user_id: line_user_id}
+                let tmpData = await SubscriptionGroup.updateMemberData(objData);
+    
+                if (tmpData.errorMessage==null) {
+                    res.status(200).json({status: "success", message: "Member data updated successfully", auth: true});
+                } else {
+                    res.status(202).json({status: "error", message: tmpData.errorMessage, auth: false, data: []});
+                }
+            } else {
+                res.status(200).json({status: "error", message: "Authentication Failed", auth: false, data: []});
+            }
+        }
+    } catch (error) {
+        res.status(202).json({status: "error", message: error.message, auth: false, data: []});
+    }
 };

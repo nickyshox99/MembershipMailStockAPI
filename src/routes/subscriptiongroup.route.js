@@ -35,4 +35,6 @@ router.post('/deleteMemberFromGroupByID/', subscriptionGroupController.deleteMem
 
 router.post('/deletePaymentHistoryByID/', subscriptionGroupController.deletePaymentHistoryByID);
 
+router.post('/updateMemberData/', subscriptionGroupController.updateMemberData);
+
 module.exports = router
