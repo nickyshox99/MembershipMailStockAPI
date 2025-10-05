@@ -12,7 +12,7 @@ const path = require('path');
 // Multer configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, '..', '..', '00tmpfile');
+    const uploadPath = path.join(__dirname, '..', '..', 'assets', '00tmpfile');
     console.log('Multer destination:', uploadPath);
     cb(null, uploadPath); // Path to the assets folder
   },

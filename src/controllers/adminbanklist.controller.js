@@ -29,51 +29,47 @@ const OffsetTime = require('../../config/offsettime');
 const offsetTime = OffsetTime.offsetTime;
 const offsetTime24hrs = OffsetTime.offsetTime24hrs;
 
-exports.default = async function(req, res) {
+exports.default = async function (req, res) {
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             res.send('admin bank api');
         }
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-   
-    
+
+
 };
 
-exports.getadminbank = async function(req, res) {
+exports.getadminbank = async function (req, res) {
     console.log('getadminbank..');
-    try {          
+    try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             // const headers = req.headers;
 
             //handles null error
@@ -91,63 +87,59 @@ exports.getadminbank = async function(req, res) {
                 // let IsAuth = AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    
+                if (IsAuth) {
+
                     let tmpData = await AdminBankList.findAll(req.body.searchword);
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
-                        );
+                    );
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
 
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-  
-    
+
+
 };
 
-exports.getactiveadminbank = async function(req, res) {
+exports.getactiveadminbank = async function (req, res) {
     console.log('getactiveadminbank');
-    try {          
+    try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             // const headers = req.headers;
 
             //handles null error
@@ -165,54 +157,52 @@ exports.getactiveadminbank = async function(req, res) {
                 // let IsAuth = AdminList.isAuthenicated(userid,token);
                 let IsAuth = true;
 
-                if (IsAuth) 
-                {
-                    
+                if (IsAuth) {
+
                     let tmpData = await AdminBankList.findAllActive(req.body.searchword);
                     for (let index = 0; index < tmpData.length; index++) {
                         delete tmpData[index].meta_data;
                     }
-                    
+
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,                        
-                            data : tmpData,
+                            auth: true,
+                            data: tmpData,
                         }
-                        );
+                    );
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
 
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-  
-    
+
+
 };
 
 
-exports.getadminbankbyid = async function(req, res) {
+exports.getadminbankbyid = async function (req, res) {
     console.log('getadminbankbyid');
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
@@ -220,13 +210,11 @@ exports.getadminbankbyid = async function(req, res) {
         // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             //handles null error
@@ -240,256 +228,241 @@ exports.getadminbankbyid = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth)             
-                {
-                    let tmpData = await AdminBankList.findById(req.params.Id);                
+                if (IsAuth) {
+                    let tmpData = await AdminBankList.findById(req.params.Id);
                     console.log(tmpData);
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,
-                            total : count(tmpData),
-                            data : tmpData,
+                            auth: true,
+                            total: count(tmpData),
+                            data: tmpData,
                         }
-                        );
+                    );
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-        
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-    
 
-   
+
+
 };
 
-exports.create = async function(req, res) {
-    
+exports.create = async function (req, res) {
+
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             console.log("insertadminbank")
-             //handles null error
+            //handles null error
             const headers = req.headers;
-    
+
             //handles null error
             if (headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
             } else {
-    
+
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
-    
+
                 const userid = headers.userid;
                 const token = headers.token;
-    
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
-    
-                if (IsAuth) 
-                {
+
+                if (IsAuth) {
                     // console.log('updateadminbankbyid');
                     // console.log(req.body);            
                     let tmpData = await AdminBankList.create(req.body);
-    
-                    if (tmpData) 
-                    {
+
+                    if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,
+                                auth: true,
                             }
-                            );
+                        );
                     }
-                    else
-                    { 
+                    else {
+                        console.error('Create failed:', tmpData);
                         res.status(202).json(
-                        { 
-                            status: 'error', 
-                            message: tmpData.message,
-                            auth : false,
-                            data : [],
-                        }
+                            {
+                                status: 'error',
+                                message: tmpData.message,
+                                auth: false,
+                                data: [],
+                            }
                         );
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-          
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
 
-   
+
 };
 
-exports.updateadminbankbyid = async function(req, res) {
+exports.updateadminbankbyid = async function (req, res) {
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             console.log("updateadminbankbyid")
-             //handles null error
+            //handles null error
             const headers = req.headers;
-    
+
             //handles null error
             if (headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
             } else {
-    
+
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
-    
+
                 const userid = headers.userid;
                 const token = headers.token;
-    
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
-    
-                if (IsAuth) 
-                {
+
+                if (IsAuth) {
                     // console.log('updateadminbankbyid');
                     // console.log(req.body);            
                     let tmpData = await AdminBankList.updateByID(req.body);
-    
-                    if (tmpData) 
-                    {
+
+                    if (tmpData) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,
+                                auth: true,
                             }
-                            );
+                        );
                     }
-                    else
-                    { 
+                    else {
                         res.status(202).json(
-                        { 
-                            status: 'error', 
-                            message: tmpData.message,
-                            auth : false,
-                            data : [],
-                        }
+                            {
+                                status: 'error',
+                                message: tmpData.message,
+                                auth: false,
+                                data: [],
+                            }
                         );
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(200).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-     
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-    
-    
-   
+
+
+
 };
 
-exports.deleteadminbankbyid = async function(req, res) {
-   
+exports.deleteadminbankbyid = async function (req, res) {
+
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             const headers = req.headers;
 
             console.log("deleteadminbankbyid")
@@ -506,646 +479,711 @@ exports.deleteadminbankbyid = async function(req, res) {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
 
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     // console.log('updateadminbankbyid');
-                    console.log(req.body);            
+                    console.log(req.body);
                     let tmpData = await AdminBankList.deleteByID(req.body);
 
-                    if (tmpData['affectedRows']) 
-                    {
+                    if (tmpData['affectedRows']) {
                         res.status(200).json(
-                            { 
-                                status: 'success', 
+                            {
+                                status: 'success',
                                 message: '',
-                                auth : true,
+                                auth: true,
                             }
-                            );
+                        );
                     }
-                    else
-                    { 
+                    else {
                         res.status(202).json(
-                        { 
-                            status: 'error', 
-                            message: tmpData.message,
-                            auth : false,
-                            data : [],
-                        }
+                            {
+                                status: 'error',
+                                message: tmpData.message,
+                                auth: false,
+                                data: [],
+                            }
                         );
                     }
-                    
-                    
+
+
                 }
-                else
-                {
+                else {
                     res.status(200).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
 
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-    
-    
-   
+
+
+
 };
 
-exports.getbankinfo = async function(req, res) {
+exports.getbankinfo = async function (req, res) {
     console.log('getbankinfo');
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
-    
+        else {
+
             // const headers = req.headers;
-    
+
             //handles null error
             // if (headers.userid.length === 0 || headers.token.length === 0) {
             if (false) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
-    
+
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
-    
+
                 // const userid = headers.userid;
                 // const token = headers.token;
-    
+
                 // let IsAuth = AdminList.isAuthenicated(userid,token);            
                 let IsAuth = true;
-                if (IsAuth) 
-                {
-                    let tmpData = await  AdminBankList.getBankInfo();
+                if (IsAuth) {
+                    let tmpData = await AdminBankList.getBankInfo();
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,
-                            total : count(tmpData),
-                            data : tmpData,
+                            auth: true,
+                            total: count(tmpData),
+                            data: tmpData,
                         }
-                        );
+                    );
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-    
-        
+
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-   
+
 };
 
-exports.getbankbreakinfo = async function(req, res) {
+exports.getbankbreakinfo = async function (req, res) {
     console.log('getbankbreakinfo');
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
-    
+        else {
+
             // const headers = req.headers;
-    
+
             //handles null error
             // if (headers.userid.length === 0 || headers.token.length === 0) {
             if (false) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
-    
+
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
-    
+
                 // const userid = headers.userid;
                 // const token = headers.token;
-    
+
                 // let IsAuth = AdminList.isAuthenicated(userid,token);            
                 let IsAuth = true;
-                if (IsAuth) 
-                {
+                if (IsAuth) {
                     let tmpData = await AdminBankList.getBankBreakInfo();
                     res.status(200).json(
-                        { 
-                            status: 'success', 
+                        {
+                            status: 'success',
                             message: '',
-                            auth : true,
-                            total : count(tmpData),
-                            data : tmpData,
+                            auth: true,
+                            total: count(tmpData),
+                            data: tmpData,
                         }
-                        );
+                    );
                 }
-                else
-                {
+                else {
                     res.status(202).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-    
-        
+
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-   
+
 };
 
-exports.transferbankbyid = async function(req, res) {
+exports.transferbankbyid = async function (req, res) {
     try {
         const ipAddress = await IpAllowList.getIPv4Address(req);
         // const ipAddress = req.socket.remoteAddress;
-            // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
         // const ipAllowList = IpAllowList.findById(ipAddress);    
         const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
-            
-        if (ipBlockList.length>0)
-        {
-            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
         }
-        else
-        {
+        else {
             console.log("transferbankbyid")
-             //handles null error
+            //handles null error
             const headers = req.headers;
-    
+
             //handles null error
             if (headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
             } else {
-    
+
                 let cTime = new Date();
                 cTime = new Date(cTime.getTime() + (offsetTime));
 
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
-    
+
                 const userid = headers.userid;
                 const token = headers.token;
-    
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+
+                let IsAuth = AdminList.isAuthenicated(userid, token);
                 // let IsAuth = true;
-    
-                if (IsAuth) 
-                {
-                    
-                    if (req.body.id==null)
-                    {
+
+                if (IsAuth) {
+
+                    if (req.body.id == null) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Incorrect id',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    if (req.body.bank_id==null)
-                    {
+                    if (req.body.bank_id == null) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Incorrect bank id',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    if (req.body.bank_acc_no==null)
-                    {
+                    if (req.body.bank_acc_no == null) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Incorrect bank account no',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    if (req.body.amount==null)
-                    {
+                    if (req.body.amount == null) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Incorrect amount',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    if (req.body.pin==null)
-                    {
+                    if (req.body.pin == null) {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Invalid PIN',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                    const checkPin = await AdminBankList.getWithdrawPIN(req.body.pin);                    
-                    if (checkPin.length>0) 
-                    {                        
+                    const checkPin = await AdminBankList.getWithdrawPIN(req.body.pin);
+                    if (checkPin.length > 0) {
                         let admin_banks = MainModel.queryFirstRow(`
 									select *
 									from admin_bank
 									where id=${req.body.id} 
                                 `);
-                            
-                        if (admin_banks) 
-                        {
+
+                        if (admin_banks) {
                             let tmpMeta = JSON.parse(admin_banks['meta_data']);
-                            admin_banks['meta_data']= tmpMeta;
-                            for (const [key,value] of Object.entries(tmpMeta))
-                            {
+                            admin_banks['meta_data'] = tmpMeta;
+                            for (const [key, value] of Object.entries(tmpMeta)) {
                                 admin_banks[key] = value;
                             }
                             let admin_info = admin_banks;
 
-                            if(admin_info['bank_id']=="5")
-                            {                                            
+                            if (admin_info['bank_id'] == "5") {
                                 const scb_app_lib = new Scb_app_lib();
                                 let scbtoken = admin_info['scb_app_token'] ? Cryptof.decryption(admin_info['scb_app_token']) : "";
 
-                                 ///Login///
+                                ///Login///
                                 let resp = await scb_app_lib.Profile(scbtoken, admin_info['bank_acc_number']);
                                 let data = [];
                                 let i = 0;
 
                                 // console.log(resp.data);
-                                if (resp['status'] && resp['status']!='error')  
-                                {
-                                    if (resp['status']['code'] == 1000 || resp['status']['code'] == 1011) 
-                                    {                  
+                                if (resp['status'] && resp['status'] != 'error') {
+                                    if (resp['status']['code'] == 1000 || resp['status']['code'] == 1011) {
                                         console.log("Still Login");
                                         //Still Login                  
                                         admin_info['meta_data']['balance'] = resp['totalAvailableBalance'] ? resp['totalAvailableBalance'] : 0.00;
-                                        SCBModel.updateBankData(admin_info['id'],admin_info['meta_data'],admin_info['meta_data']['balance']);
-                                        console.log(admin_info['bank_acc_number'] + " : (Balance : $"+ admin_info['meta_data']['balance']  +")");
+                                        SCBModel.updateBankData(admin_info['id'], admin_info['meta_data'], admin_info['meta_data']['balance']);
+                                        console.log(admin_info['bank_acc_number'] + " : (Balance : $" + admin_info['meta_data']['balance'] + ")");
                                     }
-                                    else
-                                    {
-                                        console.log("New Login");                                        
-                                        let token = "";										
+                                    else {
+                                        console.log("New Login");
+                                        let token = "";
 
-                                        let api_refresh = admin_info['meta_data']['api_refresh']!=''?Cryptof.decryption(admin_info['meta_data']['api_refresh']):'';
-                                        let deviceid  = admin_info['meta_data']['deviceid']!=''?Cryptof.decryption(admin_info['meta_data']['deviceid']):'';
-                                                                        
-                                        token = await scb_app_lib.Login2(deviceid,admin_info['meta_data']['password']);
-                                        
-                                        if (token) 
-                                        {                                            
-                                            admin_info['meta_data']['scb_app_token'] = Cryptof.encryption(token);  
-                                            
+                                        let api_refresh = admin_info['meta_data']['api_refresh'] != '' ? Cryptof.decryption(admin_info['meta_data']['api_refresh']) : '';
+                                        let deviceid = admin_info['meta_data']['deviceid'] != '' ? Cryptof.decryption(admin_info['meta_data']['deviceid']) : '';
+
+                                        token = await scb_app_lib.Login2(deviceid, admin_info['meta_data']['password']);
+
+                                        if (token) {
+                                            admin_info['meta_data']['scb_app_token'] = Cryptof.encryption(token);
+
                                             resp = await scb_app_lib.Profile(token, admin_info['bank_acc_number']);
                                             // console.log(resp.data);
-                                            if (resp['status']['code'] == 1000 || resp['status']['code'] == 1011) 
-                                            {
+                                            if (resp['status']['code'] == 1000 || resp['status']['code'] == 1011) {
                                                 admin_info['meta_data']['balance'] = resp['totalAvailableBalance'] ? resp['totalAvailableBalance'] : 0.00;
-                                            }                                            
-                                            SCBModel.updateBankData(admin_info['id'],admin_info['meta_data'],admin_info['meta_data']['balance']);                                            
-                                            console.log(admin_info['bank_acc_number'] + " : Relogin (Balance : $"+ admin_info['meta_data']['balance']  +")");
+                                            }
+                                            SCBModel.updateBankData(admin_info['id'], admin_info['meta_data'], admin_info['meta_data']['balance']);
+                                            console.log(admin_info['bank_acc_number'] + " : Relogin (Balance : $" + admin_info['meta_data']['balance'] + ")");
                                         }
-                                        else
-                                        {
-                                            console.log('Login Failed '+ admin_info['bank_acc_number']);
+                                        else {
+                                            console.log('Login Failed ' + admin_info['bank_acc_number']);
                                             res.status(202).json(
-                                                { 
-                                                    status: 'error', 
-                                                    message: 'Login Failed '+ admin_info['bank_acc_number'] ,
-                                                    auth : true,
-                                                    data : [],
+                                                {
+                                                    status: 'error',
+                                                    message: 'Login Failed ' + admin_info['bank_acc_number'],
+                                                    auth: true,
+                                                    data: [],
                                                 }
                                             );
                                             return;
                                         }
                                     }
                                 }
-                                else
-                                {                                    
-                                    console.log('Cannot Login '+ admin_info['bank_acc_number'] +' : '+resp.message);
+                                else {
+                                    console.log('Cannot Login ' + admin_info['bank_acc_number'] + ' : ' + resp.message);
                                     res.status(202).json(
-                                        { 
-                                            status: 'error', 
-                                            message: 'Cannot Login '+ admin_info['bank_acc_number'] +' : '+resp.message ,
-                                            auth : true,
-                                            data : [],
+                                        {
+                                            status: 'error',
+                                            message: 'Cannot Login ' + admin_info['bank_acc_number'] + ' : ' + resp.message,
+                                            auth: true,
+                                            data: [],
                                         }
                                     );
                                     return;
                                 }
-                                
-                                if (req.body.bank_id=="29")
-                                {
-                                    let amount 	= parseFloat(req.body.amount);
-                                    let acc 	= req.body.bank_acc_no;                                        
-                                    if (true) 
-                                    {
-                                        let response = await scb_app_lib.TransferAutoTrueWallet(scbtoken,admin_info['bank_acc_number'],acc,amount);    
-                                        if(response['status'] == "success")
-                                        {                     
+
+                                if (req.body.bank_id == "29") {
+                                    let amount = parseFloat(req.body.amount);
+                                    let acc = req.body.bank_acc_no;
+                                    if (true) {
+                                        let response = await scb_app_lib.TransferAutoTrueWallet(scbtoken, admin_info['bank_acc_number'], acc, amount);
+                                        if (response['status'] == "success") {
                                             res.status(200).json(
-                                                { 
-                                                    status: 'success', 
+                                                {
+                                                    status: 'success',
                                                     message: 'Transfer Success',
-                                                    auth : true,
-                                                    data : [],
+                                                    auth: true,
+                                                    data: [],
                                                 }
                                             );
-    
+
                                             MainModel.insert("bank_transfer_log",
                                                 {
                                                     datetime: timerHelper.convertDatetimeToString(cTime),
-                                                    from_bank_id : admin_info['bank_id'],        
-                                                    from_acc_number : admin_info['bank_acc_number'], 
-                                                    to_bank_id : req.body.bank_id, 
-                                                    to_acc_number : acc, 
-                                                    amount : amount,                                             
-                                                }                                            
+                                                    from_bank_id: admin_info['bank_id'],
+                                                    from_acc_number: admin_info['bank_acc_number'],
+                                                    to_bank_id: req.body.bank_id,
+                                                    to_acc_number: acc,
+                                                    amount: amount,
+                                                }
                                             );
-    
+
                                             return;
-                                        } 
-                                        else
-                                        {
+                                        }
+                                        else {
                                             res.status(202).json(
-                                                { 
-                                                    status: 'error', 
-                                                    message: response['message'] ,
-                                                    auth : true,
-                                                    data : [],
+                                                {
+                                                    status: 'error',
+                                                    message: response['message'],
+                                                    auth: true,
+                                                    data: [],
                                                 }
                                             );
                                             return;
-                                        }   
+                                        }
                                     }
-                                    else
-                                    {
+                                    else {
                                         res.status(202).json(
-                                            { 
-                                                status: 'error', 
-                                                message: 'Not found bank_id : '+req.body.bank_id ,
-                                                auth : true,
-                                                data : [],
+                                            {
+                                                status: 'error',
+                                                message: 'Not found bank_id : ' + req.body.bank_id,
+                                                auth: true,
+                                                data: [],
                                             }
                                         );
                                         return;
-                                    }   
+                                    }
                                 }
-                                else
-                                {
-                                    let amount 	= parseFloat(req.body.amount);
-                                    let acc 	= req.body.bank_acc_no;
-                                    const bankInfo =await  MainModel.getBankInfo(req.body.bank_id);
-                                    let bank_id = bankInfo['scb_id']?bankInfo['scb_id']:'';
-    
-                                    if (bank_id!='') 
-                                    {
-                                        let response = await scb_app_lib.TransferAuto(scbtoken,admin_info['bank_acc_number'],acc,bank_id,amount);    
-                                        if(response['status'] == "success")
-                                        {                     
+                                else {
+                                    let amount = parseFloat(req.body.amount);
+                                    let acc = req.body.bank_acc_no;
+                                    const bankInfo = await MainModel.getBankInfo(req.body.bank_id);
+                                    let bank_id = bankInfo['scb_id'] ? bankInfo['scb_id'] : '';
+
+                                    if (bank_id != '') {
+                                        let response = await scb_app_lib.TransferAuto(scbtoken, admin_info['bank_acc_number'], acc, bank_id, amount);
+                                        if (response['status'] == "success") {
                                             res.status(200).json(
-                                                { 
-                                                    status: 'success', 
+                                                {
+                                                    status: 'success',
                                                     message: 'Transfer Success',
-                                                    auth : true,
-                                                    data : [],
+                                                    auth: true,
+                                                    data: [],
                                                 }
                                             );
-    
+
                                             MainModel.insert("bank_transfer_log",
                                                 {
                                                     datetime: timerHelper.convertDatetimeToString(cTime),
-                                                    from_bank_id : admin_info['bank_id'],        
-                                                    from_acc_number : admin_info['bank_acc_number'], 
-                                                    to_bank_id : req.body.bank_id, 
-                                                    to_acc_number : acc, 
-                                                    amount : amount,                                             
-                                                }                                            
+                                                    from_bank_id: admin_info['bank_id'],
+                                                    from_acc_number: admin_info['bank_acc_number'],
+                                                    to_bank_id: req.body.bank_id,
+                                                    to_acc_number: acc,
+                                                    amount: amount,
+                                                }
                                             );
-    
+
                                             return;
-                                        } 
-                                        else
-                                        {
+                                        }
+                                        else {
                                             res.status(202).json(
-                                                { 
-                                                    status: 'error', 
-                                                    message: response['message'] ,
-                                                    auth : true,
-                                                    data : [],
+                                                {
+                                                    status: 'error',
+                                                    message: response['message'],
+                                                    auth: true,
+                                                    data: [],
                                                 }
                                             );
                                             return;
-                                        }   
+                                        }
                                     }
-                                    else
-                                    {
+                                    else {
                                         res.status(202).json(
-                                            { 
-                                                status: 'error', 
-                                                message: 'Not found bank_id : '+req.body.bank_id ,
-                                                auth : true,
-                                                data : [],
+                                            {
+                                                status: 'error',
+                                                message: 'Not found bank_id : ' + req.body.bank_id,
+                                                auth: true,
+                                                data: [],
                                             }
                                         );
                                         return;
-                                    }   
+                                    }
                                 }
 
-                                                            
-                            }    
-                            else if(admin_info['bank_id']=="1")
-                            {
 
-                                let kPlus =new Kplus_lib_202204();
-                                admin_info['meta_data']['url'] = admin_info['meta_data']['url'] ? Cryptof.decryption(admin_info['meta_data']['url']) : "";       
+                            }
+                            else if (admin_info['bank_id'] == "1") {
 
-                                let amount 	= parseFloat(req.body.amount);
-                                let acc 	= req.body.bank_acc_no;
-                                const bankInfo =await MainModel.getBankInfo(req.body.bank_id);
-                                let bank_id = bankInfo['kbank_id']?bankInfo['kbank_id']:'';
-                                
-                                if (bank_id!='') 
-                                {                                    
-                                    let bank_code = bank_id.toString().padStart(3, "0");                                    
-                                    let response = await kPlus.KbankTransferAuto(admin_info['meta_data']['url'] , bank_code ,acc,amount );
+                                let kPlus = new Kplus_lib_202204();
+                                admin_info['meta_data']['url'] = admin_info['meta_data']['url'] ? Cryptof.decryption(admin_info['meta_data']['url']) : "";
+
+                                let amount = parseFloat(req.body.amount);
+                                let acc = req.body.bank_acc_no;
+                                const bankInfo = await MainModel.getBankInfo(req.body.bank_id);
+                                let bank_id = bankInfo['kbank_id'] ? bankInfo['kbank_id'] : '';
+
+                                if (bank_id != '') {
+                                    let bank_code = bank_id.toString().padStart(3, "0");
+                                    let response = await kPlus.KbankTransferAuto(admin_info['meta_data']['url'], bank_code, acc, amount);
                                     console.log(response);
-                                    if(response['status'] == "success")
-                                    {                                       
-        
+                                    if (response['status'] == "success") {
+
                                         res.status(200).json(
-                                            { 
-                                                status: 'success', 
+                                            {
+                                                status: 'success',
                                                 message: 'Transfer Success',
-                                                auth : true,
-                                                data : [],
+                                                auth: true,
+                                                data: [],
                                             }
                                         );
 
                                         MainModel.insert("bank_transfer_log",
                                             {
                                                 datetime: timerHelper.convertDatetimeToStringNoT(cTime),
-                                                from_bank_id : admin_info['bank_id'],        
-                                                from_acc_number : admin_info['bank_acc_number'], 
-                                                to_bank_id : req.body.bank_id, 
-                                                to_acc_number : acc, 
-                                                amount : amount,                                             
-                                            }                                            
+                                                from_bank_id: admin_info['bank_id'],
+                                                from_acc_number: admin_info['bank_acc_number'],
+                                                to_bank_id: req.body.bank_id,
+                                                to_acc_number: acc,
+                                                amount: amount,
+                                            }
                                         );
-                                        
+
                                         return;
-                                    } 
-                                    else
-                                    {
+                                    }
+                                    else {
                                         res.status(202).json(
-                                            { 
-                                                status: 'error', 
-                                                message: response['message'] ,
-                                                auth : true,
-                                                data : [],
+                                            {
+                                                status: 'error',
+                                                message: response['message'],
+                                                auth: true,
+                                                data: [],
                                             }
                                         );
                                         return;
-                                    }  
+                                    }
                                 }
                             }
-                            else
-                            {
+                            else {
                                 res.status(202).json(
-                                    { 
-                                        status: 'error', 
+                                    {
+                                        status: 'error',
                                         message: 'Not found Bank ',
-                                        auth : true,
-                                        data : [],
+                                        auth: true,
+                                        data: [],
                                     }
                                 );
                                 return;
                             }
                         }
-                     
+
                     }
-                    else
-                    {
+                    else {
                         res.status(202).json(
-                            { 
-                                status: 'error', 
+                            {
+                                status: 'error',
                                 message: 'Incorrect PIN',
-                                auth : true,
-                                data : [],
+                                auth: true,
+                                data: [],
                             }
                         );
                         return;
                     }
 
-                   
+
                 }
-                else
-                {
+                else {
                     res.status(200).json(
-                        { 
-                            status: 'error', 
+                        {
+                            status: 'error',
                             message: 'Authenication Failed',
-                            auth : false,
-                            data : [],
+                            auth: false,
+                            data: [],
                         }
-                        );
+                    );
                 }
-            
+
             }
         }
-     
+
     } catch (error) {
         res.status(202).json(
-            { 
-                status: 'error', 
+            {
+                status: 'error',
                 message: error.message,
-                auth : false,
-                data : [],
+                auth: false,
+                data: [],
             }
         );
     }
-    
-    
-   
+
+
+
+};
+
+exports.uploadqr = async function (req, res) {
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+
+        const headers = req.headers;
+
+        if (headers.userid.length === 0 || headers.token.length === 0) {
+            res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            return;
+        }
+
+        const userid = headers.userid;
+        const token = headers.token;
+        let IsAuth = AdminList.isAuthenicated(userid, token);
+
+        if (!IsAuth) {
+            res.status(202).json({
+                status: 'error',
+                message: 'Authentication Failed',
+                auth: false,
+                data: [],
+            });
+            return;
+        }
+
+        if (!req.file) {
+            res.status(400).json({
+                status: 'error',
+                message: 'No file uploaded',
+            });
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+        if (!allowedTypes.includes(req.file.mimetype)) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Invalid file type. Only PNG and JPG are allowed.',
+            });
+            return;
+        }
+
+        const fs = require('fs');
+        const path = require('path');
+        const Secret = require('../../config/secret');
+
+        // Get bank ID from request
+        const bankId = req.body.id;
+        const bankAccNumber = req.body.bank_acc_number;
+
+        if (!bankId) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Bank ID is required',
+            });
+            return;
+        }
+
+        // File is already uploaded to assets/qr by multer
+        const fileName = req.file.filename; // This is the filename generated by multer
+        const qrPath = `qr/${fileName}`;
+
+        // Create qr directory if it doesn't exist (should already exist due to multer)
+        const qrDir = path.join(__dirname, '..', '..', 'assets', 'qr');
+        if (!fs.existsSync(qrDir)) {
+            fs.mkdirSync(qrDir, { recursive: true });
+        }
+
+        // File is already in the correct location, just update database
+        try {
+            // Update database with QR path
+            const dbConn = require('../../config/db.config');
+            
+            await dbConn.raw("UPDATE admin_bank SET qr = ? WHERE id = ?", [qrPath, bankId]);
+
+            res.status(200).json({
+                status: 'success',
+                message: 'QR code uploaded successfully',
+                qr_path: qrPath,
+                qr_url: Secret.apiDomain + 'getfile/' + qrPath,
+            });
+        } catch (dbError) {
+            console.error('Database error:', dbError);
+            // Clean up uploaded file if database update fails
+            const filePath = path.join(__dirname, '..', '..', 'assets', 'qr', fileName);
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Error cleaning up file:', err);
+            });
+            
+            res.status(500).json({
+                status: 'error',
+                message: 'Error updating database',
+            });
+        }
+
+    } catch (error) {
+        console.error('Upload QR error:', error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+            data: [],
+        });
+    }
 };
 

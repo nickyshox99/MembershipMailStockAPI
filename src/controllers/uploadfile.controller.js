@@ -106,7 +106,7 @@ exports.uploadFile =  async (req, res) => {
                     // Use the provided tofilename directly (already includes extension)
                     const destFileName = userid + (new Date().getTime()).toString() + req.body.tofilename;
                     // Example: Save the uploaded file to a specific location
-                    const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
+                    const sourceFilePath = path.join(__dirname, '..', '..','assets','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
 
                     console.log(sourceFilePath);
@@ -238,7 +238,7 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
                     // Use the provided tofilename directly (already includes extension)
                     const destFileName = userid + (new Date().getTime()).toString() + req.body.tofilename;
                     // Example: Save the uploaded file to a specific location
-                    const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
+                    const sourceFilePath = path.join(__dirname, '..', '..','assets','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
 
                     console.log('Source file path:', sourceFilePath);
@@ -416,7 +416,7 @@ exports.customerUploadFileAndDeleteOldFile =  async (req, res) => {
                     const destFileName = req.body.tofilename;
                     
                     // Example: Save the uploaded file to a specific location
-                    const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
+                    const sourceFilePath = path.join(__dirname, '..', '..','assets','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
 
                     console.log(sourceFilePath);
@@ -561,7 +561,7 @@ exports.uploadFileSlipAndCheck =  async (req, res) => {
                     const rndFileName = dateStr+'.'+splitExtensionName;
                             
                     // Example: Save the uploaded file to a specific location
-                    const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
+                    const sourceFilePath = path.join(__dirname, '..', '..','assets','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','slipfile', rndFileName);
 
                     console.log(sourceFilePath);
