@@ -321,7 +321,11 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
         // const datas=[];
         // datas['affectedRows'] = 0;
         //dbConn.end;
-        return true;
+        return {
+            id: datas[0].insertId,
+            ...objData
+            
+        };
     } catch (error) {
         console.log(error);
         return false;
@@ -889,6 +893,7 @@ productList.GetDayExpireByUserId = async function (userid, result) {
 
 productList.GetSubScribeOrderById = async function (id, user_id, result) {
 
+
     let sqlStr = `SELECT 
         moh.*,
         st.subscription_name,
@@ -903,6 +908,7 @@ productList.GetSubScribeOrderById = async function (id, user_id, result) {
     AND moh.user_id='${user_id}'
     AND moh.canceled=0
     AND (moh.approve_by IS NOT NULL AND moh.approve_by <>'')`;
+
 
     let datas = await dbConn.raw(sqlStr);
 

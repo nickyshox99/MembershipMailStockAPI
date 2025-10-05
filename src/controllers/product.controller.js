@@ -2107,13 +2107,18 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                         };
 
                         let tmpData = await productList.createAndApproveSubScribeOrder(data);
+                        // console.log('data:', tmpData.data.id);
+                        console.log('data:', tmpData.id);
+                        // console.log('create result:', tmpData);
                         if (tmpData) {
                             res.status(200).json(
                                 {
                                     status: 'success',
                                     message: '',
                                     auth: true,
-                                    data: [],
+                                    // data:[],
+                                    data: tmpData,
+                                    order_id: tmpData.id,
                                 }
                             );
                         }
@@ -3049,7 +3054,7 @@ exports.VerifySlipOrder = async function (req, res) {
 
                     let msg = "";
                     msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + emailStock['email'] + "\n password : " + emailStock['password'] + " \n เพื่อเข้าสู่ระบบ \n";
-                    
+
                     const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                     if (tmpSend['error']) {
                         res.status(200).json(
