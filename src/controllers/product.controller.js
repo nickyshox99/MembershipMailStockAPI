@@ -2679,19 +2679,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
                         return;
                     }
 
-                    let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length <= 0) {
-                        res.status(202).json(
-                            {
-                                status: 'error',
-                                message: 'Not found user.',
-                                auth: false,
-                                data: [],
-                            }
-                        );
-                        return;
-                    }
-
+                  
                     let objData = {
                         "id": order_id,
                         "slip_file_url": slip_file_url,
@@ -2743,7 +2731,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
         res.status(202).json(
             {
                 status: 'error',
-                message: error.message,
+                message: "PaymentOrderWithSlip: "+error.message,
                 auth: false,
                 data: [],
             }
