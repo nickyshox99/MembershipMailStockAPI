@@ -1763,7 +1763,7 @@ exports.GetSubScribeOrderById = async function (req, res) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
-                const { id, email } = req.body;
+                const { id, user_id } = req.body;
                 // console.log(req.body.userid);
                 // console.log(req.body.token);
 
@@ -1775,7 +1775,7 @@ exports.GetSubScribeOrderById = async function (req, res) {
 
 
                 if (IsAuth) {
-                    let tmpData = await productList.GetSubScribeOrderById(id, email);
+                    let tmpData = await productList.GetSubScribeOrderById(id, user_id);
                     let bankData = await AdminBankList.findAllActive();
 
                     res.status(200).json(
@@ -2674,19 +2674,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
                         return;
                     }
 
-                    let row_user = await MemberList.findById(row_order['user_id']);
-                    if (row_user.length <= 0) {
-                        res.status(202).json(
-                            {
-                                status: 'error',
-                                message: 'Not found user.',
-                                auth: false,
-                                data: [],
-                            }
-                        );
-                        return;
-                    }
-
+                  
                     let objData = {
                         "id": order_id,
                         "slip_file_url": slip_file_url,
@@ -2738,7 +2726,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
         res.status(202).json(
             {
                 status: 'error',
-                message: error.message,
+                message: "PaymentOrderWithSlip: "+error.message,
                 auth: false,
                 data: [],
             }
