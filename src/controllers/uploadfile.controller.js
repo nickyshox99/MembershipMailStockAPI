@@ -87,7 +87,8 @@ exports.uploadFile =  async (req, res) => {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // Skip authentication for customer uploads (when userid and token are "-")
+                let IsAuth = (userid === "-" && token === "-") ? true : AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
                 if (IsAuth) 
@@ -204,7 +205,7 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
                 return;
             } else {
@@ -215,12 +216,14 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // Skip authentication for customer uploads (when userid and token are "-")
+                let IsAuth = (userid === "-" && token === "-") ? true : AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
                 if (IsAuth) 
                 {
                     const uploadedFile = req.file;       
+                    console.log('Uploaded file:', uploadedFile);
 
                     if (!req.file ) {
                         return res.status(400).json({
@@ -238,8 +241,9 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
                     const sourceFilePath = path.join(__dirname, '..', '..','00tmpfile', uploadedFile.filename);
                     const destinationPath = path.join(__dirname, '..', '..','assets', destFileName );
 
-                    console.log(sourceFilePath);
-                    console.log(destinationPath);
+                    console.log('Source file path:', sourceFilePath);
+                    console.log('Destination path:', destinationPath);
+                    console.log('File exists check:', fs.existsSync(sourceFilePath));
 
                     fs.readFile(sourceFilePath, (err, data) => {
                         if (err) {
@@ -1088,7 +1092,8 @@ exports.deleteFile =  async (req, res) => {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // Skip authentication for customer uploads (when userid and token are "-")
+                let IsAuth = (userid === "-" && token === "-") ? true : AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
                 if (IsAuth) 
@@ -1192,10 +1197,12 @@ exports.customerDeleteFile =  async (req, res) => {
                 if (IsAuth) 
                 {
                     const order_id = req.body.order_id;
-                    const email = req.body.email;
+                    const user_id = req.body.user_id;
 
                     let row_order = await productList.getOrderById(order_id);  
-                    if (row_order.length<=0) 
+                    console.log('Order data from getOrderById:', row_order);
+                    
+                    if (!row_order || Object.keys(row_order).length === 0) 
                     {
                         res.status(202).json(
                             { 
@@ -1209,7 +1216,7 @@ exports.customerDeleteFile =  async (req, res) => {
                     }
                     else
                     {
-                        if (row_order.email!=email) {
+                        if (row_order.user_id != user_id) {
                              res.status(202).json(
                             { 
                                 status: 'error', 
@@ -1316,7 +1323,8 @@ exports.scanIDCardByURL =  async (req, res) => {
                 const userid = headers.userid;
                 const token = headers.token;
 
-                let IsAuth = AdminList.isAuthenicated(userid,token);
+                // Skip authentication for customer uploads (when userid and token are "-")
+                let IsAuth = (userid === "-" && token === "-") ? true : AdminList.isAuthenicated(userid,token);
                 // let IsAuth = true;
 
                 if (IsAuth) 

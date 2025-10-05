@@ -893,16 +893,24 @@ productList.GetDayExpireByUserId = async function (userid, result) {
 
 productList.GetSubScribeOrderById = async function (id, user_id, result) {
 
-    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
-    sqlStr += " FROM membership_order_history ";
-    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
-    sqlStr += " WHERE 1=1 ";
-    sqlStr += ` AND membership_order_history.id=${id} and membership_order_history.user_id='${user_id}'`;
-    sqlStr += " AND membership_order_history.canceled=0";
-    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
+
+    let sqlStr = `SELECT 
+        moh.*,
+        st.subscription_name,
+        st.subscription_img,
+        lc.display_name as line_display_name,
+        lc.picture_url as line_profile_url
+    FROM membership_order_history moh 
+    LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id 
+    LEFT JOIN line_contact lc ON lc.user_id = moh.user_id
+    WHERE 1=1 
+    AND moh.id=${id} 
+    AND moh.user_id='${user_id}'
+    AND moh.canceled=0
+    AND (moh.approve_by IS NOT NULL AND moh.approve_by <>'')`;
+
 
     let datas = await dbConn.raw(sqlStr);
-
 
     //dbConn.end;
     return datas[0];
