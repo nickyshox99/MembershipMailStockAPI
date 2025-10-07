@@ -138,6 +138,7 @@ AdminBankList.create = async function (objData, result) {
         bank_type: objData.bank_type,
         bank_acc_name: objData.bank_acc_name,
         bank_acc_number: objData.bank_acc_number,
+        promptpay_number: objData.promptpay_number || null,
         work_type: objData.work_type,
         show_type: objData.show_type,
         meta_data: json_metadata,
@@ -155,19 +156,21 @@ AdminBankList.create = async function (objData, result) {
             + ",bank_type "
             + ",bank_acc_name "
             + ",bank_acc_number "
+            + ",promptpay_number "
             + ",work_type "
             + ",show_type "
             + ",meta_data "
             + ",status "
             + ",login_status "
             + ",parent "
-            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 tmpData.bank_id
                 , tmpData.bank_name
                 , tmpData.bank_type
                 , tmpData.bank_acc_name
                 , tmpData.bank_acc_number
+                , tmpData.promptpay_number
                 , tmpData.work_type
                 , tmpData.show_type
                 , tmpData.meta_data
@@ -251,6 +254,7 @@ AdminBankList.updateByID = async function (objData, result) {
             bank_type: objData.bank_type,
             bank_acc_name: objData.bank_acc_name,
             bank_acc_number: objData.bank_acc_number,
+            promptpay_number: objData.promptpay_number || null,
             work_type: objData.work_type,
             show_type: objData.show_type,
             meta_data: json_metadata,
@@ -267,6 +271,7 @@ AdminBankList.updateByID = async function (objData, result) {
             + ",bank_type=? "
             + ",bank_acc_name=? "
             + ",bank_acc_number=? "
+            + ",promptpay_number=? "
             + ",work_type=? "
             + ",show_type=? "
             + ",meta_data=? "
@@ -278,6 +283,7 @@ AdminBankList.updateByID = async function (objData, result) {
                 , tmpData.bank_type
                 , tmpData.bank_acc_name
                 , tmpData.bank_acc_number
+                , tmpData.promptpay_number
                 , tmpData.work_type
                 , tmpData.show_type
                 , tmpData.meta_data
