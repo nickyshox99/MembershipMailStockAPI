@@ -21,6 +21,7 @@ SubscriptionGroup.findAll = async function (searchword, result) {
         let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
         sqlStr += " ,(SELECT end_at FROM subscription_group_payment WHERE subscription_group_payment.subscription_group_id=" + tableName + ".id ORDER BY subscription_group_payment.end_at DESC  LIMIT 1  ) as end_at ";
         sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id ) as CountMember ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id AND subscription_group_user.user_id IS NOT NULL AND subscription_group_user.user_id != '' ) as CountUsedMember ";
         sqlStr += " FROM " + tableName;
         sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
         sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
