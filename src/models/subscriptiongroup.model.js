@@ -75,9 +75,12 @@ SubscriptionGroup.getSubscribeMemberByGroupById = async function (id, result) {
 
     try {
         let sqlStr = "Select subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
+        sqlStr += " ,line_contact.display_name as line_display_name ";
+        sqlStr += " ,line_contact.picture_url as line_profile_url ";
         sqlStr += " FROM " + tableName;
         sqlStr += " INNER JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
         sqlStr += " INNER JOIN subscription_group_user ON " + tableName + ".id = subscription_group_user.subscription_group_id ";
+        sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user.user_id ";
         sqlStr += " where 1=1 AND (" + tableName + ".id = " + id + ") ";
 
         const datas = await dbConn.raw(sqlStr);

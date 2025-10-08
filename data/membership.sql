@@ -2,10 +2,10 @@
 -- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Sep 20, 2025 at 04:03 AM
--- Server version: 8.0.24
--- PHP Version: 8.3.21
+-- Host: mysql:3306
+-- Generation Time: Oct 08, 2025 at 02:45 PM
+-- Server version: 8.0.43
+-- PHP Version: 8.2.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,43 +24,25 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `address_list`
---
-
-CREATE TABLE `address_list` (
-  `id` int NOT NULL,
-  `user_id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `fullname` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `tel_no` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `address_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `address_default` int NOT NULL DEFAULT '0',
-  `house_address` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `subdistrict_id` int NOT NULL,
-  `district_id` int NOT NULL,
-  `province_id` int NOT NULL,
-  `zip_code` varchar(10) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `admins`
 --
 
 CREATE TABLE `admins` (
-  `id` int NOT NULL,
-  `adminName` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
-  `hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `salt` varchar(256) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `fullName` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `createdAt` datetime DEFAULT NULL,
-  `createdBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `updatedBy` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `am_rank` int NOT NULL DEFAULT '0',
-  `am_group` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `adminName` VARCHAR(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `hash` VARCHAR(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `salt` VARCHAR(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `fullName` VARCHAR(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT '',
+  `status` TINYINT(1) NOT NULL DEFAULT '1',
+  `createdAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` VARCHAR(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `updatedAt` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updatedBy` VARCHAR(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `am_rank` INT NOT NULL DEFAULT '0',
+  `am_group` INT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`adminName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `admins`
@@ -78,29 +60,34 @@ INSERT INTO `admins` (`id`, `adminName`, `hash`, `salt`, `fullName`, `status`, `
 CREATE TABLE `admin_bank` (
   `id` int NOT NULL,
   `bank_id` int NOT NULL,
-  `bank_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_acc_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_acc_number` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `work_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `show_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `meta_data` text COLLATE utf8_unicode_ci NOT NULL,
-  `parent` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `bank_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `bank_type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `bank_acc_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `bank_acc_number` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `work_type` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `show_type` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `meta_data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `parent` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `login_status` int NOT NULL,
   `status` int NOT NULL,
   `balance` decimal(10,2) NOT NULL DEFAULT '0.00',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `sum_day_deposit` decimal(10,2) DEFAULT '0.00',
-  `last_day_deposit` datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+  `last_day_deposit` datetime DEFAULT CURRENT_TIMESTAMP,
+  `qr` varchar(255) COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `promptpay_number` varchar(10) COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT 'เบอร์โทรพร้อมเพย์ 10 หลัก เช่น 0812345678'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `admin_bank`
 --
 
-INSERT INTO `admin_bank` (`id`, `bank_id`, `bank_name`, `bank_type`, `bank_acc_name`, `bank_acc_number`, `work_type`, `show_type`, `meta_data`, `parent`, `login_status`, `status`, `balance`, `update_time`, `sum_day_deposit`, `last_day_deposit`) VALUES
-(32, 5, 'ไทยพาณิชย์', 'WITHDRAW', 'นายหล่อ ที่สุดแล้ว', '1234567890', 'IBK', 'ALL', '{\"deviceid\":\"96886b9bc1e5913f42b0e2332ca575a7f0fe27c11d7cda341c0e634e37e84351b464d1efd4f2d77cab93be31db51931a2577196df5d531683969099e1a99fb864b8e675d04a8925035d16048b253f29efd95eaab35558cb91d7e17766c83e8cd1f4b30429a494b7c1b44cd3a2bacac58e39f5cd24b2170c467014cc52dc07d5b5973434e2c4df93e93c6b7d5ccc3366b9032a5135e6e29dff73cf0cc50e3fbfc8f6116a408a9828a31f1ab0fc6034af9d94efae96172f23b28f9ca9ae80ac248cb1d158b4ac40cc6a58df68f58375de8de919ed9383216b3363f4f6a8b192582413a3c05d234fa954392bf3c6dced61dd251d7049787791f640f0af3ff8721fed9717267c7ae7e5d4a7b90e2a3a12f6e711428dbf0a75825b598c8bdfc3e4318982aad0735c370ca46387b49388c74ec74f434a2e113ad839172e778ff7a11356f23ede66b3e0ca2f164eb442dd58f9e3033ff7bf0bb51ce063221367f523ce43252c3473a46f1e9364441ad20180abc41db6bd8668c4a63621b9f92bff4a7bcc2780048226e89be28f8be95134bf7051c11bdd8d997e9a2495d67bef425e04ce0fce80a08d2fc2cc1cf54eb6302e3d4e5516aee92542a519cab38bc6364b62b4cefbf727eef09806cf21ee977baacd783a007a3c2fdc205f099630c31a73d921c22791df9b2f3167f645337d3c734d2\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '81dc9bdb52d04dc20036dbd8313ed055', 0, 0, 0.00, '2024-05-07 03:35:04', 0.00, '2024-05-07 03:35:04'),
-(36, 1, 'กสิกรไทย', 'BOTH', 'นายหล่อ สำรอง', '1234567890', 'IBK', 'ALL', '{\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '', 0, 1, 0.00, '2025-07-06 16:18:01', 0.00, '2025-07-06 16:18:01');
+INSERT INTO `admin_bank` (`id`, `bank_id`, `bank_name`, `bank_type`, `bank_acc_name`, `bank_acc_number`, `work_type`, `show_type`, `meta_data`, `parent`, `login_status`, `status`, `balance`, `update_time`, `sum_day_deposit`, `last_day_deposit`, `qr`, `promptpay_number`) VALUES
+(36, 1, 'กสิกรไทย', 'BOTH', 'นายหล่อ สำรอง', '1234567890', 'IBK', 'ALL', '{\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '', 0, 0, 0.00, '2025-07-06 16:18:01', 0.00, '2025-07-06 16:18:01', NULL, NULL),
+(38, 1, 'กสิกรไทย', 'BOTH', 'HE', '45464645', 'IBK', 'ALL', '{\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '0', 0, 0, 0.00, '2025-10-05 12:37:52', 0.00, '2025-10-05 12:37:52', 'qr/qr_1759679809715.jpg', NULL),
+(39, 6, 'เกียรตินาคิน', 'BOTH', 'โอมเปรม', '1234567891', 'IBK', 'ALL', '{\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '0', 0, 0, 0.00, '2025-10-05 13:51:45', 0.00, '2025-10-05 13:51:45', 'qr/qr_1759679803394.jpg', NULL),
+(40, 23, 'แห่งอเมริกาฯ', 'BOTH', 'F', '1234567898', 'IBK', 'ALL', '{\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '0', 0, 0, 0.00, '2025-10-05 14:52:24', 0.00, '2025-10-05 14:52:24', 'qr/qr_1759678700858.png', NULL),
+(44, 1, 'กสิกรไทย', 'BOTH', 'กาย', '6090309419', 'IBK', 'ALL', '{\"password\":\"\",\"bank_break_enable\":0,\"deposit_decimal\":0,\"username\":\"\",\"deviceid\":\"\",\"api_refresh\":\"\",\"scb_app_token\":\"\",\"url\":\"\",\"balance\":0,\"ktb_api_refresh\":\"\",\"ktb_device_id\":\"\",\"ktb_bearer\":\"\",\"update_time\":\"\",\"before_update_time\":0,\"bank_break_id\":\"\",\"bank_break_credit_check\":\"\",\"kbizusername\":\"\",\"kbizpassword\":\"\"}', '0', 0, 1, 0.00, '2025-10-07 15:42:25', 0.00, '2025-10-07 15:42:25', 'qr/qr_1759851754389.jpg', '0638415154');
 
 -- --------------------------------------------------------
 
@@ -110,10 +97,10 @@ INSERT INTO `admin_bank` (`id`, `bank_id`, `bank_name`, `bank_type`, `bank_acc_n
 
 CREATE TABLE `admin_truewallet` (
   `id` int NOT NULL,
-  `meta_data` text COLLATE utf8_unicode_ci NOT NULL,
+  `meta_data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `login_status` int NOT NULL,
   `status` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `admin_truewallet`
@@ -162,7 +149,7 @@ CREATE TABLE `am_group_page_permission` (
   `can_add1` tinyint(1) NOT NULL DEFAULT '1',
   `can_approve1` tinyint(1) NOT NULL DEFAULT '1',
   `can_viewall1` int NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `am_group_page_permission`
@@ -189,43 +176,20 @@ INSERT INTO `am_group_page_permission` (`id`, `am_group_id`, `page_admin_id`, `c
 -- --------------------------------------------------------
 
 --
--- Table structure for table `announcement_setting`
---
-
-CREATE TABLE `announcement_setting` (
-  `id` int NOT NULL,
-  `topic` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
-  `description` text COLLATE utf8_unicode_ci NOT NULL,
-  `date_announcement` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_by` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `status` int NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `announcement_setting`
---
-
-INSERT INTO `announcement_setting` (`id`, `topic`, `description`, `date_announcement`, `update_date`, `update_by`, `status`) VALUES
-(5, 'ยินดีต้อนรับเข้าสู่ The Club สังคมแห่งการดื่มด่ำ', 'พับกบ DJ เฮ้ย พับเก็บ DJ เฮ้ย พบกับ DJ เฮ้ย ถูกแล้ว!! พล่าม', '2035-07-27 00:00:00', '2023-09-10 00:42:42', 'Jookkuu99', 1);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `bank_info`
 --
 
 CREATE TABLE `bank_info` (
   `bank_id` int NOT NULL,
-  `bank_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_ico` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_color` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `bank_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `bank_ico` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `bank_color` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `kbank_id` int NOT NULL,
-  `scb_id` varchar(5) COLLATE utf8_unicode_ci NOT NULL,
-  `kma_id` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `ktb_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `MGBankId` varchar(50) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
+  `scb_id` varchar(5) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `kma_id` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `ktb_id` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `MGBankId` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `bank_info`
@@ -286,50 +250,6 @@ INSERT INTO `bank_running` (`id`, `Bank`, `RunningDate`, `IsRunning`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `bank_transfer_log`
---
-
-CREATE TABLE `bank_transfer_log` (
-  `id` bigint NOT NULL,
-  `datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `from_bank_id` int NOT NULL,
-  `from_acc_number` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `to_bank_id` int NOT NULL,
-  `to_acc_number` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `amount` decimal(10,2) NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `bank_transfer_log`
---
-
-INSERT INTO `bank_transfer_log` (`id`, `datetime`, `from_bank_id`, `from_acc_number`, `to_bank_id`, `to_acc_number`, `amount`) VALUES
-(2, '2023-07-18 14:45:06', 5, '7922542318', 0, '4251676925', 200.00),
-(3, '2023-07-19 18:07:47', 5, '7922542318', 1, '1431216759', 2000.00),
-(4, '2023-07-19 18:07:57', 5, '7922542318', 1, '1431216759', 2000.00),
-(5, '2023-07-21 07:40:06', 5, '7922542318', 1, '1431216759', 2500.00),
-(6, '2023-07-21 08:02:38', 1, '1431216759', 5, '5234069436', 100.00),
-(7, '2023-09-10 21:17:33', 5, '1212450306', 5, '8162780544', 1.00),
-(8, '2023-09-16 12:10:00', 5, '1212450306', 1, '0861432424', 1600.00),
-(9, '2023-09-16 15:57:08', 5, '1212450306', 1, '0861432424', 2500.00),
-(10, '2023-09-17 16:52:13', 5, '1212450306', 1, '0861432424', 2000.00),
-(11, '2023-09-18 15:53:48', 5, '1212450306', 1, '0861432424', 2500.00),
-(12, '2023-09-27 02:37:25', 5, '1212450306', 1, '0861432424', 1000.00),
-(13, '2023-09-27 16:07:51', 5, '1212450306', 1, '0861432424', 1000.00),
-(14, '2023-09-30 02:43:00', 5, '1212450306', 1, '0861432424', 1500.00),
-(15, '2023-09-30 04:57:13', 5, '1212450306', 5, '0432780551', 2.00),
-(16, '2023-10-07 11:00:56', 5, '1212450306', 1, '1548512995', 110.00),
-(17, '2023-10-22 00:12:03', 5, '4121271229', 1, '0861432424', 2.00),
-(18, '2023-10-22 03:13:48', 5, '4121271229', 5, '7342301588', 2.00),
-(19, '2023-10-22 03:15:00', 5, '4121271229', 5, '2644286858', 100.00),
-(20, '2023-10-22 03:26:16', 5, '4121271229', 5, '8542560564', 4.00),
-(21, '2023-10-22 04:46:09', 5, '6172463198', 1, '1548512995', 7000.00),
-(22, '2023-10-22 05:26:59', 5, '6172463198', 5, '8542560564', 3.00),
-(23, '2023-10-23 06:18:31', 5, '6172463198', 5, '7342301588', 300.00);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `daily_sent`
 --
 
@@ -346,11 +266,11 @@ CREATE TABLE `daily_sent` (
 
 CREATE TABLE `district` (
   `id` int NOT NULL,
-  `code` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
-  `name_th` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `name_en` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `code` varchar(4) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `name_th` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `name_en` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `province_id` int NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `district`
@@ -1364,7 +1284,7 @@ INSERT INTO `district` (`id`, `code`, `name_th`, `name_en`, `province_id`) VALUE
 
 CREATE TABLE `email_accept_member` (
   `id` int NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `read_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `send_line_complete` int NOT NULL DEFAULT '0',
   `remark` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
@@ -1378,13 +1298,13 @@ CREATE TABLE `email_accept_member` (
 
 CREATE TABLE `generate_decimal` (
   `id` int NOT NULL,
-  `username` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `isset_credit` decimal(10,2) NOT NULL,
   `decimal_credit` decimal(10,2) NOT NULL,
   `start` datetime NOT NULL,
   `end` datetime NOT NULL,
   `status` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -1394,8 +1314,8 @@ CREATE TABLE `generate_decimal` (
 
 CREATE TABLE `geographies` (
   `id` int NOT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin COMMENT='InnoDB free: 8192 kB';
+  `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='InnoDB free: 8192 kB';
 
 --
 -- Dumping data for table `geographies`
@@ -1408,26 +1328,6 @@ INSERT INTO `geographies` (`id`, `name`) VALUES
 (4, 'ภาคตะวันตก'),
 (5, 'ภาคตะวันออก'),
 (6, 'ภาคใต้');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `get_reward_history`
---
-
-CREATE TABLE `get_reward_history` (
-  `id` int NOT NULL,
-  `username` varchar(50) NOT NULL,
-  `mobile_no` varchar(15) NOT NULL,
-  `type` varchar(100) NOT NULL,
-  `reward_id` int NOT NULL,
-  `date` datetime NOT NULL,
-  `status` int NOT NULL,
-  `reward_name` varchar(200) NOT NULL,
-  `address` varchar(300) NOT NULL,
-  `credit` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `track_id` varchar(100) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -1450,54 +1350,6 @@ INSERT INTO `groupid_running` (`id`, `running`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `interest_list`
---
-
-CREATE TABLE `interest_list` (
-  `id` int NOT NULL,
-  `interest_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `period_id` int NOT NULL,
-  `collateral_type_id` int NOT NULL,
-  `period_number` int NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `interest_list`
---
-
-INSERT INTO `interest_list` (`id`, `interest_name`, `period_id`, `collateral_type_id`, `period_number`, `status`) VALUES
-(1, 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1),
-(3, 'กู้แบบมีของค้ำดอกเบี้ยราย 15 วัน', 1, 1, 15, 1),
-(4, 'กู้แบบไม่มีของค้ำดอกเบี้ยรายเดือน', 2, 2, 1, 1),
-(7, 'กู้รายปี', 3, 2, 1, 1),
-(8, '30วัน', 1, 2, 1, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `interest_period_list`
---
-
-CREATE TABLE `interest_period_list` (
-  `id` int NOT NULL,
-  `period_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `period_unit` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `interest_period_list`
---
-
-INSERT INTO `interest_period_list` (`id`, `period_name`, `period_unit`, `status`) VALUES
-(1, 'day', 'days', 1),
-(2, 'month', 'months', 1),
-(3, 'year', 'years', 1);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `ip_blocked`
 --
 
@@ -1514,8 +1366,8 @@ CREATE TABLE `ip_blocked` (
 
 CREATE TABLE `key_check` (
   `id` int NOT NULL,
-  `key_` varchar(255) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+  `key_` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `key_check`
@@ -1563,34 +1415,20 @@ INSERT INTO `latest_line_update` (`id`, `datetime_update`, `hd_status`, `version
 -- --------------------------------------------------------
 
 --
--- Table structure for table `linelogin_token`
---
-
-CREATE TABLE `linelogin_token` (
-  `id` bigint NOT NULL,
-  `state_key` varchar(300) COLLATE utf8_unicode_ci NOT NULL,
-  `access_token` varchar(300) COLLATE utf8_unicode_ci NOT NULL,
-  `refresh_token` varchar(300) COLLATE utf8_unicode_ci NOT NULL,
-  `user` varchar(100) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `line_chat_active`
 --
 
 CREATE TABLE `line_chat_active` (
   `id` bigint NOT NULL,
-  `bot_user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `chat_with_user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bot_user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chat_with_user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `chat_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_chattime` datetime DEFAULT CURRENT_TIMESTAMP,
   `active` tinyint(1) NOT NULL DEFAULT '1',
-  `reply_by` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reply_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `reply_datetime` datetime DEFAULT CURRENT_TIMESTAMP,
-  `close_by` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `reply_token` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `close_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `reply_token` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -1603,7 +1441,14 @@ INSERT INTO `line_chat_active` (`id`, `bot_user_id`, `chat_with_user_id`, `chat_
 (3, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', '2025-07-09 15:05:19', '2025-07-09 15:14:43', 0, NULL, '2025-07-09 08:05:19', 'SYSTEM', '7b8935705395414e8d4a2ebeff988033'),
 (4, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', '2025-07-21 11:17:42', '2025-07-21 11:18:28', 0, NULL, '2025-07-21 04:17:42', 'SYSTEM', '7b8935705395414e8d4a2ebeff988033'),
 (5, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', '2025-07-29 19:41:23', '2025-07-29 19:45:01', 1, NULL, '2025-07-29 12:41:23', NULL, '034b19448ab04d488c6bebe380284fdd'),
-(6, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', '2025-07-29 19:44:36', '2025-07-29 19:44:36', 1, NULL, '2025-07-29 12:44:36', NULL, '7b8935705395414e8d4a2ebeff988033');
+(6, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', '2025-07-29 19:44:36', '2025-07-29 19:44:36', 1, NULL, '2025-07-29 12:44:36', NULL, '7b8935705395414e8d4a2ebeff988033'),
+(7, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', '2025-10-05 01:43:17', '2025-10-05 01:43:39', 0, NULL, '2025-10-04 11:43:17', 'SYSTEM', '2742f47b393c400eaf1e6b074b907773'),
+(8, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', '2025-10-05 02:29:26', '2025-10-05 02:34:32', 0, NULL, '2025-10-04 12:29:26', 'SYSTEM', '2742f47b393c400eaf1e6b074b907773'),
+(9, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', '2025-10-05 02:57:42', '2025-10-05 03:01:50', 0, NULL, '2025-10-04 12:57:43', 'SYSTEM', '405906368be4418e9bc508d84781d7ed'),
+(10, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', '2025-10-05 02:58:27', '2025-10-05 02:58:36', 0, NULL, '2025-10-04 12:58:27', 'SYSTEM', '4637f5c5d16d4b8ab6699a3bbd80727a'),
+(11, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', '2025-10-05 02:59:59', '2025-10-05 03:00:04', 1, NULL, '2025-10-04 12:59:59', NULL, '8b9d4e4bef7b48c5a56d4f380793b7e9'),
+(12, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', '2025-10-05 03:17:33', '2025-10-05 03:22:20', 1, NULL, '2025-10-04 13:17:33', NULL, 'f25e90ebd6684c80a70f05e2790df7c9'),
+(13, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', '2025-10-05 03:18:18', '2025-10-05 03:21:55', 1, NULL, '2025-10-04 13:18:18', NULL, '9c1ee38e154f4b2d924ce563d8234766');
 
 -- --------------------------------------------------------
 
@@ -1613,18 +1458,18 @@ INSERT INTO `line_chat_active` (`id`, `bot_user_id`, `chat_with_user_id`, `chat_
 
 CREATE TABLE `line_chat_message` (
   `id` bigint NOT NULL,
-  `bot_user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `chat_with_user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bot_user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `chat_with_user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `line_chat_active_id` bigint DEFAULT '0',
   `message_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `message` text COLLATE utf8mb4_unicode_ci,
+  `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `message_type` int NOT NULL DEFAULT '0',
-  `reply_to_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `message_detail` text COLLATE utf8mb4_unicode_ci,
+  `reply_to_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `message_detail` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `is_read` tinyint(1) NOT NULL DEFAULT '0',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
   `is_sending` tinyint(1) DEFAULT '0',
-  `send_by` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `send_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `send_completed` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1666,7 +1511,35 @@ INSERT INTO `line_chat_message` (`id`, `bot_user_id`, `chat_with_user_id`, `line
 (31, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', 5, '2025-07-29 19:44:30', 'สมัครสมาชิก', 0, '', '{}', 0, 0, 0, NULL, 1),
 (32, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', 6, '2025-07-29 19:44:36', 'สมัครสมาชิก', 0, '', '{}', 0, 0, 0, NULL, 1),
 (33, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', 5, '2025-07-29 19:44:42', 'สมัครสมาชิก', 0, '', '{}', 0, 0, 0, NULL, 1),
-(34, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', 5, '2025-07-29 19:45:01', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1);
+(34, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', 5, '2025-07-29 19:45:01', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(35, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 7, '2025-10-05 01:43:17', 'สวัสดีครับ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(36, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 7, '2025-10-05 01:43:39', 'แปบนะ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(37, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 8, '2025-10-05 02:29:26', 'โหลๆ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(38, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 8, '2025-10-05 02:29:38', 'สมัคร', 0, '', '{}', 0, 0, 0, NULL, 1),
+(39, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 8, '2025-10-05 02:32:50', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(40, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 8, '2025-10-05 02:34:32', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(41, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 9, '2025-10-05 02:57:42', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(42, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 10, '2025-10-05 02:58:27', 'โอม', 0, '', '{}', 0, 0, 0, NULL, 1),
+(43, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 10, '2025-10-05 02:58:36', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(44, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 11, '2025-10-05 02:59:59', 'โหล', 0, '', '{}', 0, 0, 0, NULL, 1),
+(45, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 9, '2025-10-05 03:00:02', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(46, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 11, '2025-10-05 03:00:04', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(47, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 9, '2025-10-05 03:01:50', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(48, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:17:33', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(49, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:17:45', 'โแม', 0, '', '{}', 0, 0, 0, NULL, 1),
+(50, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:17:51', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(51, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:17:59', 'ต่ออายุ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(52, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:18:11', 'เช็ค', 0, '', '{}', 0, 0, 0, NULL, 1),
+(53, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:18:17', 'เช็ควัน', 0, '', '{}', 0, 0, 0, NULL, 1),
+(54, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:18:18', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(55, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:18:54', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(56, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:19:43', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(57, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:20:04', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(58, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:20:18', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(59, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:20:54', 'โหลๆ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(60, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:21:02', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(61, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 13, '2025-10-05 03:21:55', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1),
+(62, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 12, '2025-10-05 03:22:20', 'ซื้อ', 0, '', '{}', 0, 0, 0, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1676,17 +1549,17 @@ INSERT INTO `line_chat_message` (`id`, `bot_user_id`, `chat_with_user_id`, `line
 
 CREATE TABLE `line_contact` (
   `id` int NOT NULL,
-  `bot_user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `display_name` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `language` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `picture_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `status_message` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `alias_userid` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `note` text COLLATE utf8mb4_unicode_ci,
-  `note_by` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bot_user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `display_name` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `language` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `picture_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `status_message` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `alias_userid` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `note` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `note_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `note_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `tag` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `tag` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `last_update` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1695,9 +1568,9 @@ CREATE TABLE `line_contact` (
 --
 
 INSERT INTO `line_contact` (`id`, `bot_user_id`, `user_id`, `display_name`, `language`, `picture_url`, `status_message`, `alias_userid`, `note`, `note_by`, `note_at`, `tag`, `last_update`) VALUES
-(1, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U50de7455d93dbd50e652094e0e878e3a', 'NiCkyShOx', 'th', 'https://sprofile.line-scdn.net/0hxS0cy905J3wdGjahsfxZA21KJBY-a35uYyxvEi4ccEwpfmd6Mnw9SnocKR8kKDd6OX1rTiscfB8RCVAaA0zbSBoqek0hLmcrN3Rrkw', '^_^', '', NULL, NULL, '2025-07-08 06:00:30', '', '2025-07-08 06:00:30'),
-(2, 'Uecf45f5c994d98306f3fee67921ac3d6', 'U45b7554f02a061a7620c9c9fa36411d2', '💖🫶🏻', 'th', 'https://sprofile.line-scdn.net/0hhjshTYO9N0VeESe0KS9JOi5BNC99YG5XeiN8cGkXanYzcXATdHcrJWxEOnRjIHYSciRwd2wWYHFSAkAjQEfLcVkhanRiJXcSdH97qg', 'ok', '', NULL, NULL, '2025-07-29 19:44:36', '', '2025-07-29 19:44:36'),
-(3, 'Uecf45f5c994d98306f3fee67921ac3d6', 'Ue138884a48abe606128a06f2baebf36e', 'K.annika', 'th', 'https://sprofile.line-scdn.net/0h2OJLEqLibWBnNXmzEVATHxdlbgpERDRySAAkBAJgYwNZUCo_HlR2AltmZ1dSAS80TlslVQc1NQNrJhoGeWORVGAFMFFbAS03TVshjw', '😱', '', NULL, NULL, '2025-07-29 19:41:23', '', '2025-07-29 19:41:23');
+(1, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ufd8e55670d2d22dd61444f26a957f937', 'ZEnd', 'th', 'https://sprofile.line-scdn.net/0hvrHWZrFiKV1lLj_lsnhXIhV-KjdGX3BPSBg1PAN9fmoITWYIHkg2P1R5f2tfTGtbSk0xa1N5fmxpPV47e3jVaWIedGxZF24OTkxvug', 'ZEnd', '', NULL, NULL, '2025-10-05 02:57:42', '', '2025-10-05 02:57:42'),
+(2, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 'Phon', 'th', 'https://sprofile.line-scdn.net/0hyBWCEt5PJm16Ojf578dYUwpqJQdZS39_A11sDkxufA5ODmZvBAw-XB87elUTAzNpVlpqXkZoeF1Ydh1YNCYXaUp7B1sjcRFtN1QZc0xJOjUBWWIyESo7XSdiIyM5YzxYAUB1QwlTAgEHdGdONx81A0s9fiUXXRRzHm1KO38ISO4VOFE4V11gC0o9fFTG', 'RMA', '', NULL, NULL, '2025-10-05 02:58:27', '', '2025-10-05 02:58:27'),
+(3, 'U5ad4fea29e5b8c9922b2852394b02d69', 'Uc1cfa03d481de408c19834932fdb820e', 'NiCkyShOx', 'th', 'https://sprofile.line-scdn.net/0hCexk7YfkHEpVEgLkYBBidCVCHyB2Y0VYKyRUJGYUS3phdlxMenQGfDIUEilsIAxMcXVQeGMURyl3VBpyDBQgJB5GOT0vWVlZeSJUemZSIzJhfAtlBTUWQhhJHRkXRjMeC3Y0cRwbFSYKel1_PycvbGBNJwYKVAZhP0VwHFAgcsk6EGsfeHVaLGUVRnPp', '^_^', '', NULL, NULL, '2025-10-05 02:59:59', '', '2025-10-05 02:59:59');
 
 -- --------------------------------------------------------
 
@@ -1730,13 +1603,24 @@ INSERT INTO `line_quick_message` (`id`, `line_setting_id`, `name_message`, `mess
 
 CREATE TABLE `line_sent_message` (
   `id` int NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `user_id` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `remark` varchar(400) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `product_name` int DEFAULT NULL,
   `send_line_complete` int NOT NULL,
   `send_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `line_sent_message`
+--
+
+INSERT INTO `line_sent_message` (`id`, `email`, `user_id`, `remark`, `product_name`, `send_line_complete`, `send_at`) VALUES
+(1, '', 'Ufd8e55670d2d22dd61444f26a957f937', 'แพ็คเก็จ Youtube Premium 3 เดือน ของ  กำลังจะหมดอายุในอีก 1 วัน\nท่านสามารถต่ออายุได้ตามลิงค์นี้ \nhttp://localhost:10600/buyproduct?sourceUserId=Ufd8e55670d2d22dd61444f26a957f937&email=', 13, 1, '2025-10-07 23:27:46'),
+(2, '', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 'แพ็คเก็จ Youtube Premium 3 เดือน ของ  กำลังจะหมดอายุในอีก 2 วัน\nท่านสามารถต่ออายุได้ตามลิงค์นี้ \nhttp://localhost:10600/buyproduct?sourceUserId=Ua9cb8ba90f4749ce653c1fd80ff03b3f&email=', 13, 1, '2025-10-07 23:27:47'),
+(3, '', 'Ufd8e55670d2d22dd61444f26a957f937', 'แพ็คเก็จ Youtube Premium 3 เดือน ของ  กำลังจะหมดอายุในอีก 1 วัน\nท่านสามารถต่ออายุได้ตามลิงค์นี้ \nhttp://localhost:10600/buyproduct?sourceUserId=Ufd8e55670d2d22dd61444f26a957f937&email=', 13, 1, '2025-10-07 23:28:24'),
+(4, '', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 'แพ็คเก็จ Youtube Premium 3 เดือน ของ  กำลังจะหมดอายุในอีก 2 วัน\nท่านสามารถต่ออายุได้ตามลิงค์นี้ \nhttp://localhost:10600/buyproduct?sourceUserId=Ua9cb8ba90f4749ce653c1fd80ff03b3f&email=', 13, 1, '2025-10-07 23:28:25'),
+(5, '', 'Ufd8e55670d2d22dd61444f26a957f937', 'แพ็คเก็จ Youtube Premium 3 เดือน ของ  กำลังจะหมดอายุในอีก 1 วัน\nท่านสามารถต่ออายุได้ตามลิงค์นี้ \nhttp://localhost:10600/buyproduct?sourceUserId=Ufd8e55670d2d22dd61444f26a957f937&email=', 13, 1, '2025-10-07 23:29:21');
 
 -- --------------------------------------------------------
 
@@ -1746,17 +1630,17 @@ CREATE TABLE `line_sent_message` (
 
 CREATE TABLE `line_setting` (
   `id` int NOT NULL,
-  `channel_token` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `bot_name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `line_url` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `display_name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `basic_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `picture_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status_message` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `channel_token` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `bot_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `line_url` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `display_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `basic_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `picture_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status_message` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `last_login` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `note` text COLLATE utf8mb4_unicode_ci,
-  `pair_key` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `note` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `pair_key` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` int NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1765,56 +1649,7 @@ CREATE TABLE `line_setting` (
 --
 
 INSERT INTO `line_setting` (`id`, `channel_token`, `bot_name`, `line_url`, `display_name`, `user_id`, `basic_id`, `picture_url`, `status_message`, `last_login`, `note`, `pair_key`, `status`) VALUES
-(1, 'zW6d/uiKHoNHWj+kykKRcZK1X/gvyqoAjthzys8ZJ1I0u3VwNA+GBLcTiiCxndIiIpj1d6R69CYO1Ak5QB3L3TxP3n1lUVhzka+j5lVc6nyNzwubSe64h2TmKsEBGtwa2e7VhyAZJcvuq4rmrJ3uI49PbdgDzCFqoOLOYbqAITQ=', 'YoutubeMember', 'https://lin.ee/oyoeRxg', 'BigaByte', 'Uecf45f5c994d98306f3fee67921ac3d6', '@249mwbpl', 'https://profile.line-scdn.net/0hGMCVmAG4GGJ-Lwhs3ptnNUJqFg8JAR4qBkAHDFN6RABVFlg3Fh4FVl14FQUAT18xFUhSBA5_T1ZW', '', '2025-07-08 10:26:27', '', 'PejoIGAOBM', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `line_shift`
---
-
-CREATE TABLE `line_shift` (
-  `id` int NOT NULL,
-  `time_in` datetime DEFAULT NULL,
-  `time_out` datetime DEFAULT NULL,
-  `user_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `line_shift`
---
-
-INSERT INTO `line_shift` (`id`, `time_in`, `time_out`, `user_id`) VALUES
-(1, '2024-05-07 12:53:39', '2024-05-07 13:02:07', 'superwin'),
-(2, '2024-05-07 12:58:47', '2024-05-07 13:02:07', 'superwin'),
-(3, '2024-05-07 15:28:07', NULL, 'superwin'),
-(4, '2024-04-30 02:13:38', '2024-04-30 07:41:53', 'superwin'),
-(7, '2024-05-01 18:13:38', '2024-05-01 21:41:53', 'superwin'),
-(22, '2024-05-13 02:43:23', '2024-05-13 06:02:39', 'ferng'),
-(23, '2024-05-13 02:45:37', '2024-05-13 02:58:38', 'bigeit1'),
-(24, '2024-05-13 02:46:53', '2024-05-13 02:58:37', 'ray2'),
-(25, '2024-05-13 02:49:04', '2024-05-13 02:59:36', 'nonnoi'),
-(26, '2024-05-13 02:50:00', '2024-05-13 06:02:40', 'juniorr'),
-(27, '2024-05-13 04:28:23', '2024-05-13 06:02:40', 'juniorr'),
-(28, '2024-05-13 04:29:28', '2024-05-15 08:01:47', 'bigeit1'),
-(29, '2024-05-13 04:32:56', '2024-05-13 06:02:07', 'nonnoi'),
-(30, '2024-05-13 05:12:35', '2024-05-13 08:02:18', 'ter'),
-(31, '2024-05-13 05:13:41', '2024-05-13 06:02:39', 'ferng'),
-(32, '2024-05-13 05:20:06', '2024-05-13 08:02:30', 'ray2'),
-(33, '2024-05-14 18:25:29', '2024-05-15 06:04:20', 'juniorr'),
-(34, '2024-05-14 18:26:12', '2024-05-15 06:01:12', 'ferng'),
-(35, '2024-05-14 18:28:41', '2024-05-15 06:02:22', 'nonnoi'),
-(36, '2024-05-14 18:35:45', '2024-05-14 19:02:48', 'jinphitcha'),
-(37, '2024-05-14 18:43:36', '2024-05-14 20:02:51', 'phueng'),
-(38, '2024-05-14 18:48:14', '2024-05-14 20:03:56', 'Pae'),
-(39, '2024-05-14 19:59:44', '2024-05-15 08:13:36', 'Ta'),
-(40, '2024-05-14 20:00:34', '2024-05-15 08:01:40', 'ray2'),
-(41, '2024-05-14 20:00:52', '2024-05-15 08:35:09', 'ter'),
-(42, '2024-05-14 20:01:52', '2024-05-15 08:01:47', 'bigeit1'),
-(43, '2024-05-15 08:02:04', '2024-05-15 08:12:44', 'phueng'),
-(44, '2024-05-15 08:05:47', '2024-05-15 20:04:46', 'Pae'),
-(45, '2024-05-15 08:15:36', '2024-05-15 08:34:57', 'beer22'),
-(46, '2024-05-15 20:12:58', '2024-05-16 08:01:31', 'ter');
+(1, '/oSJNxIU0+l6NJo6nMzX9wXVcaadPkr773LZX5vtyRA0mdRo8p1zn1a7GxhHMKvzsp/azxtG6N7ZBCSPw0NjAQ/qJ0U9PHKlxJFsd2ie6F4+UKVkPvy3TCfiO3UrcQF9XF1ONCXU+N0W60PggR4KkAdB04t89/1O/w1cDnyilFU=', 'YoutubeMember', 'https://lin.ee/oyoeRxg', 'ทดสอบ', 'U5ad4fea29e5b8c9922b2852394b02d69', '@692rqyur', '', '', '2025-10-05 03:18:45', '', 'PejoIGAOBM', 1);
 
 -- --------------------------------------------------------
 
@@ -1824,10 +1659,10 @@ INSERT INTO `line_shift` (`id`, `time_in`, `time_out`, `user_id`) VALUES
 
 CREATE TABLE `line_sticker` (
   `id` int NOT NULL,
-  `packageId` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `stickerId` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `stickerResourceType` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `keywords` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `packageId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `stickerId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `stickerResourceType` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keywords` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `active` tinyint(1) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -1865,262 +1700,12 @@ INSERT INTO `line_sticker` (`id`, `packageId`, `stickerId`, `stickerResourceType
 
 CREATE TABLE `line_tag` (
   `id` int NOT NULL,
-  `tag_label` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `tag_value` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `tag_label` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `tag_value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT '',
   `tag_order` int NOT NULL DEFAULT '0',
   `active` tinyint(1) DEFAULT '1',
-  `tag_class` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT ''
+  `tag_class` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `line_tag`
---
-
-INSERT INTO `line_tag` (`id`, `tag_label`, `tag_value`, `tag_order`, `active`, `tag_class`) VALUES
-(1, 'เรียบร้อย', 'เรียบร้อย', 1, 1, 'success'),
-(2, 'รอดำเนินการ', 'รอดำเนินการ', 2, 1, 'warning'),
-(4, 'สงสัยว่าโกงแต่ยังไมมีหลักฐาน', 'สงสัยว่าโกงแต่ยังไมมีหลักฐาน', 4, 1, 'dark'),
-(5, 'โกงและมีหลักฐาน', 'โกงและมีหลักฐาน', 5, 1, 'danger'),
-(6, 'ลูกค้า VIP', 'ลูกค้า VIP', 6, 1, 'info');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `loan_collateral_type`
---
-
-CREATE TABLE `loan_collateral_type` (
-  `id` int NOT NULL,
-  `collateral_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `loan_collateral_type`
---
-
-INSERT INTO `loan_collateral_type` (`id`, `collateral_name`) VALUES
-(1, 'Have Colleteral'),
-(2, 'Not Have Colleteral');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `loan_file`
---
-
-CREATE TABLE `loan_file` (
-  `id` bigint NOT NULL,
-  `loan_list_id` bigint NOT NULL,
-  `img_url` varchar(300) COLLATE utf8_unicode_ci NOT NULL,
-  `upload_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `loan_list`
---
-
-CREATE TABLE `loan_list` (
-  `id` bigint NOT NULL,
-  `member_id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `loan_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `create_by` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `owner_admin_id` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `staff_id` varchar(100) COLLATE utf8_unicode_ci DEFAULT '',
-  `interest_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `period_unit_id` int NOT NULL,
-  `collateral_type_id` int NOT NULL,
-  `period_number` int NOT NULL,
-  `approved` tinyint(1) NOT NULL DEFAULT '0',
-  `approve_by` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `closed` tinyint(1) NOT NULL DEFAULT '0',
-  `close_by` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `approve_note` text COLLATE utf8_unicode_ci,
-  `close_note` text COLLATE utf8_unicode_ci,
-  `remain_loan` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `remain_interest` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `remain_fine` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `number_over_due` int NOT NULL DEFAULT '0',
-  `collateral_img1` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `collateral_img2` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `collateral_img3` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `collateral_img4` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `update_by` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `update_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `loan_longtime_number` int NOT NULL DEFAULT '1',
-  `approve_at` datetime DEFAULT NULL,
-  `close_at` datetime DEFAULT NULL,
-  `reject_by` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `rejected` tinyint(1) NOT NULL DEFAULT '0',
-  `reject_at` datetime DEFAULT NULL,
-  `interest` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `effective_rate` tinyint(1) NOT NULL DEFAULT '0',
-  `reject_note` text COLLATE utf8_unicode_ci,
-  `loan_start_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `loan_list`
---
-
-INSERT INTO `loan_list` (`id`, `member_id`, `loan_amount`, `create_by`, `create_at`, `owner_admin_id`, `staff_id`, `interest_name`, `period_unit_id`, `collateral_type_id`, `period_number`, `approved`, `approve_by`, `closed`, `close_by`, `approve_note`, `close_note`, `remain_loan`, `remain_interest`, `remain_fine`, `number_over_due`, `collateral_img1`, `collateral_img2`, `collateral_img3`, `collateral_img4`, `update_by`, `update_date`, `loan_longtime_number`, `approve_at`, `close_at`, `reject_by`, `rejected`, `reject_at`, `interest`, `effective_rate`, `reject_note`, `loan_start_at`) VALUES
-(9, 'loan000013', 10000.00, 'superwin2', '2024-02-04 14:40:00', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 0, '', 0, '', '\'\'', '\'\'', 10000.00, 600.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-04 14:40:00', 14, NULL, NULL, 'superwin2', 1, '2024-02-04 07:00:00', 3.00, 0, 'ลูกค้าไม่น่าเชื่อถือ', '2024-02-04 07:00:00'),
-(10, 'loan000013', 5000.00, 'superwin2', '2024-02-04 14:44:11', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', 'ต้องระวังลูกค้าไม่จ่ายด้วยนะ', '\'\'', 3370.00, 101.10, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-04 14:44:11', 14, '2024-02-04 07:00:00', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-04 07:00:00'),
-(11, 'loan000013', 10000.00, 'superwin2', '2024-02-05 00:26:15', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', 'test', '\'\'', 10000.00, 600.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-05 09:25:09', 14, '2024-02-05 09:25:09', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-05 07:00:00'),
-(12, 'loan000013', 3000.00, 'superwin2', '2024-02-05 09:25:21', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 0, '', 0, '', '\'\'', '\'\'', 3000.00, 420.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-05 09:25:34', 14, NULL, NULL, 'superwin2', 1, '2024-02-05 09:25:34', 7.00, 0, 'ไม่น่ารอด', '2024-02-05 07:00:00'),
-(13, 'loan000013', 30000.00, 'superwin2', '2024-02-05 09:26:00', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 0, '', 0, '', '\'\'', '\'\'', 30000.00, 18900.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-05 09:26:00', 63, NULL, NULL, '', 0, NULL, 7.00, 0, '', '2024-02-05 07:00:00'),
-(14, 'loan000009', 1000.00, 'superwin2', '2024-02-06 09:43:46', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', 'test', '\'\'', 1000.00, 60.00, 0.00, 0, 'http://localhost:9500/getfile/superwin21707162124244collateral_img1.jpg', '', 'http://localhost:9500/getfile/superwin21707162127272collateral_img2.jpg', '', 'superwin2', '2024-02-07 09:19:38', 14, '2024-02-07 09:19:38', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-06 07:00:00'),
-(15, 'loan000009', 1000.00, 'superwin2', '2024-02-07 09:22:01', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 0, '', 0, '', '\'\'', '\'\'', 1000.00, 60.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-07 09:22:11', 14, NULL, NULL, 'superwin2', 1, '2024-02-07 09:22:11', 3.00, 0, 'testtestno', '2024-02-07 07:00:00'),
-(16, 'loan000009', 1000.00, 'superwin2', '2024-02-07 09:25:09', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', '', '\'\'', 1000.00, 60.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-19 04:15:34', 14, '2024-02-19 04:15:34', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-07 07:00:00'),
-(17, 'loan000009', 10000.00, 'superwin2', '2024-02-07 09:38:27', 'superwin2', 'superwin2', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', '', '\'\'', 10000.00, 1200.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-07 09:38:32', 28, '2024-02-07 09:38:32', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-07 07:00:00'),
-(18, 'loan000009', 10000.00, 'superwin2', '2024-02-09 06:35:28', 'superwin2', '', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', '', '\'\'', 10000.00, 600.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-09 06:35:41', 14, '2024-02-09 06:35:41', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-01 07:00:00'),
-(19, 'loan000009', 1000.00, 'superwin2', '2024-02-19 04:21:16', 'superwin2', '', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 1, 'superwin2', 0, '', '', '\'\'', 1000.00, 60.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-19 05:17:32', 14, '2024-02-19 05:17:32', NULL, '', 0, NULL, 3.00, 0, '', '2024-02-18 07:00:00'),
-(20, 'loan000013', 1000.00, 'superwin2', '2024-02-24 04:17:21', 'superwin2', '', 'กู้แบบมีของค้ำดอกเบี้ยราย 7 วัน', 1, 1, 7, 0, '', 0, '', '\'\'', '\'\'', 1000.00, 60.00, 0.00, 0, '', '', '', '', 'superwin2', '2024-02-24 04:17:21', 14, NULL, NULL, '', 0, NULL, 3.00, 0, '', '2024-02-23 07:00:00');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `loan_payment`
---
-
-CREATE TABLE `loan_payment` (
-  `id` bigint NOT NULL,
-  `loan_id` bigint NOT NULL,
-  `principle_amount` decimal(10,2) NOT NULL,
-  `interest_amount` decimal(10,2) NOT NULL,
-  `total_amount` decimal(10,2) NOT NULL,
-  `due_date` datetime DEFAULT CURRENT_TIMESTAMP,
-  `paid_at` datetime DEFAULT NULL,
-  `create_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `paid` tinyint(1) NOT NULL DEFAULT '0',
-  `fine_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_received_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `note1` text COLLATE utf8_unicode_ci,
-  `ref_img1` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `ref_img2` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `ref_img3` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `ref_img4` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `received_by` varchar(100) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `note1_by` text COLLATE utf8_unicode_ci,
-  `note2` text COLLATE utf8_unicode_ci,
-  `note2_by` text COLLATE utf8_unicode_ci,
-  `note3` text COLLATE utf8_unicode_ci,
-  `note3_by` text COLLATE utf8_unicode_ci,
-  `note1_at` datetime DEFAULT NULL,
-  `note2_at` datetime DEFAULT NULL,
-  `note3_at` datetime DEFAULT NULL,
-  `closed` tinyint(1) NOT NULL DEFAULT '0',
-  `close_at` datetime DEFAULT NULL,
-  `rejected` tinyint(1) NOT NULL DEFAULT '0',
-  `reject_at` datetime DEFAULT NULL,
-  `staff_id` varchar(100) COLLATE utf8_unicode_ci DEFAULT '',
-  `note4` text COLLATE utf8_unicode_ci,
-  `note4_at` datetime DEFAULT NULL,
-  `note4_by` text COLLATE utf8_unicode_ci,
-  `notefine` text COLLATE utf8_unicode_ci,
-  `notefine_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT '',
-  `notefine_at` datetime DEFAULT NULL,
-  `unpaid_previous_principle_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `unpaid_previous_interest_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `unpaid_previous_fine_amount` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `close_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `reject_by` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `loan_payment`
---
-
-INSERT INTO `loan_payment` (`id`, `loan_id`, `principle_amount`, `interest_amount`, `total_amount`, `due_date`, `paid_at`, `create_at`, `paid`, `fine_amount`, `total_received_amount`, `note1`, `ref_img1`, `ref_img2`, `ref_img3`, `ref_img4`, `received_by`, `note1_by`, `note2`, `note2_by`, `note3`, `note3_by`, `note1_at`, `note2_at`, `note3_at`, `closed`, `close_at`, `rejected`, `reject_at`, `staff_id`, `note4`, `note4_at`, `note4_by`, `notefine`, `notefine_by`, `notefine_at`, `unpaid_previous_principle_amount`, `unpaid_previous_interest_amount`, `unpaid_previous_fine_amount`, `close_by`, `reject_by`) VALUES
-(5, 3, 5000.00, 300.00, 5300.00, '2024-02-11 07:00:00', '2024-02-04 03:50:44', '2024-02-04 03:50:44', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(6, 3, 5000.00, 300.00, 21320.00, '2024-02-18 07:00:00', '2024-02-04 03:50:44', '2024-02-04 03:50:44', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 2500.00, 150.00, 20.00, NULL, NULL),
-(7, 4, 7500.00, 450.00, 7950.00, '2024-02-11 07:00:00', '2024-02-04 03:51:32', '2024-02-04 03:51:32', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(8, 4, 7500.00, 450.00, 7950.00, '2024-02-18 07:00:00', '2024-02-04 03:51:32', '2024-02-04 03:51:32', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(9, 5, 500.00, 30.00, 530.00, '2024-02-11 07:00:00', '2024-02-04 04:03:07', '2024-02-04 04:03:07', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(10, 5, 500.00, 30.00, 530.00, '2024-02-18 07:00:00', '2024-02-04 04:03:07', '2024-02-04 04:03:07', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(11, 6, 500.00, 30.00, 530.00, '2024-02-11 07:00:00', '2024-02-04 04:03:51', '2024-02-04 04:03:51', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(12, 6, 500.00, 30.00, 530.00, '2024-02-18 07:00:00', '2024-02-04 04:03:51', '2024-02-04 04:03:51', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(13, 7, 500.00, 30.00, 530.00, '2024-02-11 07:00:00', '2024-02-04 04:06:18', '2024-02-04 04:06:18', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(14, 7, 500.00, 30.00, 530.00, '2024-02-18 07:00:00', '2024-02-04 04:06:18', '2024-02-04 04:06:18', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(15, 8, 500.00, 30.00, 530.00, '2024-02-11 07:00:00', '2024-02-04 04:06:39', '2024-02-04 04:06:39', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(16, 8, 500.00, 30.00, 530.00, '2024-02-18 07:00:00', '2024-02-04 04:06:39', '2024-02-04 04:06:39', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(17, 9, 5000.00, 300.00, 5300.00, '2024-02-11 07:00:00', '2024-02-04 14:40:00', '2024-02-04 14:40:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(18, 9, 5000.00, 300.00, 5300.00, '2024-02-18 07:00:00', '2024-02-04 14:40:00', '2024-02-04 14:40:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(19, 10, 2500.00, 150.00, 2650.00, '2024-02-11 07:00:00', '2024-02-04 14:44:11', '2024-02-04 14:44:11', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', 'superwin2', '2024-02-17 18:45:20', 0.00, 0.00, 0.00, NULL, NULL),
-(20, 10, 2500.00, 150.00, 2650.00, '2024-02-18 07:00:00', '2024-01-26 00:00:00', '2024-02-04 14:44:11', 1, 20.00, 700.00, 'test1', 'http://localhost:9500/getfile/superwin21708099608838paymentRefImg.jpg', 'http://localhost:9500/getfile/superwin21708100502526paymentRefImg.jpg', 'http://localhost:9500/getfile/superwin21708100511579paymentRefImg.jpeg', '', 'superwin2', 'superwin2', 'test2', 'superwin2', 'test3', 'superwin2', '2024-02-16 23:06:48', '2024-02-16 23:21:42', '2024-02-16 23:21:51', 0, NULL, 0, NULL, '', '', NULL, '', 'ค่าเอกสาร', 'superwin2', '2024-02-17 22:20:01', 0.00, 0.00, 0.00, NULL, NULL),
-(21, 11, 5000.00, 300.00, 5300.00, '2024-02-12 07:00:00', '2024-02-04 00:00:00', '2024-02-05 00:26:15', 0, 0.00, 0.00, 'test1', 'http://localhost:9500/getfile/superwin21708102676384paymentRefImg.jpg', '', '', '', 'superwin2', 'superwin2', '', '', '', '', '2024-02-16 23:57:56', NULL, NULL, 0, NULL, 0, NULL, 'superwin2', '', NULL, '', '', 'superwin2', '2024-02-17 18:45:22', 0.00, 0.00, 0.00, NULL, NULL),
-(22, 11, 5000.00, 300.00, 5300.00, '2024-02-19 07:00:00', '2024-02-16 00:00:00', '2024-02-05 00:26:15', 1, 0.00, 5300.00, '\'\'', '', '', '', '', 'superwin2', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, 'superwin2', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(23, 12, 1500.00, 210.00, 1710.00, '2024-02-12 07:00:00', '2024-02-05 02:25:21', '2024-02-05 09:25:21', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(24, 12, 1500.00, 210.00, 1710.00, '2024-02-19 07:00:00', '2024-02-05 02:25:21', '2024-02-05 09:25:21', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(25, 13, 3333.33, 2100.00, 5433.33, '2024-02-12 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(26, 13, 3333.33, 2100.00, 5433.33, '2024-02-19 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(27, 13, 3333.33, 2100.00, 5993.33, '2024-02-26 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 500.00, 30.00, 30.00, NULL, NULL),
-(28, 13, 3333.33, 2100.00, 5433.33, '2024-03-04 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(29, 13, 3333.33, 2100.00, 5433.33, '2024-03-11 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(30, 13, 3333.33, 2100.00, 5433.33, '2024-03-18 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(31, 13, 3333.33, 2100.00, 5433.33, '2024-03-25 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(32, 13, 3333.33, 2100.00, 5433.33, '2024-04-01 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(33, 13, 3333.33, 2100.00, 5433.33, '2024-04-08 07:00:00', '2024-02-05 02:26:00', '2024-02-05 09:26:00', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(34, 14, 500.00, 30.00, 530.00, '2024-02-13 07:00:00', '2024-02-06 02:43:46', '2024-02-06 09:43:46', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, 'superwin4', '', NULL, '', '', 'superwin2', '2024-02-17 18:45:24', 0.00, 0.00, 0.00, NULL, NULL),
-(35, 14, 500.00, 30.00, 560.00, '2024-02-20 07:00:00', '2024-02-06 02:43:46', '2024-02-06 09:43:46', 0, 30.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 1, '2024-02-18 04:42:55', 0, NULL, '', '', NULL, '', 'ค่าธรรมเนียม', 'superwin2', '2024-02-17 22:16:03', 0.00, 0.00, 0.00, 'superwin2', NULL),
-(36, 15, 500.00, 30.00, 530.00, '2024-02-14 07:00:00', '2024-02-07 02:22:01', '2024-02-07 09:22:01', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(37, 15, 500.00, 30.00, 530.00, '2024-02-21 07:00:00', '2024-02-07 02:22:01', '2024-02-07 09:22:01', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(38, 16, 500.00, 30.00, 530.00, '2024-02-14 07:00:00', '2024-02-07 02:25:09', '2024-02-07 09:25:09', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(39, 16, 500.00, 30.00, 530.00, '2024-02-21 07:00:00', '2024-02-07 00:00:00', '2024-02-07 09:25:09', 0, 0.00, 0.00, '\'\'', '', '', '', '', 'loanadmin', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(40, 17, 2500.00, 300.00, 2800.00, '2024-02-14 07:00:00', '2024-02-07 02:38:27', '2024-02-07 09:38:27', 1, 0.00, 2800.00, 'เก็บเงินได้ตามปกติ', 'http://localhost:9500/getfile/superwin21707162127272collateral_img2.jpg', '', '', '', '', 'superwin2', '', '', '', '', '2024-02-07 22:03:12', NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(41, 17, 2500.00, 300.00, 2800.00, '2024-02-21 07:00:00', '2024-02-07 02:38:27', '2024-02-07 09:38:27', 1, 0.00, 2800.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(42, 17, 2500.00, 300.00, 2800.00, '2024-02-28 07:00:00', '2024-02-07 02:38:27', '2024-02-07 09:38:27', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(43, 17, 2500.00, 300.00, 2800.00, '2024-03-06 07:00:00', '2024-02-07 02:38:27', '2024-02-07 09:38:27', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(44, 18, 5000.00, 300.00, 5300.00, '2024-02-08 07:00:00', NULL, '2024-02-09 06:35:28', 0, 0.00, 0.00, '\'\'', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(45, 18, 5000.00, 300.00, 5300.00, '2024-02-15 07:00:00', '2024-02-17 00:00:00', '2024-02-09 06:35:28', 1, 0.00, 5300.00, '\'\'', 'http://localhost:9500/getfile/superwin21708102892404paymentRefImg.jpg', '', '', '', 'superwin2', 'superwin2', '', '', '', '', '2024-02-17 00:01:32', NULL, NULL, 0, NULL, 0, NULL, 'superwin4', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(55, 10, 2500.00, 150.00, 4620.00, '2024-02-18 08:48:00', '2024-07-08 00:00:00', '2024-02-18 08:48:00', 1, 0.00, 1250.00, 'จ่ายผ่านหน้าอัพโหลดสลิป', 'http://localhost:9500/getfile/20246222742464.jpg', 'http://localhost:9500/getfile/20246222742464.jpg', 'http://localhost:9500/getfile/20246222742464.jpg', '', 'UploadSlipPage', 'UploadSlipPage', 'จ่ายผ่านหน้าอัพโหลดสลิป', 'UploadSlipPage', 'จ่ายผ่านหน้าอัพโหลดสลิป', 'UploadSlipPage', '2024-07-08 07:00:00', '2024-07-08 07:00:00', '2024-07-08 07:00:00', 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 1970.00, 0.00, 0.00, NULL, NULL),
-(56, 19, 500.00, 30.00, 530.00, '2024-02-25 07:00:00', NULL, '2024-02-19 04:21:16', 0, 0.00, 0.00, '', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(57, 19, 500.00, 30.00, 530.00, '2024-03-03 07:00:00', NULL, '2024-02-19 04:21:16', 0, 0.00, 0.00, '', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(58, 20, 500.00, 30.00, 530.00, '2024-03-01 07:00:00', NULL, '2024-02-24 04:17:21', 0, 0.00, 0.00, '', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(59, 20, 500.00, 30.00, 530.00, '2024-03-08 07:00:00', NULL, '2024-02-24 04:17:21', 0, 0.00, 0.00, '', '', '', '', '', '', '', '', '', '', '', NULL, NULL, NULL, 0, NULL, 0, NULL, '', '', NULL, '', '', '', NULL, 0.00, 0.00, 0.00, NULL, NULL),
-(60, 10, 3370.00, 101.10, 3471.10, '2024-02-25 00:00:00', NULL, '2024-07-09 03:39:06', 0, 0.00, 0.00, NULL, '', '', '', '', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, 0, NULL, '', NULL, NULL, NULL, NULL, '', NULL, 0.00, 0.00, 0.00, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `loan_share`
---
-
-CREATE TABLE `loan_share` (
-  `id` bigint NOT NULL,
-  `loan_id` bigint NOT NULL,
-  `owner_id` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
-  `share_percent` decimal(10,2) NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `loan_share`
---
-
-INSERT INTO `loan_share` (`id`, `loan_id`, `owner_id`, `share_percent`) VALUES
-(1, 19, 'superwin4', 50.00),
-(2, 19, 'superwin2', 10.00),
-(3, 19, 'share001', 20.00),
-(4, 19, 'share002', 20.00),
-(5, 9, 'superwin4', 70.00),
-(6, 9, 'share001', 30.00),
-(7, 10, 'superwin2', 70.00),
-(8, 10, 'share002', 30.00),
-(9, 11, 'superwin4', 70.00),
-(10, 11, 'share003', 30.00),
-(11, 12, 'superwin2', 70.00),
-(12, 12, 'share001', 30.00),
-(13, 13, 'superwin4', 70.00),
-(14, 13, 'share002', 30.00),
-(15, 15, 'superwin2', 70.00),
-(16, 15, 'share003', 30.00),
-(17, 17, 'superwin4', 70.00),
-(18, 17, 'share001', 30.00),
-(19, 14, 'superwin2', 100.00),
-(20, 16, 'superwin2', 100.00),
-(21, 18, 'superwin2', 100.00);
 
 -- --------------------------------------------------------
 
@@ -2139,51 +1724,25 @@ CREATE TABLE `log` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `lv_setting`
---
-
-CREATE TABLE `lv_setting` (
-  `level_id` int NOT NULL,
-  `png_url` varchar(255) NOT NULL,
-  `gif_url` varchar(255) NOT NULL,
-  `min_exp` decimal(10,2) NOT NULL,
-  `max_exp` decimal(10,2) NOT NULL,
-  `lv_desc` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `lv_setting`
---
-
-INSERT INTO `lv_setting` (`level_id`, `png_url`, `gif_url`, `min_exp`, `max_exp`, `lv_desc`) VALUES
-(0, 'https://i.imgur.com/S0g84Xm.pngช', 'https://betflik.top/assets_user/def/images/lv/Lv_0.png', 0.00, 999.00, 'Newbie'),
-(1, 'https://betflik.top/assets_user/def/images/lv/Lv_1.png', 'https://betflik.top/assets_user/def/images/lv/Lv_1.png', 1000.00, 9999.99, 'Silver'),
-(2, 'https://i.imgur.com/gS7Zo6D.png', 'https://betflik.top/assets_user/def/images/lv/Lv_2.png', 10000.00, 99999.99, 'Gold'),
-(3, 'https://betflik.top/assets_user/def/images/lv/Lv_3.png', 'https://betflik.top/assets_user/def/images/lv/Lv_3.png', 100000.00, 999999.99, 'Platinum'),
-(4, 'https://i.imgur.com/RnC8BHu.png', 'https://betflik.top/assets_user/def/images/lv/Lv_4.png', 1000000.00, 99999999.99, 'Diamond');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `membership_order_history`
 --
 
 CREATE TABLE `membership_order_history` (
   `id` bigint NOT NULL,
-  `user_id` varchar(80) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `user_id` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `product_id` int DEFAULT NULL,
   `subscription_type_id` int DEFAULT NULL,
-  `product_name` varchar(300) COLLATE utf8mb4_general_ci DEFAULT '',
+  `product_name` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
   `buy_date` datetime DEFAULT NULL,
-  `create_by` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `create_by` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `create_date` datetime NOT NULL,
-  `approve_by` varchar(80) COLLATE utf8mb4_general_ci DEFAULT '',
+  `approve_by` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `approve_date` datetime DEFAULT NULL,
   `canceled` int NOT NULL DEFAULT '0',
-  `note` text COLLATE utf8mb4_general_ci NOT NULL,
+  `note` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `sent_email_at` datetime DEFAULT NULL,
   `sent_email_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `skip_invite` int NOT NULL DEFAULT '0',
@@ -2191,7 +1750,7 @@ CREATE TABLE `membership_order_history` (
   `slip_file_at` datetime DEFAULT NULL,
   `wait_check_payment` int DEFAULT NULL,
   `slip_correct` int DEFAULT NULL,
-  `check_slip_by` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `check_slip_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
   `check_slip_at` datetime DEFAULT NULL,
   `sent_message_at` datetime DEFAULT NULL,
   `sent_message_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
@@ -2203,10 +1762,9 @@ CREATE TABLE `membership_order_history` (
 --
 
 INSERT INTO `membership_order_history` (`id`, `user_id`, `email`, `product_id`, `subscription_type_id`, `product_name`, `start_date`, `end_date`, `buy_date`, `create_by`, `create_date`, `approve_by`, `approve_date`, `canceled`, `note`, `sent_email_at`, `sent_email_by`, `skip_invite`, `slip_file_url`, `slip_file_at`, `wait_check_payment`, `slip_correct`, `check_slip_by`, `check_slip_at`, `sent_message_at`, `sent_message_by`, `sent_message`) VALUES
-(17, 'mb000002', 'nickyshox99@gmail.com', 11, 1, 'Youtube Premium 1 เดือน', NULL, NULL, '2025-07-08 03:35:08', 'System', '2025-07-08 03:35:08', NULL, NULL, 0, '', NULL, '', 0, '', NULL, NULL, NULL, '', NULL, NULL, '', 0),
-(18, 'mb000002', 'nickyshox99@gmail.com', 4, 3, 'Viu 1 เดือน', NULL, NULL, '2025-07-08 03:39:45', 'System', '2025-07-08 03:39:45', NULL, NULL, 0, '', NULL, '', 0, '', NULL, NULL, NULL, '', NULL, NULL, '', 0),
-(19, 'mb000008', 'Krrnikarlimhengsin@gmail.com', 1, 2, 'Netflix 1 เดือน', NULL, NULL, '2025-07-29 12:42:38', 'System', '2025-07-29 12:42:38', NULL, NULL, 0, '', NULL, '', 0, '', NULL, NULL, NULL, '', NULL, NULL, '', 0),
-(20, 'mb000008', 'Meneoynoynaruk0.0@gmail.com', 13, 1, 'Youtube Premium 3 เดือน', NULL, NULL, '2025-07-29 12:46:56', 'System', '2025-07-29 12:46:56', NULL, NULL, 0, '', NULL, '', 0, '', NULL, NULL, NULL, '', NULL, NULL, '', 0);
+(1, 'Ufd8e55670d2d22dd61444f26a957f937', '', 13, 1, 'Youtube Premium 3 เดือน', '2025-10-04 20:15:11', '2025-10-08 20:15:11', '2025-10-04 20:15:11', 'System', '2025-10-04 20:15:11', 'System', '2025-10-04 20:15:11', 0, '', '2025-10-04 20:15:11', 'system', 0, '', NULL, 0, 1, 'admin', '2025-10-04 20:15:38', NULL, '', 0),
+(2, 'Ufd8e55670d2d22dd61444f26a957f937', '', 13, 1, 'Youtube Premium 3 เดือน', '2025-10-05 20:15:11', '2025-10-06 20:15:11', '2025-10-04 20:22:56', 'System', '2025-10-04 20:22:56', 'System', '2025-10-04 20:22:56', 0, '', '2025-10-04 20:22:56', 'system', 0, '', NULL, 0, 1, 'admin', '2025-10-04 20:23:18', NULL, '', 0),
+(3, 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', '', 13, 1, 'Youtube Premium 3 เดือน', '2025-10-04 20:23:53', '2025-10-06 20:23:53', '2025-10-04 20:23:53', 'System', '2025-10-04 20:23:53', 'System', '2025-10-04 20:23:53', 0, '', '2025-10-04 20:23:53', 'system', 0, '', NULL, 0, 1, 'admin', '2025-10-04 20:24:02', NULL, '', 0);
 
 -- --------------------------------------------------------
 
@@ -2257,11 +1815,11 @@ INSERT INTO `meta_promotion_popup` (`id`, `promotion_img`, `promotion_page`, `pr
 
 CREATE TABLE `meta_promotion_setting` (
   `id` int NOT NULL,
-  `meta` text COLLATE utf8_unicode_ci NOT NULL,
+  `meta` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `status` int NOT NULL,
   `deleted` int DEFAULT NULL,
-  `promotion_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+  `promotion_type` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL DEFAULT ''
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `meta_promotion_setting`
@@ -2287,9 +1845,9 @@ INSERT INTO `meta_promotion_setting` (`id`, `meta`, `status`, `deleted`, `promot
 
 CREATE TABLE `meta_setting` (
   `id` int NOT NULL,
-  `meta` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `value` text COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci ROW_FORMAT=DYNAMIC;
+  `meta` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `value` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci ROW_FORMAT=DYNAMIC;
 
 --
 -- Dumping data for table `meta_setting`
@@ -2304,7 +1862,7 @@ INSERT INTO `meta_setting` (`id`, `meta`, `value`) VALUES
 (6, 'notice_backend', '{\"key_valid\":\"ok\",\"enable\":1}'),
 (7, 'game_setting', '{\"key_valid\":\"ok\",\"enable\":1}'),
 (8, 'brand_setting', '{\"key_valid\":\"ok\",\"theme\":\"\",\"Title\":\"The Club พร้อมให้บริการท่านตลอด 24 ชั่วโมง\",\"Head\":\"The Club Society\",\"Description\":\"จงดื่มด่ำกับบรรยากาศ\",\"marquee_text_header\":\"The Club จงดื่มด่ำกับบรรยากาศ\",\"marquee_text_footer\":\"\",\"lineadd_deposit\":\"@mvp532\",\"lineadd_fix\":\"@mvp532\",\"line_contact\":\"https://sv1.picz.in.th/images/2023/09/10/dWsnCvv.jpeg\",\"background_image\":\"https://sv1.picz.in.th/images/2023/09/07/dWAWo4f.jpeg\",\"Logopc\":\"https://img.freepik.com/free-vector/luxury-background-design_1115-630.jpg?size=338&ext=jpg&ga=GA1.1.1880011253.1699228800&semt=ais\",\"member_logo\":\"https://sv1.picz.in.th/images/2023/09/07/dWAWh6l.jpeg\",\"member_button_logout\":\"\",\"member_wallet_image\":\"https://game.dcwin55.com/src/assets/images/coin.png\",\"member_icon_credit\":\"https://plays.berlin777.com/assets/White/img/icons/refresh.svg\",\"member_icon_deposit\":\"https://plays.berlin777.com/assets/White/img/theme/deposit.svg\",\"member_icon_withdraw\":\"https://plays.berlin777.com/assets/White/img/theme/withdraw.svg\",\"member_icon_promotion\":\"https://plays.berlin777.com/assets/White/img/theme/promotion.svg\",\"member_icon_history\":\"https://plays.berlin777.com/assets/White/img/theme/history.svg\",\"member_icon_activity\":\"https://i.imgur.com/qz27rrx.png\",\"member_icon_account\":\"https://imgur.com/lix69OB.png\",\"member_icon_changepassword\":\"https://i.imgur.com/KFxKHh2.png\",\"member_icon_contactus\":\"https://i.imgur.com/QC05Tbu.png\",\"member_theme_button_1\":\"#FEDB37\",\"member_theme_button_3\":\"#54bdec\",\"member_theme_button_2\":\"#FDB931\",\"member_theme_button_4\":\"#CC0066\\t\",\"member_theme_button_text\":\"#ffffff\",\"member_theme_button_5\":\"#ee3175\",\"member_theme_button_6\":\"#FF0099\\t\",\"member_theme_button_7\":\"#07b907\",\"member_theme_button_8\":\"#33CC33\\t\",\"member_theme_button_text_11\":\"#FFFFFF\",\"member_theme_button_11\":\"#006dee\",\"member_theme_button_22\":\"#1e3a80\",\"member_icon_wheel\":\"https://plays.berlin777.com/assets/White/img/theme/wheel.svg\",\"member_icon_card\":\"https://imgur.com/w6fAC8p.png\",\"member_icon_dpw\":\"https://imgur.com/FwMjehG.png\",\"member_icon_comis\":\"https://plays.berlin777.com/assets/White/img/theme/wallet-active.svg\",\"member_icon_friend\":\"https://plays.berlin777.com/assets/White/img/theme/achievement.svg\",\"icon_card2_1\":\"https://imgur.com/8DAQIsL.png\",\"icon_card2_2\":\"https://imgur.com/JOk5phK.png\",\"icon_card2_3\":\"https://i.imgur.com/Ya2uwUv.png\",\"icon_card2_4\":\"https://file.32828a.com/images/TCLWIN/4498f5616581fb632439a7dff467d128_6602164.png\",\"member_icon_Footer_4\":\"https://plays.berlin777.com/assets/img/theme/category-all-active.svg\",\"member_icon_Footer_1\":\"https://www.plays.berlin777.com/assets/img/theme/deposit.svg\",\"member_icon_Footer_3\":\"https://plays.berlin777.com/assets/White/img/theme/wheel.svg\",\"member_icon_Footer_2\":\"https://www.plays.berlin777.com/assets/img/theme/withdraw.svg\",\"member_icon_Footer_5\":\"https://www.plays.berlin777.com/assets/White/img/theme/contact.svg\",\"line_telno\":\"-\",\"member_theme_button_text_3\":\"#FFFFFF\",\"member_theme_button_9\":\"#07b907\",\"member_theme_button_text_2\":\"#FFFFFF\",\"member_theme_bg_1\":\"#1e102add\",\"member_theme_bg_3\":\"#4f2971\",\"member_theme_bg_4\":\"#4f2675\",\"member_theme_bg_5\":\"#DDE6E8\",\"member_theme_bg_2\":\"#DDE6E8\",\"line_contactz\":\"@mvp532\",\"member_icon_line\":\"https://betflix59.com/wp-content/uploads/2023/02/cropped-bet59-min-300x149.png\",\"member_icon_codefree\":\"https://plays.berlin777.com/assets/White/img/theme/profile.svg\",\"icon1\":\"https://plays.berlin777.com/assets/White/img/icons/star.png\",\"icon2\":\"https://plays.berlin777.com/assets/White/img/icons/thunder.png\",\"icon3\":\"https://www.i-pic.info/i/fB20498398.png\",\"member_game_image\":\"https://ideabet.bet/theme/harem789/wp-content/uploads/2022/03/EZ-Casino-%E0%B8%9A%E0%B8%A3%E0%B8%B4%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%AA%E0%B8%A5%E0%B9%87%E0%B8%AD%E0%B8%95%E0%B8%AD%E0%B8%AD%E0%B8%99%E0%B9%84%E0%B8%A5%E0%B8%99%E0%B9%8C-%E0%B8%9D%E0%B8%B2%E0%B8%81-100-%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%94%E0%B8%B4%E0%B8%95%E0%B8%9F%E0%B8%A3%E0%B8%B5-100.png\",\"member_promotion_image\":\"https://ideabet.bet/theme/harem789/wp-content/uploads/2022/06/calender02.png\"}'),
-(9, 'line_token', '{\"key_valid\":\"ok\",\"Register\":\"SSqU1xqlQifIdNoexiz64zi90xx9nEA5Er3LmHzLgDu\",\"Deposit\":\"a33sQ3GS3bRQ3GH3t4uwVqLI7RHo79RnIRoczc1Lm4t\",\"Withdraw\":\"d9sN0YmeCdh49SzR9z4KZph4jNZ4P2eAuqZOaS3FpKd\",\"Login\":\"fLUzjdkn3WNzeo4Zih9q9avFxi7LNsP281Wc4e5DjIH\",\"Cron_day\":\"R1Zzmm7Xg4M6FQ2JDQHcEovNMBIra6g8KJgn41O8z4b\"}'),
+(9, 'line_token', '{\"key_valid\":\"ok\",\"Register\":\"SSqU1xqlQifIdNoexiz64zi90xx9nEA5Er3LmHzLgDu\",\"Deposit\":\"a33sQ3GS3bRQ3GH3t4uwVqLI7RHo79RnIRoczc1Lm4t\",\"Withdraw\":\"d9sN0YmeCdh49SzR9z4KZph4jNZ4P2eAuqZOaS3FpKd\",\"Login\":\"fLUzjdkn3WNzeo4Zih9q9avFxi7LNsP281Wc4e5DjIH\",\"Cron_day\":\"R1Zzmm7Xg4M6FQ2JDQHcEovNMBIra6g8KJgn41O8z4b\",\"SetNearDate\":3,\"enableExpireOnlyOnce\":0,\"enableSkipApproval\":0,\"enableAutoExpireMessage\":1,\"expireMessageRepeat\":1,\"enableAutoGenerateQR\":0}'),
 (10, 'affiliate', '{\"key_valid\":\"ok\",\"MinDeposit\":\"100\",\"Credit1\":\"20\",\"Credit2\":\"0\",\"TypeCredit\":\"percent\",\"MaxCredit\":\"100\",\"MinTransfer\":\"300\",\"enable\":1,\"OnlyFirstDep\":1}'),
 (11, 'affiliate_bet', '{\"key_valid\":\"ok\",\"Credit1\":\"0.6\",\"Credit2\":\"0.06\",\"TypeCredit\":\"unit\",\"enable\":0}'),
 (12, 'otp_register', '{\"enable\":0,\"key_valid\":\"ok\",\"otp_key\":\"1719872426696865\",\"otp_secret\":\"c4c6a0a9243516eca155d4eb33fb7116\"}'),
@@ -2333,37 +1891,17 @@ INSERT INTO `meta_setting` (`id`, `meta`, `value`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `meta_slide`
---
-
-CREATE TABLE `meta_slide` (
-  `id` int NOT NULL,
-  `img` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `meta_slide`
---
-
-INSERT INTO `meta_slide` (`id`, `img`, `status`) VALUES
-(13, 'https://sv1.picz.in.th/images/2023/09/10/dWs6FPe.jpeg', 1),
-(14, 'https://sv1.picz.in.th/images/2023/09/10/dWs6Iml.jpeg', 1);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `notice_admin`
 --
 
 CREATE TABLE `notice_admin` (
   `id` int NOT NULL,
-  `username` varchar(80) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `mobile_no` varchar(15) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `icon` varchar(80) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `text` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `meta_data` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `mobile_no` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `icon` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `text` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `meta_data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `date` datetime NOT NULL,
   `status` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
@@ -2389,15 +1927,15 @@ INSERT INTO `notice_admin` (`id`, `username`, `mobile_no`, `icon`, `title`, `tex
 
 CREATE TABLE `notice_user` (
   `id` int NOT NULL,
-  `username` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `mobile_no` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-  `icon` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `text` text COLLATE utf8_unicode_ci NOT NULL,
-  `meta_data` text COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `mobile_no` varchar(15) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `icon` varchar(80) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `text` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `meta_data` text CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `date` datetime NOT NULL,
   `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -2408,28 +1946,11 @@ CREATE TABLE `notice_user` (
 CREATE TABLE `offer_message` (
   `id` int NOT NULL,
   `offer_at` datetime NOT NULL,
-  `to_email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `to_userid` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `to_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `to_userid` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `subscription_type_id` int NOT NULL,
-  `offer_by` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
+  `offer_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `offer_message`
---
-
-INSERT INTO `offer_message` (`id`, `offer_at`, `to_email`, `to_userid`, `subscription_type_id`, `offer_by`) VALUES
-(1, '2025-07-07 00:13:28', 'nickyshox99@gmail.com', 'loan000009', 2, 'admin'),
-(2, '2025-07-07 00:18:50', 'nickyshox99@gmail.com', 'loan000009', 2, 'admin'),
-(3, '2025-07-07 00:18:52', 'nickyshox99@gmail.com', 'loan000009', 2, 'admin'),
-(4, '2025-07-08 04:34:48', 'soddpfk@gmail.com', 'mb000027', 1, 'admin'),
-(5, '2025-07-08 05:04:13', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(6, '2025-07-08 05:05:25', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(7, '2025-07-08 05:06:55', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(8, '2025-07-08 05:07:33', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(9, '2025-07-08 05:17:59', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(10, '2025-07-08 05:18:31', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin'),
-(11, '2025-07-08 05:21:09', 'nickyshox99@hotmail.com', 'mb000029', 2, 'admin');
 
 -- --------------------------------------------------------
 
@@ -2518,21 +2039,6 @@ INSERT INTO `page_admin` (`id`, `page_name`, `page_name_th`, `status`, `menuorde
 -- --------------------------------------------------------
 
 --
--- Table structure for table `point_log`
---
-
-CREATE TABLE `point_log` (
-  `id` int NOT NULL,
-  `date` datetime NOT NULL,
-  `username` varchar(80) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `point` decimal(10,2) NOT NULL,
-  `from_point` decimal(10,2) NOT NULL,
-  `to_point` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `product_list`
 --
 
@@ -2555,37 +2061,9 @@ CREATE TABLE `product_list` (
 --
 
 INSERT INTO `product_list` (`id`, `product_name`, `subscription_type_id`, `product_img`, `use_credit`, `status`, `type`, `product_desc`, `give_credit`, `subscription_day`, `subscription_times`) VALUES
-(1, 'Netflix 1 เดือน', 2, 'http://api.youtubepm.shop/getfile/Netflix.png', 59.00, 1, 'credit', 'Netflix 1 เดือนเพียง 59 บาท', 0.00, 30, 1),
-(2, 'Netflix 2 เดือน', 2, 'http://api.youtubepm.shop/getfile/Netflix.png', 99.00, 1, 'credit', 'Netflix 2 เดือนเพียง 99 บาท', 0.00, 60, 2),
-(3, 'Netflix 3 เดือน', 2, 'http://api.youtubepm.shop/getfile/Netflix.png', 145.00, 1, 'credit', 'Netflix 3 เดือนเพียง 145 บาท', 0.00, 90, 3),
-(4, 'Viu 1 เดือน', 3, 'http://api.youtubepm.shop/getfile/Viu.png', 45.00, 1, 'credit', 'Viu 1 เดือนเพียง 45 บาท', 0.00, 30, 1),
-(7, 'Viu 2 เดือน', 3, 'http://api.youtubepm.shop/getfile/Viu.png', 85.00, 1, 'credit', 'Viu 2 เดือนเพียง 85 บาท', 0.00, 60, 2),
-(9, 'Viu 3 เดือน', 3, 'http://api.youtubepm.shop/getfile/Viu.png', 135.00, 1, 'credit', 'Viu 3 เดือนเพียง 135 บาท', 0.00, 90, 3),
-(10, 'Viu 3 เดือน', 3, 'http://api.youtubepm.shop/getfile/Viu.png', 135.00, 1, 'credit', 'Viu 3 เดือนเพียง 135 บาท', 0.00, 90, 3),
 (11, 'Youtube Premium 1 เดือน', 1, 'http://api.youtubepm.shop/getfile/YoutubePremium.png', 59.00, 1, 'credit', 'Youtube Premium 1 เดือนเพียง 59 บาท', 0.00, 30, 1),
 (12, 'Youtube Premium 2 เดือน', 1, 'http://api.youtubepm.shop/getfile/YoutubePremium.png', 99.00, 1, 'credit', 'Youtube Premium 2 เดือนเพียง 99 บาท', 0.00, 60, 1),
 (13, 'Youtube Premium 3 เดือน', 1, 'http://api.youtubepm.shop/getfile/YoutubePremium.png', 145.00, 1, 'credit', 'Youtube Premium 2 เดือนเพียง 99 บาท', 0.00, 90, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `product_order_history`
---
-
-CREATE TABLE `product_order_history` (
-  `id` int NOT NULL,
-  `gift_to` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `gift_to_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `order_by` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `order_by_name` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `product_id` int NOT NULL,
-  `product_name` varchar(300) COLLATE utf8_unicode_ci NOT NULL,
-  `product_buy_price` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `product_sell_price` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `date` datetime NOT NULL,
-  `exchanged` tinyint(1) NOT NULL,
-  `quantity` decimal(10,2) NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -2595,11 +2073,11 @@ CREATE TABLE `product_order_history` (
 
 CREATE TABLE `provinces` (
   `id` int NOT NULL,
-  `code` varchar(2) COLLATE utf8_unicode_ci NOT NULL,
-  `name_th` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
-  `name_en` varchar(150) COLLATE utf8_unicode_ci NOT NULL,
+  `code` varchar(2) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `name_th` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
+  `name_en` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL,
   `geography_id` int NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
 -- Dumping data for table `provinces`
@@ -2687,364 +2165,16 @@ INSERT INTO `provinces` (`id`, `code`, `name_th`, `name_en`, `geography_id`) VAL
 -- --------------------------------------------------------
 
 --
--- Table structure for table `rank_setting`
---
-
-CREATE TABLE `rank_setting` (
-  `rank_id` int NOT NULL,
-  `png_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `gif_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `credit_reward` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `exp_reward` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `point_reward` decimal(10,2) NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `rank_setting`
---
-
-INSERT INTO `rank_setting` (`rank_id`, `png_url`, `gif_url`, `credit_reward`, `exp_reward`, `point_reward`) VALUES
-(1, 'https://i.imgur.com/BJEVHoA.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_1.gif', 300.00, 1000.00, 500.00),
-(2, 'https://i.imgur.com/9J7zJHp.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_2.gif', 200.00, 1000.00, 300.00),
-(3, 'https://i.imgur.com/IPUmTLv.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_3.gif', 100.00, 1000.00, 200.00),
-(4, 'https://i.imgur.com/WklhTS8.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_4.gif', 20.00, 500.00, 100.00),
-(5, 'https://i.imgur.com/ZrfKrC7.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_5.gif', 20.00, 500.00, 100.00),
-(6, 'https://i.imgur.com/g6wtwjN.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_6.gif', 20.00, 500.00, 100.00),
-(7, 'https://i.imgur.com/1xgKZTb.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_7.gif', 20.00, 500.00, 100.00),
-(8, 'https://i.imgur.com/jysMTok.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_8.gif', 20.00, 500.00, 100.00),
-(9, 'https://i.imgur.com/jzNcMqJ.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_9.gif', 20.00, 500.00, 100.00),
-(10, 'https://i.imgur.com/ryfc8U3.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00),
-(11, 'https://i.imgur.com/0q0I6Ay.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00),
-(12, 'https://i.imgur.com/QEB0G8K.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00),
-(13, 'https://i.imgur.com/OFWhNy5.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00),
-(14, 'https://i.imgur.com/GYJhBJU.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00),
-(15, 'https://i.imgur.com/LiajSpL.png', 'https://betflik.top/assets_user/def/images/ranking/Rank_10.gif', 20.00, 500.00, 100.00);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `refer`
---
-
-CREATE TABLE `refer` (
-  `id` int NOT NULL,
-  `refer` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `refer`
---
-
-INSERT INTO `refer` (`id`, `refer`, `status`) VALUES
-(2, 'FACEBOOK', 1),
-(3, 'LINE', 1),
-(4, 'TWITTER', 1),
-(5, 'YOUTUBE', 1),
-(6, 'GOOGLE', 1),
-(7, 'เพื่อนแนะนำ', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `report_aff`
---
-
-CREATE TABLE `report_aff` (
-  `id` int NOT NULL,
-  `agent` varchar(255) NOT NULL,
-  `datetime` datetime NOT NULL,
-  `username` varchar(255) NOT NULL,
-  `mobile_no` varchar(255) NOT NULL,
-  `fullname` varchar(255) NOT NULL,
-  `username_aff` varchar(255) NOT NULL,
-  `mobile_no_aff` varchar(255) NOT NULL,
-  `fullname_aff` varchar(255) NOT NULL,
-  `winlose` decimal(10,2) NOT NULL,
-  `turnover` decimal(10,2) NOT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `note` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `report_refund`
---
-
-CREATE TABLE `report_refund` (
-  `id` int NOT NULL,
-  `agent` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `datetime` datetime NOT NULL,
-  `fullname` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `mobile_no` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `turnover` decimal(10,2) NOT NULL,
-  `winloss` decimal(10,2) NOT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `note` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `report_transaction`
---
-
-CREATE TABLE `report_transaction` (
-  `id` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `agent` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `username` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `uid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `mobile_no` varchar(12) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `admin_bank` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `credit_bonus` decimal(10,2) NOT NULL,
-  `credit_before` decimal(10,2) NOT NULL,
-  `credit_after` decimal(10,2) NOT NULL,
-  `transaction_type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_acc_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `bank_acc_no` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `bank_name` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `bank_time` datetime DEFAULT NULL,
-  `bank_desc` text COLLATE utf8_unicode_ci,
-  `promotion` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `promotion_id` int DEFAULT NULL,
-  `promotion_meta` text COLLATE utf8_unicode_ci,
-  `approve` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `approve_status` int DEFAULT NULL,
-  `approve_date` datetime DEFAULT NULL,
-  `score` decimal(10,2) NOT NULL,
-  `date` datetime NOT NULL,
-  `note` text COLLATE utf8_unicode_ci,
-  `am_bank_bank_acc` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `am_bank_name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `am_bank_bank` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `aff_ref_id` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `aff_id` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `aff_credit` decimal(10,2) NOT NULL,
-  `user_list` text COLLATE utf8_unicode_ci,
-  `attachImgUrl` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `report_transaction`
---
-
-INSERT INTO `report_transaction` (`id`, `agent`, `username`, `uid`, `mobile_no`, `admin_bank`, `credit`, `credit_bonus`, `credit_before`, `credit_after`, `transaction_type`, `bank_acc_name`, `bank_acc_no`, `bank_name`, `bank_time`, `bank_desc`, `promotion`, `promotion_id`, `promotion_meta`, `approve`, `approve_status`, `approve_date`, `score`, `date`, `note`, `am_bank_bank_acc`, `am_bank_name`, `am_bank_bank`, `aff_ref_id`, `aff_id`, `aff_credit`, `user_list`, `attachImgUrl`) VALUES
-('reqd2023100253189951', '', 'cb000054', ' ', '0986629979', 'SYSTEM', 20.00, 0.00, 10000.00, 9960.00, 'product', 'กำพล ศรีวิพัฒน์', '5234069436', 'ไทยพาณิชย์', '2023-11-12 02:53:18', '', NULL, NULL, NULL, 'SYSTEM', 1, '2023-11-12 02:53:18', 0.00, '2023-11-12 02:53:18', 'ลดเครดิตจากการซื้อสินค้า', NULL, NULL, NULL, NULL, NULL, 0.00, '', ''),
-('reqd2023100254477841', '', 'cb000054', ' ', '0986629979', 'SYSTEM', 20.00, 0.00, 9960.00, 9900.00, 'product', 'กำพล ศรีวิพัฒน์', '5234069436', 'ไทยพาณิชย์', '2023-11-12 02:54:47', '', NULL, NULL, NULL, 'SYSTEM', 1, '2023-11-12 02:54:47', 0.00, '2023-11-12 02:54:47', 'ลดเครดิตจากการซื้อสินค้า', NULL, NULL, NULL, NULL, NULL, 0.00, '', ''),
-('reqd2023100257599581', '', 'cb000054', ' ', '0986629979', 'SYSTEM', 220.00, 0.00, 9900.00, 9240.00, 'product', 'กำพล ศรีวิพัฒน์', '5234069436', 'ไทยพาณิชย์', '2023-11-12 02:57:59', '', NULL, NULL, NULL, 'SYSTEM', 1, '2023-11-12 02:57:59', 0.00, '2023-11-12 02:57:59', 'ลดเครดิตจากการซื้อสินค้า Id: 2, Name: พวงมาลัยรวม 200 บาท, Buy Price: 220.00, Sell Price: 200.00, Quantity: 3', NULL, NULL, NULL, NULL, NULL, 0.00, '', ''),
-('reqd2023100258526041', '', 'cb000054', ' ', '0986629979', 'SYSTEM', 55.00, 0.00, 9240.00, 9185.00, 'product', 'กำพล ศรีวิพัฒน์', '5234069436', 'ไทยพาณิชย์', '2023-11-12 02:58:52', '', NULL, NULL, NULL, 'SYSTEM', 1, '2023-11-12 02:58:52', 0.00, '2023-11-12 02:58:52', 'ลดเครดิตจากการซื้อสินค้า Id: 3, Name: ทิป 50 บาท, Buy Price: 55.00, Sell Price: 50.00, Quantity: 1', NULL, NULL, NULL, NULL, NULL, 0.00, '', ''),
-('reqd20231008424410801', '', 'cb000054', ' ', '0986629979', 'SYSTEM', 55.00, 0.00, 9185.00, 9130.00, 'product', 'กำพล ศรีวิพัฒน์', '5234069436', 'ไทยพาณิชย์', '2023-11-12 08:42:44', '', NULL, NULL, NULL, 'SYSTEM', 1, '2023-11-12 08:42:44', 0.00, '2023-11-12 08:42:44', 'ลดเครดิตจากการซื้อสินค้า Id: 3, Name: ทิป 50 บาท, Buy Price: 55.00, Sell Price: 50.00, Quantity: 1', NULL, NULL, NULL, NULL, NULL, 0.00, '', '');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `reward_history`
---
-
-CREATE TABLE `reward_history` (
-  `id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `username` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `reward_description` text COLLATE utf8_unicode_ci NOT NULL,
-  `reward_type` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `date` datetime NOT NULL,
-  `note` text COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `reward_history`
---
-
-INSERT INTO `reward_history` (`id`, `username`, `reward_description`, `reward_type`, `credit`, `date`, `note`, `status`) VALUES
-('reqca20239599468551', 'bhm2mvp000005', 'สุ่มแล้ว ได้รับ 5 เครดิต', 'WHEEL', 5.00, '2023-10-13 09:09:46', '', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `reward_list`
---
-
-CREATE TABLE `reward_list` (
-  `id` int NOT NULL,
-  `reward_name` varchar(200) NOT NULL DEFAULT '',
-  `reward_img` varchar(400) NOT NULL DEFAULT '',
-  `use_point` decimal(10,2) NOT NULL,
-  `active` int NOT NULL DEFAULT '1',
-  `type` varchar(100) NOT NULL DEFAULT '',
-  `reward_desc` text NOT NULL,
-  `credit` decimal(10,2) NOT NULL DEFAULT '0.00'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Dumping data for table `reward_list`
---
-
-INSERT INTO `reward_list` (`id`, `reward_name`, `reward_img`, `use_point`, `active`, `type`, `reward_desc`, `credit`) VALUES
-(1, 'เครดิตฟรี 100', 'https://sv1.picz.in.th/images/2022/05/14/HgWFhQ.png', 10.00, 1, 'credit', 'รับเครดิตฟรีทันที 100 ไม่ต้องรอเจ้าหน้าที่ตรวจสอบ <br/>เพียงใช้เพชรแลกเพียง 10 เพชร', 100.00),
-(2, 'เครดิตฟรี 200', 'https://sv1.picz.in.th/images/2022/05/14/HgWMVn.png', 20.00, 1, 'credit', 'รับเครดิตฟรีทันที 200 ไม่ต้องรอเจ้าหน้าที่ตรวจสอบ<br/> เพียงใช้เพชรแลกเพียง 20 เพชร', 200.00),
-(3, 'เครดิตฟรี 500', 'https://sv1.picz.in.th/images/2022/05/14/HgddYg.png', 49.00, 1, 'credit', 'รับเครดิตฟรีทันที 500 ไม่ต้องรอเจ้าหน้าที่ตรวจสอบ <br/> เพียงใช้เพชรแลกเพียง 49 เพชร', 500.00),
-(4, 'เครดิตฟรี 1000', 'https://sv1.picz.in.th/images/2022/05/14/HgWIES.png', 95.00, 1, 'credit', 'รับเครดิตฟรีทันที 1000 ไม่ต้องรอเจ้าหน้าที่ตรวจสอบ <br/>เพียงใช้เพชรแลกเพียง 95 เพชร', 1000.00),
-(5, 'iPhone 13 Pro', 'https://sv1.picz.in.th/images/2022/05/14/Hg35nD.png', 500000.00, 1, 'reward', 'รับไปเลย iPhone 13 Pro 128GB\r\n<br/>เพียงใช้เพชรแลกเพียง 500,000 เพชร', 0.00),
-(6, 'เครื่องบินเจ็ท', 'https://sv1.picz.in.th/images/2022/05/14/Hg3qxy.png', 50000.00, 1, 'reward', 'เครื่องบินเจ็ท ใช้เพียง 50,000 เพชร<br>\r\nลงชื่อที่อยู่สำหรับรับสินค้าได้เลยค่ะ', 0.00);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `scan_slip`
---
-
-CREATE TABLE `scan_slip` (
-  `id` int NOT NULL,
-  `credit` decimal(10,2) DEFAULT NULL,
-  `userid` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `sliptime` datetime DEFAULT NULL,
-  `deposited_credit` int DEFAULT NULL,
-  `filename` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `upload_time` datetime DEFAULT NULL,
-  `barcode` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `transRef` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `from_acc` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `from_name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `to_acc` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `to_name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `canceled` int DEFAULT NULL,
-  `remark` text COLLATE utf8mb4_general_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `scan_slip`
---
-
-INSERT INTO `scan_slip` (`id`, `credit`, `userid`, `sliptime`, `deposited_credit`, `filename`, `upload_time`, `barcode`, `transRef`, `from_acc`, `from_name`, `to_acc`, `to_name`, `canceled`, `remark`) VALUES
-(1, NULL, NULL, NULL, NULL, '202461235031227.jpg', '2024-07-08 23:50:31', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(2, NULL, NULL, NULL, NULL, '2024612351431095.jpg', '2024-07-08 23:51:43', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(3, NULL, NULL, NULL, NULL, '2024612352101037.jpg', '2024-07-08 23:52:10', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(4, NULL, NULL, NULL, NULL, '202461235238370.jpg', '2024-07-08 23:52:38', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(5, NULL, NULL, NULL, NULL, '20246222331013.jpg', '2024-07-09 02:23:03', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(6, NULL, NULL, NULL, NULL, '202462224321031.jpg', '2024-07-09 02:24:32', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(7, NULL, NULL, NULL, NULL, '20246222548201.jpg', '2024-07-09 02:25:48', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(8, NULL, NULL, NULL, NULL, '20246222649423.jpg', '2024-07-09 02:26:49', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(9, NULL, NULL, NULL, NULL, '20246222742464.jpg', '2024-07-09 02:27:42', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL),
-(10, NULL, NULL, NULL, NULL, '202462228321081.jpg', '2024-07-09 02:28:32', NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sl_users`
---
-
-CREATE TABLE `sl_users` (
-  `id` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
-  `uid` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `agent` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `prefix` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `mobile_no` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
-  `lineid` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `salt` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `fullname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `turn` decimal(10,2) NOT NULL,
-  `turn_date` datetime DEFAULT NULL,
-  `bet` decimal(10,2) NOT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `credit_free` decimal(10,2) NOT NULL,
-  `credit_free_check` date DEFAULT NULL,
-  `credit_aff` decimal(10,2) NOT NULL,
-  `bank_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_acc_no` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_id` varchar(3) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `accept_promotion` int NOT NULL,
-  `aff` varchar(80) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `last_check_aff` datetime NOT NULL,
-  `create_at` datetime NOT NULL,
-  `last_login` datetime NOT NULL,
-  `note` text COLLATE utf8_unicode_ci,
-  `ticket_wheel` int NOT NULL,
-  `ticket_wheel_used` int NOT NULL,
-  `ticket_card` int NOT NULL,
-  `ticket_card_used` int NOT NULL,
-  `rank` int NOT NULL,
-  `rank_note` text COLLATE utf8_unicode_ci NOT NULL,
-  `knowus` text COLLATE utf8_unicode_ci,
-  `last_edit` text COLLATE utf8_unicode_ci,
-  `last_edit_note` text COLLATE utf8_unicode_ci,
-  `game_login` int DEFAULT NULL,
-  `codefree` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL,
-  `user_status` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `Point` decimal(10,2) DEFAULT '0.00',
-  `AutoBank` int DEFAULT '1',
-  `stake_count` int DEFAULT '0',
-  `last_sumturn` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `winloss` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `winloss2` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_deposit` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_turnover` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_win` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `total_lose` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `week_deposit` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `week_turnover` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `week_win` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `week_lose` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `rank_deposit` int NOT NULL DEFAULT '999',
-  `rank_turnover` int NOT NULL DEFAULT '999',
-  `rank_win` int NOT NULL DEFAULT '999',
-  `rank_lose` int NOT NULL DEFAULT '999',
-  `level` int NOT NULL DEFAULT '0',
-  `line_userid` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `alias_id` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `alias_credit` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `truewalletid` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `line_displayurl` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `createdBy` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT '',
-  `address` varchar(200) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `img_url` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `card_img_url` varchar(300) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `subdistrict_id` int DEFAULT NULL,
-  `district_id` int DEFAULT NULL,
-  `province_id` int DEFAULT NULL,
-  `zipcode` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `sl_users`
---
-
-INSERT INTO `sl_users` (`id`, `uid`, `agent`, `prefix`, `mobile_no`, `lineid`, `password`, `salt`, `fullname`, `turn`, `turn_date`, `bet`, `credit`, `credit_free`, `credit_free_check`, `credit_aff`, `bank_name`, `bank_acc_no`, `bank_id`, `accept_promotion`, `aff`, `last_check_aff`, `create_at`, `last_login`, `note`, `ticket_wheel`, `ticket_wheel_used`, `ticket_card`, `ticket_card_used`, `rank`, `rank_note`, `knowus`, `last_edit`, `last_edit_note`, `game_login`, `codefree`, `status`, `user_status`, `Point`, `AutoBank`, `stake_count`, `last_sumturn`, `winloss`, `winloss2`, `total_deposit`, `total_turnover`, `total_win`, `total_lose`, `week_deposit`, `week_turnover`, `week_win`, `week_lose`, `rank_deposit`, `rank_turnover`, `rank_win`, `rank_lose`, `level`, `line_userid`, `alias_id`, `alias_credit`, `truewalletid`, `line_displayurl`, `createdBy`, `address`, `img_url`, `card_img_url`, `subdistrict_id`, `district_id`, `province_id`, `zipcode`) VALUES
-('mb000002', '', '', '', '', '', '$2b$10$H3RtZOkoQYImeSrcHXPIius1s7qW5UOxRxZKCicvTfKUcs5LVJ2j.', '$2b$10$H3RtZOkoQYImeSrcHXPIiu', 'NiCkyShOx', 0.00, NULL, 0.00, 0.00, 0.00, NULL, 0.00, 'กสิกรไทย', '', '1', 0, NULL, '2025-07-08 10:31:06', '2025-07-08 10:31:06', '2025-07-08 10:31:06', NULL, 0, 0, 0, 0, 999, '', '', NULL, NULL, NULL, 'JBUYIO-', 1, 'ยังไม่พร้อมใช้งาน', 0.00, 1, 0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 999, 999, 999, 999, 0, 'U50de7455d93dbd50e652094e0e878e3a', '', 0.00, '', 'https://sprofile.line-scdn.net/0hxS0cy905J3wdGjahsfxZA21KJBY-a35uYyxvEi4ccEwpfmd6Mnw9SnocKR8kKDd6OX1rTiscfB8RCVAaA0zbSBoqek0hLmcrN3Rrkw', '', '', '', '', NULL, NULL, NULL, NULL),
-('mb000008', '', '', '', '', '', '$2b$10$GCzVH6EfR1ebm1L2w.c7Y.21.RII4M61sZkt2Uci16FETpVJFmtje', '$2b$10$GCzVH6EfR1ebm1L2w.c7Y.', 'K.annika', 0.00, NULL, 0.00, 0.00, 0.00, NULL, 0.00, 'กสิกรไทย', '', '1', 0, NULL, '2025-07-29 19:42:12', '2025-07-29 19:42:12', '2025-07-29 19:42:12', NULL, 0, 0, 0, 0, 999, '', '', NULL, NULL, NULL, 'PBKOXP-', 1, 'ยังไม่พร้อมใช้งาน', 0.00, 1, 0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 999, 999, 999, 999, 0, 'Ue138884a48abe606128a06f2baebf36e', '', 0.00, '', 'https://sprofile.line-scdn.net/0h2OJLEqLibWBnNXmzEVATHxdlbgpERDRySAAkBAJgYwNZUCo_HlR2AltmZ1dSAS80TlslVQc1NQNrJhoGeWORVGAFMFFbAS03TVshjw', '', '', '', '', NULL, NULL, NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `sms_log`
---
-
-CREATE TABLE `sms_log` (
-  `id` int NOT NULL,
-  `from_` varchar(255) DEFAULT NULL,
-  `sms` text NOT NULL,
-  `date` datetime NOT NULL,
-  `status` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `subdistricts`
 --
 
 CREATE TABLE `subdistricts` (
-  `id` varchar(6) COLLATE utf8_bin NOT NULL,
+  `id` varchar(6) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `zip_code` int NOT NULL,
-  `name_th` varchar(150) COLLATE utf8_bin NOT NULL,
-  `name_en` varchar(150) COLLATE utf8_bin NOT NULL,
+  `name_th` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
+  `name_en` varchar(150) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL,
   `district_id` int NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin COMMENT='InnoDB free: 8192 kB';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin COMMENT='InnoDB free: 8192 kB';
 
 --
 -- Dumping data for table `subdistricts`
@@ -11917,13 +11047,13 @@ INSERT INTO `subdistricts` (`id`, `zip_code`, `name_th`, `name_en`, `district_id
 
 CREATE TABLE `subscription_group` (
   `id` bigint NOT NULL,
-  `group_name` varchar(200) COLLATE utf8mb4_general_ci DEFAULT '',
-  `update_by` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `group_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
+  `update_by` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `update_at` datetime NOT NULL,
   `subscription_type_id` int DEFAULT NULL,
-  `head_email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `status` int NOT NULL
+  `head_email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -11931,10 +11061,7 @@ CREATE TABLE `subscription_group` (
 --
 
 INSERT INTO `subscription_group` (`id`, `group_name`, `update_by`, `update_at`, `subscription_type_id`, `head_email`, `password`, `status`) VALUES
-(1, 'Youtube กลุ่มที่ 1', 'superwin2', '2025-07-06 19:22:55', 1, 'enemybehindbehind@gmail.com', 'fgby kpwo fuoc okob', 1),
-(2, 'Netflix กลุ่มที่ 1', 'superwin2', '2025-07-06 19:23:02', 2, '', '', 1),
-(3, 'Viu กลุ่มที่ 1', 'superwin2', '2025-07-06 19:23:06', 3, '', '', 1),
-(4, 'Youtube กลุ่มที่ 2', 'superwin2', '2025-07-06 20:02:04', 1, '', '', 1);
+(1, 'Youtube กลุ่มที่ 1', 'admin', '2025-10-04 19:53:55', 1, 'test', '123456', 1);
 
 -- --------------------------------------------------------
 
@@ -11947,22 +11074,13 @@ CREATE TABLE `subscription_group_payment` (
   `subscription_group_id` bigint DEFAULT NULL,
   `start_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `end_at` datetime DEFAULT CURRENT_TIMESTAMP,
-  `update_by` varchar(80) COLLATE utf8mb4_general_ci DEFAULT '',
+  `update_by` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `update_at` datetime DEFAULT CURRENT_TIMESTAMP,
   `paid_amount` decimal(10,2) DEFAULT '0.00',
-  `paid_by` varchar(80) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `ref_img1` varchar(300) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `ref_img2` varchar(300) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `paid_by` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ref_img1` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ref_img2` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `subscription_group_payment`
---
-
-INSERT INTO `subscription_group_payment` (`id`, `subscription_group_id`, `start_at`, `end_at`, `update_by`, `update_at`, `paid_amount`, `paid_by`, `ref_img1`, `ref_img2`) VALUES
-(2, 1, '2025-04-29 00:00:00', '2025-05-28 00:00:00', 'superwin2', '2025-04-28 13:53:49', 1.00, '-', '', ''),
-(7, 2, '2025-04-29 00:00:00', '2025-06-11 00:00:00', 'superwin2', '2025-04-28 14:56:59', 1.00, '-', '', ''),
-(8, 1, '2025-06-03 00:00:00', '2025-07-12 00:00:00', 'superwin2', '2025-06-02 22:24:19', 1.00, '-', '', '');
 
 -- --------------------------------------------------------
 
@@ -11973,24 +11091,22 @@ INSERT INTO `subscription_group_payment` (`id`, `subscription_group_id`, `start_
 CREATE TABLE `subscription_group_user` (
   `id` int NOT NULL,
   `subscription_group_id` int DEFAULT NULL,
-  `update_by` varchar(80) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `update_by` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `update_at` datetime DEFAULT NULL,
-  `user_id` varchar(80) COLLATE utf8mb4_general_ci DEFAULT '',
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `is_header_group` int NOT NULL DEFAULT '0'
+  `user_id` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `is_header_group` int NOT NULL DEFAULT '0',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `subscription_group_user`
 --
 
-INSERT INTO `subscription_group_user` (`id`, `subscription_group_id`, `update_by`, `update_at`, `user_id`, `email`, `is_header_group`) VALUES
-(17, 2, 'superwin2', '2025-07-06 04:13:38', 'mb000026', 'nickyshox99@hotmail.com', 0),
-(20, 3, 'admin', '2025-07-06 21:26:08', 'loan000009', 'nickyshox99@gmail.com', 0),
-(29, 1, 'admin', '2025-07-06 22:09:11', 'mb000027', 'soddpfk@gmail.com', 0),
-(31, 1, 'admin', '2025-07-06 22:13:07', 'mb000026', 'nickyshox99@hotmail.com', 0),
-(33, 2, 'admin', '2025-07-06 22:14:08', 'loan000009', 'nickyshox99@gmail.com', 0),
-(35, 4, 'admin', '2025-07-06 22:14:40', 'loan000009', 'nickyshox99@gmail.com', 0);
+INSERT INTO `subscription_group_user` (`id`, `subscription_group_id`, `update_by`, `update_at`, `user_id`, `email`, `is_header_group`, `password`) VALUES
+(1, 1, 'admin', '2025-10-04 19:56:26', 'Ufd8e55670d2d22dd61444f26a957f937', 'test02@gmail.com', 0, '123'),
+(2, 1, 'admin', '2025-10-04 19:56:58', 'Ua9cb8ba90f4749ce653c1fd80ff03b3f', 'test03@gmail.com', 0, '123'),
+(3, 1, 'admin', '2025-10-04 19:57:04', '', 'test01@gmail.com', 0, '1234');
 
 -- --------------------------------------------------------
 
@@ -12000,8 +11116,8 @@ INSERT INTO `subscription_group_user` (`id`, `subscription_group_id`, `update_by
 
 CREATE TABLE `subscription_type` (
   `id` int NOT NULL,
-  `subscription_name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT '',
-  `subscription_img` varchar(300) COLLATE utf8mb4_general_ci DEFAULT '',
+  `subscription_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
+  `subscription_img` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT '',
   `status` int NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -12010,118 +11126,11 @@ CREATE TABLE `subscription_type` (
 --
 
 INSERT INTO `subscription_type` (`id`, `subscription_name`, `subscription_img`, `status`) VALUES
-(1, 'Youtube premium', '/images/YoutubePremium.png', 1),
-(2, 'Netflix', '/images/Netflix.png', 1),
-(3, 'Viu', '/images/Viu.png', 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `transfer_ref`
---
-
-CREATE TABLE `transfer_ref` (
-  `id` int NOT NULL,
-  `tr_bank` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `bank_app` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `acc` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `credit` decimal(10,2) NOT NULL,
-  `type` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `date` datetime NOT NULL,
-  `note` text COLLATE utf8_unicode_ci NOT NULL,
-  `status` int NOT NULL,
-  `manual` int NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `trueauto_log`
---
-
-CREATE TABLE `trueauto_log` (
-  `id` bigint NOT NULL,
-  `message` text COLLATE utf8_unicode_ci NOT NULL,
-  `datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `raw_message` text COLLATE utf8_unicode_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `userid_running`
---
-
-CREATE TABLE `userid_running` (
-  `running` int NOT NULL DEFAULT '1',
-  `id` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `userid_running`
---
-
-INSERT INTO `userid_running` (`running`, `id`) VALUES
-(8, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_email`
---
-
-CREATE TABLE `user_email` (
-  `id` int NOT NULL,
-  `user_id` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_email`
---
-
-INSERT INTO `user_email` (`id`, `user_id`, `email`) VALUES
-(24, 'mb000002', 'nickyshox99@gmail.com'),
-(25, 'mb000003', 'Littlebeemyt3@gmail.com'),
-(26, 'mb000004', 'Kannat2547@gmail.com'),
-(27, 'mb000005', 'Gdheijdii@gmail.com'),
-(28, 'mb000006', 'Littlebeemyt@gmail.com'),
-(29, 'mb000007', 'Littlebeem1@gmail.com'),
-(30, 'mb000008', 'Krrnikarlimhengsin@gmail.com'),
-(31, 'mb000008', 'Meneoynoynaruk0.0@gmail.com');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `withdraw_pin`
---
-
-CREATE TABLE `withdraw_pin` (
-  `id` int NOT NULL,
-  `pin` varchar(10) COLLATE utf8_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `withdraw_pin`
---
-
-INSERT INTO `withdraw_pin` (`id`, `pin`) VALUES
-(1, '999999');
+(1, 'Youtube premium', '/images/YoutubePremium.png', 1);
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `address_list`
---
-ALTER TABLE `address_list`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `subdistrict_id` (`subdistrict_id`),
-  ADD KEY `district_id` (`district_id`),
-  ADD KEY `province_id` (`province_id`),
-  ADD KEY `zip_code` (`zip_code`);
 
 --
 -- Indexes for table `admins`
@@ -12171,14 +11180,6 @@ ALTER TABLE `am_group_page_permission`
   ADD KEY `page_admin_id` (`page_admin_id`);
 
 --
--- Indexes for table `announcement_setting`
---
-ALTER TABLE `announcement_setting`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `update_date` (`update_date`),
-  ADD KEY `date_announcement` (`date_announcement`);
-
---
 -- Indexes for table `bank_info`
 --
 ALTER TABLE `bank_info`
@@ -12189,17 +11190,6 @@ ALTER TABLE `bank_info`
 --
 ALTER TABLE `bank_running`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `bank_transfer_log`
---
-ALTER TABLE `bank_transfer_log`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `datetime` (`datetime`),
-  ADD KEY `from_bank_id` (`from_bank_id`),
-  ADD KEY `from_acc_number` (`from_acc_number`),
-  ADD KEY `to_bank_id` (`to_bank_id`),
-  ADD KEY `to_acc_number` (`to_acc_number`);
 
 --
 -- Indexes for table `daily_sent`
@@ -12236,36 +11226,9 @@ ALTER TABLE `geographies`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `get_reward_history`
---
-ALTER TABLE `get_reward_history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `username` (`username`),
-  ADD KEY `mobile_no` (`mobile_no`),
-  ADD KEY `type` (`type`),
-  ADD KEY `reward_id` (`reward_id`),
-  ADD KEY `date` (`date`),
-  ADD KEY `status` (`status`),
-  ADD KEY `track_id` (`track_id`);
-
---
 -- Indexes for table `groupid_running`
 --
 ALTER TABLE `groupid_running`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `interest_list`
---
-ALTER TABLE `interest_list`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `period_id` (`period_id`),
-  ADD KEY `collateral_type_id` (`collateral_type_id`);
-
---
--- Indexes for table `interest_period_list`
---
-ALTER TABLE `interest_period_list`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -12284,12 +11247,6 @@ ALTER TABLE `key_check`
 -- Indexes for table `latest_line_update`
 --
 ALTER TABLE `latest_line_update`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `linelogin_token`
---
-ALTER TABLE `linelogin_token`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -12354,12 +11311,6 @@ ALTER TABLE `line_setting`
   ADD KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `line_shift`
---
-ALTER TABLE `line_shift`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `line_sticker`
 --
 ALTER TABLE `line_sticker`
@@ -12373,63 +11324,11 @@ ALTER TABLE `line_tag`
   ADD KEY `tag_order` (`tag_order`);
 
 --
--- Indexes for table `loan_collateral_type`
---
-ALTER TABLE `loan_collateral_type`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `loan_file`
---
-ALTER TABLE `loan_file`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `loan_list_id` (`loan_list_id`),
-  ADD KEY `upload_date` (`upload_date`);
-
---
--- Indexes for table `loan_list`
---
-ALTER TABLE `loan_list`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `create_at` (`create_at`),
-  ADD KEY `staff_id` (`staff_id`),
-  ADD KEY `approved` (`approved`),
-  ADD KEY `closed` (`closed`),
-  ADD KEY `rejected` (`rejected`);
-
---
--- Indexes for table `loan_payment`
---
-ALTER TABLE `loan_payment`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `loan_id` (`loan_id`),
-  ADD KEY `due_date` (`due_date`),
-  ADD KEY `paid_at` (`paid_at`),
-  ADD KEY `create_at` (`create_at`),
-  ADD KEY `paid` (`paid`),
-  ADD KEY `closed` (`closed`),
-  ADD KEY `rejected` (`rejected`);
-
---
--- Indexes for table `loan_share`
---
-ALTER TABLE `loan_share`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `owner_id` (`owner_id`),
-  ADD KEY `loan_id` (`loan_id`);
-
---
 -- Indexes for table `log`
 --
 ALTER TABLE `log`
   ADD PRIMARY KEY (`id`),
   ADD KEY `datetime` (`datetime`);
-
---
--- Indexes for table `lv_setting`
---
-ALTER TABLE `lv_setting`
-  ADD PRIMARY KEY (`level_id`);
 
 --
 -- Indexes for table `membership_order_history`
@@ -12480,13 +11379,6 @@ ALTER TABLE `meta_setting`
   ADD KEY `meta` (`meta`);
 
 --
--- Indexes for table `meta_slide`
---
-ALTER TABLE `meta_slide`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `status` (`status`);
-
---
 -- Indexes for table `notice_admin`
 --
 ALTER TABLE `notice_admin`
@@ -12530,14 +11422,6 @@ ALTER TABLE `page_admin`
   ADD KEY `menuorder` (`menuorder`);
 
 --
--- Indexes for table `point_log`
---
-ALTER TABLE `point_log`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `date` (`date`),
-  ADD KEY `username` (`username`);
-
---
 -- Indexes for table `product_list`
 --
 ALTER TABLE `product_list`
@@ -12546,128 +11430,11 @@ ALTER TABLE `product_list`
   ADD KEY `active` (`status`);
 
 --
--- Indexes for table `product_order_history`
---
-ALTER TABLE `product_order_history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `gift_to` (`gift_to`),
-  ADD KEY `order_by` (`order_by`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `date` (`date`),
-  ADD KEY `exchanged` (`exchanged`);
-
---
 -- Indexes for table `provinces`
 --
 ALTER TABLE `provinces`
   ADD PRIMARY KEY (`id`),
   ADD KEY `code` (`code`);
-
---
--- Indexes for table `rank_setting`
---
-ALTER TABLE `rank_setting`
-  ADD PRIMARY KEY (`rank_id`);
-
---
--- Indexes for table `refer`
---
-ALTER TABLE `refer`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `refer` (`refer`),
-  ADD KEY `status` (`status`);
-
---
--- Indexes for table `report_aff`
---
-ALTER TABLE `report_aff`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `datetime` (`datetime`),
-  ADD KEY `username` (`username`);
-
---
--- Indexes for table `report_refund`
---
-ALTER TABLE `report_refund`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `datetime` (`datetime`),
-  ADD KEY `fullname` (`fullname`),
-  ADD KEY `mobile_no` (`mobile_no`),
-  ADD KEY `username` (`username`);
-
---
--- Indexes for table `report_transaction`
---
-ALTER TABLE `report_transaction`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `date` (`date`),
-  ADD KEY `transaction_type` (`transaction_type`),
-  ADD KEY `approve_status` (`approve_status`),
-  ADD KEY `bank_name` (`bank_name`),
-  ADD KEY `bank_acc_no` (`bank_acc_no`),
-  ADD KEY `transaction_type_2` (`transaction_type`),
-  ADD KEY `bank_acc_name` (`bank_acc_name`),
-  ADD KEY `bank_time` (`bank_time`),
-  ADD KEY `promotion_id` (`promotion_id`),
-  ADD KEY `approve` (`approve`),
-  ADD KEY `approve_date` (`approve_date`),
-  ADD KEY `aff_id` (`aff_id`),
-  ADD KEY `aff_ref_id` (`aff_ref_id`);
-
---
--- Indexes for table `reward_history`
---
-ALTER TABLE `reward_history`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `username` (`username`),
-  ADD KEY `reward_type` (`reward_type`),
-  ADD KEY `date` (`date`),
-  ADD KEY `status` (`status`);
-
---
--- Indexes for table `reward_list`
---
-ALTER TABLE `reward_list`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `type` (`type`),
-  ADD KEY `active` (`active`);
-
---
--- Indexes for table `scan_slip`
---
-ALTER TABLE `scan_slip`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `userid` (`userid`),
-  ADD KEY `sliptime` (`sliptime`),
-  ADD KEY `upload_time` (`upload_time`),
-  ADD KEY `barcode` (`barcode`);
-
---
--- Indexes for table `sl_users`
---
-ALTER TABLE `sl_users`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `bank_acc_no` (`bank_acc_no`),
-  ADD KEY `bank_id` (`bank_id`),
-  ADD KEY `truewalletid` (`truewalletid`),
-  ADD KEY `alias_id` (`alias_id`),
-  ADD KEY `line_userid` (`line_userid`),
-  ADD KEY `status` (`status`),
-  ADD KEY `create_at` (`create_at`),
-  ADD KEY `bank_name` (`bank_name`),
-  ADD KEY `lineid` (`lineid`),
-  ADD KEY `accept_promotion` (`accept_promotion`),
-  ADD KEY `fullname` (`fullname`),
-  ADD KEY `mobile_no` (`mobile_no`);
-
---
--- Indexes for table `sms_log`
---
-ALTER TABLE `sms_log`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `date` (`date`),
-  ADD KEY `status` (`status`),
-  ADD KEY `from_` (`from_`);
 
 --
 -- Indexes for table `subdistricts`
@@ -12712,52 +11479,8 @@ ALTER TABLE `subscription_type`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `transfer_ref`
---
-ALTER TABLE `transfer_ref`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `tr_bank` (`tr_bank`),
-  ADD KEY `bank_app` (`bank_app`),
-  ADD KEY `acc` (`acc`),
-  ADD KEY `type` (`type`),
-  ADD KEY `date` (`date`),
-  ADD KEY `status` (`status`),
-  ADD KEY `manual` (`manual`);
-
---
--- Indexes for table `trueauto_log`
---
-ALTER TABLE `trueauto_log`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `userid_running`
---
-ALTER TABLE `userid_running`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `user_email`
---
-ALTER TABLE `user_email`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `withdraw_pin`
---
-ALTER TABLE `withdraw_pin`
-  ADD PRIMARY KEY (`id`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `address_list`
---
-ALTER TABLE `address_list`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `admins`
@@ -12769,7 +11492,7 @@ ALTER TABLE `admins`
 -- AUTO_INCREMENT for table `admin_bank`
 --
 ALTER TABLE `admin_bank`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `admin_truewallet`
@@ -12790,28 +11513,16 @@ ALTER TABLE `am_group_page_permission`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
--- AUTO_INCREMENT for table `announcement_setting`
---
-ALTER TABLE `announcement_setting`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- AUTO_INCREMENT for table `bank_running`
 --
 ALTER TABLE `bank_running`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `bank_transfer_log`
---
-ALTER TABLE `bank_transfer_log`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
-
---
 -- AUTO_INCREMENT for table `daily_sent`
 --
 ALTER TABLE `daily_sent`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `district`
@@ -12832,28 +11543,10 @@ ALTER TABLE `generate_decimal`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `get_reward_history`
---
-ALTER TABLE `get_reward_history`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `groupid_running`
 --
 ALTER TABLE `groupid_running`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `interest_list`
---
-ALTER TABLE `interest_list`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
-
---
--- AUTO_INCREMENT for table `interest_period_list`
---
-ALTER TABLE `interest_period_list`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `ip_blocked`
@@ -12874,22 +11567,16 @@ ALTER TABLE `latest_line_update`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT for table `linelogin_token`
---
-ALTER TABLE `linelogin_token`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `line_chat_active`
 --
 ALTER TABLE `line_chat_active`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `line_chat_message`
 --
 ALTER TABLE `line_chat_message`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT for table `line_contact`
@@ -12907,19 +11594,13 @@ ALTER TABLE `line_quick_message`
 -- AUTO_INCREMENT for table `line_sent_message`
 --
 ALTER TABLE `line_sent_message`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `line_setting`
 --
 ALTER TABLE `line_setting`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT for table `line_shift`
---
-ALTER TABLE `line_shift`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `line_sticker`
@@ -12931,37 +11612,7 @@ ALTER TABLE `line_sticker`
 -- AUTO_INCREMENT for table `line_tag`
 --
 ALTER TABLE `line_tag`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `loan_collateral_type`
---
-ALTER TABLE `loan_collateral_type`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `loan_file`
---
-ALTER TABLE `loan_file`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `loan_list`
---
-ALTER TABLE `loan_list`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- AUTO_INCREMENT for table `loan_payment`
---
-ALTER TABLE `loan_payment`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
-
---
--- AUTO_INCREMENT for table `loan_share`
---
-ALTER TABLE `loan_share`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `log`
@@ -12973,7 +11624,7 @@ ALTER TABLE `log`
 -- AUTO_INCREMENT for table `membership_order_history`
 --
 ALTER TABLE `membership_order_history`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `meta_promotion`
@@ -13000,12 +11651,6 @@ ALTER TABLE `meta_setting`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
--- AUTO_INCREMENT for table `meta_slide`
---
-ALTER TABLE `meta_slide`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
-
---
 -- AUTO_INCREMENT for table `notice_admin`
 --
 ALTER TABLE `notice_admin`
@@ -13021,7 +11666,7 @@ ALTER TABLE `notice_user`
 -- AUTO_INCREMENT for table `offer_message`
 --
 ALTER TABLE `offer_message`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `otp_ip`
@@ -13036,22 +11681,10 @@ ALTER TABLE `page_admin`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
--- AUTO_INCREMENT for table `point_log`
---
-ALTER TABLE `point_log`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `product_list`
 --
 ALTER TABLE `product_list`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
-
---
--- AUTO_INCREMENT for table `product_order_history`
---
-ALTER TABLE `product_order_history`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `provinces`
@@ -13060,94 +11693,28 @@ ALTER TABLE `provinces`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
--- AUTO_INCREMENT for table `refer`
---
-ALTER TABLE `refer`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `report_aff`
---
-ALTER TABLE `report_aff`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `report_refund`
---
-ALTER TABLE `report_refund`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `reward_list`
---
-ALTER TABLE `reward_list`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `scan_slip`
---
-ALTER TABLE `scan_slip`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT for table `sms_log`
---
-ALTER TABLE `sms_log`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38185;
-
---
 -- AUTO_INCREMENT for table `subscription_group`
 --
 ALTER TABLE `subscription_group`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `subscription_group_payment`
 --
 ALTER TABLE `subscription_group_payment`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `subscription_group_user`
 --
 ALTER TABLE `subscription_group_user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `subscription_type`
 --
 ALTER TABLE `subscription_type`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `transfer_ref`
---
-ALTER TABLE `transfer_ref`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35354;
-
---
--- AUTO_INCREMENT for table `trueauto_log`
---
-ALTER TABLE `trueauto_log`
-  MODIFY `id` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
-
---
--- AUTO_INCREMENT for table `userid_running`
---
-ALTER TABLE `userid_running`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `user_email`
---
-ALTER TABLE `user_email`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
-
---
--- AUTO_INCREMENT for table `withdraw_pin`
---
-ALTER TABLE `withdraw_pin`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
