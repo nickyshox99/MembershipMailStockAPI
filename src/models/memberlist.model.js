@@ -207,19 +207,16 @@ MemberList.findAllByKnowUs = async function(knowus, result) {
 };
 
 MemberList.findById = async function(username,avatar, result) {   
-    let sqlStr = "Select sl_users.*, (CASE WHEN status=1 THEN 'active' ELSE 'inactive' END ) as statusstr ";    
+    // ใช้ line_contact แทน sl_users เพราะไม่มี table sl_users
+    let sqlStr = "Select line_contact.*, (CASE WHEN 1=1 THEN 'active' ELSE 'inactive' END ) as statusstr ";    
     sqlStr += ",'"+avatar+"' as avatar ";
-    sqlStr += " ,provinces.name_th as province_name_th"
-    sqlStr += " ,district.name_th as district_name_th"
-    sqlStr += " ,subdistricts.name_th as subdistrict_name_th"
-    sqlStr += " ,sl_users.zipcode "
-    sqlStr += ",bank_info.bank_ico,bank_info.bank_color ";
-    sqlStr += " FROM sl_users ";
-    sqlStr += " LEFT JOIN provinces ON provinces.id = sl_users.province_id "
-    sqlStr += " LEFT JOIN district ON district.id = sl_users.district_id "
-    sqlStr += " LEFT JOIN subdistricts ON subdistricts.id = sl_users.subdistrict_id "
-    sqlStr += " LEFT JOIN bank_info ON bank_info.bank_id = sl_users.bank_id "        
-    sqlStr += " where 1=1 AND (sl_users.mobile_no = '"+username+"' or sl_users.id ='"+ username+"' or sl_users.alias_id ='"+ username+"' )  ";
+    sqlStr += " ,'' as province_name_th"
+    sqlStr += " ,'' as district_name_th"
+    sqlStr += " ,'' as subdistrict_name_th"
+    sqlStr += " ,'' as zipcode "
+    sqlStr += ",'' as bank_ico,'' as bank_color ";
+    sqlStr += " FROM line_contact ";
+    sqlStr += " where 1=1 AND line_contact.user_id = '"+ username+"' ";
     
     const datas = await dbConn.raw(sqlStr);
     // console.log(datas);

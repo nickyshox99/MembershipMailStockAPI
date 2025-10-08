@@ -795,8 +795,7 @@ SELECT
      LEFT JOIN line_contact lc ON lc.user_id = moh.user_id
 
      WHERE moh.slip_correct = 1
-       AND DATEDIFF(latest.max_end_date, CURDATE()) = 0
-       AND DATEDIFF(latest.max_end_date, CURDATE()) > 0
+       AND DATEDIFF(latest.max_end_date, CURDATE()) <= 0
        AND moh.canceled <> 1
      ORDER BY days_left ASC;
 `
