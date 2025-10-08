@@ -400,13 +400,15 @@ SubscriptionGroup.updateMemberData = async function (objData, result) {
     console.log(objData);
     try {
         const datas = await dbConn.raw("UPDATE subscription_group_user SET " +
-            "email = ?, "
-            + "password = ?, "
-            + "WHERE id = ?"
+            "email = ?, " +
+            "password = ?, " +
+            "user_id = ? " +
+            "WHERE id = ?"
             , [
-                objData.email
-                , objData.password
-                , objData.id
+                objData.email,
+                objData.password,
+                objData.user_id || '',
+                objData.id
             ]);
 
         return true;

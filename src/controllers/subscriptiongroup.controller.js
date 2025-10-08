@@ -1639,6 +1639,8 @@ exports.deletePaymentHistoryByID = async function(req, res) {
 };
 exports.updateMemberData = async function(req, res) {
     console.log("updateMemberData");
+    console.log("Request body:", req.body);
+    console.log("Request headers:", req.headers);
     
     try {
         const headers = req.headers;
@@ -1657,7 +1659,7 @@ exports.updateMemberData = async function(req, res) {
                 const id = req.body.id;
                 const email = req.body.email ? req.body.email : "";
                 const password = req.body.password ? req.body.password : "";
-                const line_user_id = req.body.line_user_id ? req.body.line_user_id : "";
+                const user_id = req.body.user_id ? req.body.user_id : "";
                                         
                 let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -1666,8 +1668,10 @@ exports.updateMemberData = async function(req, res) {
                     return;
                 }
 
-                let objData = {id: id, email: email, password: password, line_user_id: line_user_id}
+                let objData = {id: id, email: email, password: password, user_id: user_id}
+                console.log("objData to update:", objData);
                 let tmpData = await SubscriptionGroup.updateMemberData(objData);
+                console.log("Update result:", tmpData);
     
                 if (tmpData.errorMessage==null) {
                     res.status(200).json({status: "success", message: "Member data updated successfully", auth: true});
