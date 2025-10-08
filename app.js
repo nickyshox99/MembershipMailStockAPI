@@ -576,7 +576,7 @@ async function checkAndSendLineNotify(){
       for (const o of nearExpireOrders) {
         const days = Number(o.days_left);
         const threshold = Number(lineSetting.SetNearDate);
-        if (nearOnce ? (days === threshold) : (days > 0 && days < threshold)) {
+        if (nearOnce ? (days === threshold) : (days > 0 && days <= threshold)) {
           await sendLineMessage(o, lineChatAPI, "near");
         }
       }
@@ -607,15 +607,42 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
-            product_name: tmpOrder['product_name'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
             send_at: timerHelper.getDateTimeNowString(),
             send_line_complete: 0,
             remark: tmpRemark
         });
     }
 
-    let sourceUserId = row_user["line_userid"];
+    // ใช้ user_id จาก line_contact แทน line_userid
+    let sourceUserId = row_user["user_id"]; // line_contact.user_id = LINE User ID
+    if (!sourceUserId) {
+        tmpRemark = "No user_id found for user: " + tmpOrder['user_id'];
+        console.log(tmpRemark);
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 0,
+            remark: tmpRemark
+        });
+    }
+
     let contact = await lineChatSetting.getContactByUserId(sourceUserId);
+    if (!contact || contact.length === 0) {
+        tmpRemark = "No LINE contact found for user: " + tmpOrder['user_id'];
+        console.log(tmpRemark);
+        return MainModel.insert("line_sent_message", {
+            email: tmpOrder['email'],
+            user_id: tmpOrder['user_id'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
+            send_at: timerHelper.getDateTimeNowString(),
+            send_line_complete: 0,
+            remark: tmpRemark
+        });
+    }
+
     let tmpChatSetting = await lineChatSetting.findByBotUserId(contact[0]['bot_user_id']);
 
     if (tmpChatSetting['status'] != 1) {
@@ -624,7 +651,7 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
-            product_name: tmpOrder['product_name'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
             send_at: timerHelper.getDateTimeNowString(),
             send_line_complete: 0,
             remark: tmpRemark
@@ -656,17 +683,18 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
-            product_name: tmpOrder['product_name'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
             send_at: timerHelper.getDateTimeNowString(),
             send_line_complete: 0,
             remark: tmpRemark
         });
     } else {
         tmpRemark = msg;
+        console.log(`✅ ส่งข้อความสำเร็จให้ ${tmpOrder['email']} (${tmpOrder['user_id']}) - ${tmpOrder['product_name']} เหลือ ${tmpOrder['days_left']} วัน`);
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
-            product_name: tmpOrder['product_name'],
+            product_name: tmpOrder['product_id'] || 0, // ใช้ product_id แทน product_name
             send_at: timerHelper.getDateTimeNowString(),
             send_line_complete: 1,
             remark: tmpRemark
