@@ -295,7 +295,8 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
             + ",sent_email_by "
             + ",sent_email_at "
             + ",wait_check_payment "
-            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            + ",purchase_type "
+            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 objData.user_id
                 , objData.email
@@ -316,6 +317,7 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
                 , objData.sent_email_at
 
                 , objData.wait_check_payment
+                , objData.purchase_type
             ]);
 
         // const datas=[];
