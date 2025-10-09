@@ -37,7 +37,8 @@ async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, cha
 
     if (userList.length > 0) {
       let userData = userList[0];
-      let replyMessage = oSecretkey.webDomain + "buyproduct?sourceUserId=" + profileData['user_id'];
+      // let replyMessage = oSecretkey.webDomain + "buyproduct?sourceUserId=" + profileData['user_id'];
+      let replyMessage = oSecretkey.webDomain + "SelectTopic?sourceUserId=" + profileData['user_id'];
       await lineChatAPI.replyMessage(
         reply_token,
         "เปิดลิงค์นี้เพื่อทำการซื้อ " + replyMessage,
