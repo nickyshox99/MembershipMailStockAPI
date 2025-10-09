@@ -47,6 +47,7 @@ const reportZendRoutes = require('./src/routes/report.zend.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
+const lineContactRoutes = require('./src/routes/linecontact.route');
 
 const lineRoutes = require('./src/routes/line.route');
 const LineChatAPI = require('./src/modules/lineChatAPI');
@@ -760,6 +761,8 @@ const lineWebhookRoutes  =require('./src/routes/linewebhook.route');
 app.use('/api/linechatsetting', lineChatSettingRoutes);
 
 app.use('/api/linechat', lineChatRoutes);
+
+app.use('/api/linecontact', lineContactRoutes);
 
 app.use('/getfile/',express.static(path.join(__dirname, '/assets/')));
 

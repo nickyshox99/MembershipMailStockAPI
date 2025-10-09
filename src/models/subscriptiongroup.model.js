@@ -21,6 +21,7 @@ SubscriptionGroup.findAll = async function (searchword, result) {
         let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
         sqlStr += " ,(SELECT end_at FROM subscription_group_payment WHERE subscription_group_payment.subscription_group_id=" + tableName + ".id ORDER BY subscription_group_payment.end_at DESC  LIMIT 1  ) as end_at ";
         sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id ) as CountMember ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id AND subscription_group_user.user_id IS NOT NULL AND subscription_group_user.user_id != '' ) as CountUsedMember ";
         sqlStr += " FROM " + tableName;
         sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
         sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
@@ -75,9 +76,12 @@ SubscriptionGroup.getSubscribeMemberByGroupById = async function (id, result) {
 
     try {
         let sqlStr = "Select subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
+        sqlStr += " ,line_contact.display_name as line_display_name ";
+        sqlStr += " ,line_contact.picture_url as line_profile_url ";
         sqlStr += " FROM " + tableName;
         sqlStr += " INNER JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
         sqlStr += " INNER JOIN subscription_group_user ON " + tableName + ".id = subscription_group_user.subscription_group_id ";
+        sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user.user_id ";
         sqlStr += " where 1=1 AND (" + tableName + ".id = " + id + ") ";
 
         const datas = await dbConn.raw(sqlStr);
@@ -397,13 +401,15 @@ SubscriptionGroup.updateMemberData = async function (objData, result) {
     console.log(objData);
     try {
         const datas = await dbConn.raw("UPDATE subscription_group_user SET " +
-            "email = ?, "
-            + "password = ?, "
-            + "WHERE id = ?"
+            "email = ?, " +
+            "password = ?, " +
+            "user_id = ? " +
+            "WHERE id = ?"
             , [
-                objData.email
-                , objData.password
-                , objData.id
+                objData.email,
+                objData.password,
+                objData.user_id || '',
+                objData.id
             ]);
 
         return true;
