@@ -200,5 +200,93 @@ exports.getUserEmailByOrderId = async function (req, res) {
     }
 };
 
+/**
+ * Update status_regis
+ * POST /api/usersemail/updatestatus
+ */
+exports.updateStatusRegis = async function (req, res) {
+    console.log('updateStatusRegis');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+
+        // Get data from request body
+        const id = req.body.id || 0;
+        const order_id = req.body.order_id || 0;
+        const status_regis = req.body.status_regis;
+
+        console.log('=== Update Status Regis ===');
+        console.log('id:', id);
+        console.log('order_id:', order_id);
+        console.log('status_regis:', status_regis);
+
+        // Validate: must have either id or order_id
+        if (!id && !order_id) {
+            res.status(202).json({
+                status: 'error',
+                message: 'Missing required field: id or order_id',
+                auth: false,
+                data: [],
+            });
+            return;
+        }
+
+        // Validate: status_regis must be defined
+        if (status_regis === undefined || status_regis === null) {
+            res.status(202).json({
+                status: 'error',
+                message: 'Missing required field: status_regis',
+                auth: false,
+                data: [],
+            });
+            return;
+        }
+
+        let result = false;
+
+        // Update by order_id (preferred)
+        if (order_id) {
+            console.log('Updating by order_id:', order_id);
+            result = await UsersEmail.updateStatusRegisByOrderId(order_id, status_regis);
+        } 
+        // Update by id
+        else if (id) {
+            console.log('Updating by id:', id);
+            result = await UsersEmail.updateStatusRegisById(id, status_regis);
+        }
+
+        if (result) {
+            res.status(200).json({
+                status: 'success',
+                message: 'Status updated successfully',
+                auth: true,
+                data: [],
+            });
+        } else {
+            res.status(202).json({
+                status: 'error',
+                message: 'Failed to update status',
+                auth: false,
+                data: [],
+            });
+        }
+
+    } catch (error) {
+        console.log('updateStatusRegis error:', error);
+        res.status(202).json({
+            status: 'error',
+            message: 'updateStatusRegis: ' + error.message,
+            auth: false,
+            data: [],
+        });
+    }
+};
+
 module.exports = exports;
 

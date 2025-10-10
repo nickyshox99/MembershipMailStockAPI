@@ -14,5 +14,8 @@ router.post('/getbyuserid', usersEmailController.getUserEmailByUserId);
 router.get('/getbyorderid', usersEmailController.getUserEmailByOrderId);
 router.post('/getbyorderid', usersEmailController.getUserEmailByOrderId);
 
+// Update status_regis
+router.post('/updatestatus', usersEmailController.updateStatusRegis);
+
 module.exports = router;
 

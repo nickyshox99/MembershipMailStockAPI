@@ -150,6 +150,44 @@ UsersEmail.updateUserEmail = async function (objData, result) {
 };
 
 /**
+ * Update status_regis by order_id
+ * @param {Number} orderId - Order ID
+ * @param {Number} statusRegis - New status_regis value (0 or 1)
+ * @returns {Promise<Boolean>} - Returns true on success, false on error
+ */
+UsersEmail.updateStatusRegisByOrderId = async function (orderId, statusRegis) {
+    try {
+        const datas = await dbConn.raw(
+            "UPDATE users_email SET status_regis = ? WHERE order_id = ?",
+            [statusRegis, orderId]
+        );
+        return true;
+    } catch (error) {
+        console.error('updateStatusRegisByOrderId error:', error);
+        return false;
+    }
+};
+
+/**
+ * Update status_regis by id
+ * @param {Number} id - Record ID
+ * @param {Number} statusRegis - New status_regis value (0 or 1)
+ * @returns {Promise<Boolean>} - Returns true on success, false on error
+ */
+UsersEmail.updateStatusRegisById = async function (id, statusRegis) {
+    try {
+        const datas = await dbConn.raw(
+            "UPDATE users_email SET status_regis = ? WHERE id = ?",
+            [statusRegis, id]
+        );
+        return true;
+    } catch (error) {
+        console.error('updateStatusRegisById error:', error);
+        return false;
+    }
+};
+
+/**
  * Delete user email record by id
  * @param {Number} id - Record ID to delete
  * @returns {Promise<Boolean>} - Returns true on success, false on error
