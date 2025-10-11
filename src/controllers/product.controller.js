@@ -2998,19 +2998,55 @@ exports.VerifySlipOrder = async function (req, res) {
                     let tmpData2 = await productList.getOrderById(order_id);
 
                     let user_id = tmpData2['user_id'];
-                    //เราจะเอา user_id นี้ไปเช็คก่อนว่าใช้ email stock อันไหนอยู่ไหม
-                    let emailStock = await EmailStock.getEmailStockByUserId(user_id);
+                    let purchase_type = tmpData2['purchase_type']; // default to 'shop'
+                    
+                    console.log('=== VerifySlipOrder - Check Purchase Type ===');
+                    console.log('order_id:', order_id);
+                    console.log('purchase_type:', purchase_type);
 
-                    if (emailStock == null) {
-                        res.status(202).json(
-                            {
+                    let email = '';
+                    let password = '';
+                    let emailStock = null;
+
+                    // ตรวจสอบ purchase_type เพื่อเลือกแหล่งข้อมูล email/password
+                    if (purchase_type === 'personal') {
+                        // กรณี personal: ใช้ email/password จาก users_email
+                        console.log('Using email from users_email (personal)');
+                        const UsersEmail = require('../models/usersEmail.model');
+                        const usersEmailData = await UsersEmail.findByOrderId(order_id);
+                        
+                        if (usersEmailData && usersEmailData.id) {
+                            email = usersEmailData.email;
+                            password = usersEmailData.password;
+                            console.log('Found email in users_email:', email);
+                        } else {
+                            console.error('No email found in users_email for order_id:', order_id);
+                            res.status(202).json({
+                                status: 'error',
+                                message: 'ไม่พบข้อมูล email ของลูกค้า',
+                                auth: false,
+                                data: [],
+                            });
+                            return;
+                        }
+                    } else {
+                        // กรณี shop หรือไม่ระบุ: ใช้ email/password จาก email_stock (แบบเดิม)
+                        console.log('Using email from email_stock (shop)');
+                        emailStock = await EmailStock.getEmailStockByUserId(user_id);
+                        
+                        if (emailStock == null) {
+                            res.status(202).json({
                                 status: 'error',
                                 message: 'email ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
                                 auth: false,
                                 data: [],
-                            }
-                        );
-                        return;
+                            });
+                            return;
+                        }
+                        
+                        email = emailStock['email'];
+                        password = emailStock['password'];
+                        console.log('Found email in email_stock:', email);
                     }
 
 
@@ -3038,17 +3074,19 @@ exports.VerifySlipOrder = async function (req, res) {
                         return;
                     }
 
-                    let tmpData3 = await EmailStock.reserveEmailStock(emailStock.id, user_id);
-                    if (!tmpData3) {
-                        res.status(202).json(
-                            {
+                    // Reserve email stock เฉพาะกรณี shop เท่านั้น
+                    if (purchase_type !== 'personal' && emailStock) {
+                        let tmpData3 = await EmailStock.reserveEmailStock(emailStock.id, user_id);
+                        if (!tmpData3) {
+                            res.status(202).json({
                                 status: 'error',
                                 message: 'reserve email stock failed.',
                                 auth: false,
                                 data: [],
-                            }
-                        );
-                        return;
+                            });
+                            return;
+                        }
+                        console.log('Email stock reserved successfully');
                     }
 
 
@@ -3059,7 +3097,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     lineChatAPI.setToken(channelToken);
 
                     let msg = "";
-                    msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + emailStock['email'] + "\n password : " + emailStock['password'] + " \n เพื่อเข้าสู่ระบบ \n";
+                    msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
 
                     const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                     if (tmpSend['error']) {
@@ -3078,7 +3116,12 @@ exports.VerifySlipOrder = async function (req, res) {
                     let tmpData = await productList.VerifySlipOrder(objData);
 
                     if (tmpData) {
-                        //update email stock
+                        // Update status_regis เป็น 1 สำหรับกรณี personal
+                        if (purchase_type === 'personal') {
+                            const UsersEmail = require('../models/usersEmail.model');
+                            const updateStatus = await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
+                            console.log('Updated status_regis to 1 for order_id:', order_id, 'result:', updateStatus);
+                        }
 
                         res.status(200).json(
                             {
