@@ -44,6 +44,7 @@ const loanListRoutes = require('./src/routes/loanlist.route');
 const reportRoutes = require('./src/routes/report.route');
 const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
 const reportZendRoutes = require('./src/routes/report.zend.route');
+const personalEmailRoutes = require('./src/routes/personalemail.route');
 const usersEmailRoutes = require('./src/routes/usersEmail.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
@@ -770,6 +771,12 @@ app.use('/api/usersemail', usersEmailRoutes);
 app.use('/getfile/',express.static(path.join(__dirname, '/assets/')));
 
 app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
+
+//====================================================================
+//ZEnd ==> Personal email
+
+app.use('/api/personalemail', personalEmailRoutes);
+
 
 //====================================================================
 

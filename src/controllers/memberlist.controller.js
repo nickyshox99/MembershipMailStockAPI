@@ -102,7 +102,7 @@ exports.getmember = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -212,7 +212,7 @@ exports.getMemberEmail = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -290,7 +290,7 @@ exports.getEmailByLineSourceId = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -472,7 +472,7 @@ exports.getAllMemberEmail = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -574,7 +574,7 @@ exports.addMemberEmail = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -701,7 +701,7 @@ exports.deleteMemberEmail = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
@@ -878,7 +878,7 @@ exports.getCountMember = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -954,7 +954,7 @@ exports.getCountNewMember = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -1031,7 +1031,7 @@ exports.getmemberbyid = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -1117,7 +1117,7 @@ exports.getMemberDepWitByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
@@ -1193,7 +1193,7 @@ exports.updatememberbyid = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });            
             } else {
     
@@ -1437,7 +1437,7 @@ exports.create = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -2497,7 +2497,7 @@ exports.updateAutoBank = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -2690,7 +2690,7 @@ exports.cancelPromotion = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -2770,7 +2770,7 @@ exports.getCreditByUsername = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -2927,7 +2927,7 @@ exports.depositCreditMemberByid = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -3196,7 +3196,7 @@ exports.withdrawCreditMemberByid = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -3472,7 +3472,7 @@ exports.changePromotionMemberByid = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -3725,7 +3725,7 @@ exports.changePromotionMemberByid2 = async function(req, res) {
         const headers = req.headers;
 
         //handles null error
-        if (headers.userid.length === 0 || headers.token.length === 0) {
+        if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
             res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
         } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
             res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4001,7 +4001,7 @@ exports.getQuestDataMemberByid = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4149,7 +4149,7 @@ exports.getTurnGraphDataMemberByid = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4279,7 +4279,7 @@ exports.getHistoryDepWitMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4352,7 +4352,7 @@ exports.getHistoryDepMemberByID = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4425,7 +4425,7 @@ exports.getHistoryWitMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4498,7 +4498,7 @@ exports.getHistoryBetLogByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -4573,7 +4573,7 @@ exports.withdrawCreateByMemberId = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -5405,7 +5405,7 @@ exports.changePasswordMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -5512,7 +5512,7 @@ exports.getAffiliateMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -5585,7 +5585,7 @@ exports.getAffiliateCreditMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -5658,7 +5658,7 @@ exports.getCurrentAffiliateCreditMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -5731,7 +5731,7 @@ exports.withdrawAff = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -6101,7 +6101,7 @@ exports.getUserPromotion = async function(req, res) {
             const headers = req.headers;
     
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } 
             else 
@@ -6189,7 +6189,7 @@ exports.getDailyDepositInfoMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -6329,7 +6329,7 @@ exports.getDailyDepositMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -6531,7 +6531,7 @@ exports.chooseLuckyCard = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -6856,7 +6856,7 @@ exports.getRefundMemberByID = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -7060,7 +7060,7 @@ exports.getuseronline = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
@@ -7137,7 +7137,7 @@ exports.getCodefree = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -7756,7 +7756,7 @@ exports.getCreditHistoryByMemberId = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else {
 
@@ -7848,7 +7848,7 @@ exports.getNoticeUser = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
@@ -7928,7 +7928,7 @@ exports.getAungPao = async function(req, res) {
             const headers = req.headers;
 
             //handles null error
-            if (headers.userid.length === 0 || headers.token.length === 0) {
+            if (!headers.userid || !headers.token || headers.userid.length === 0 || headers.token.length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
             } else if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
                 res.status(400).send({ status: 'error', message: 'Please provide all required field' });
