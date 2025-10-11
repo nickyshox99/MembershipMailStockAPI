@@ -2068,6 +2068,11 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                     let product_id = req.body.product_id;
                     let email = req.body.email || "";
                     let note = req.body.note;
+                    let purchase_type = req.body.purchase_type || "";
+                    
+                    console.log('=== CreateAndApproveSubScribeOrder - Received Data ===');
+                    console.log('purchase_type:', purchase_type);
+                    console.log('req.body.purchase_type:', req.body.purchase_type);
 
                     let row_product = await productList.findById(product_id);
 
@@ -2104,6 +2109,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                             "sent_email_by": "system",
                             "sent_email_at": timerHelper.getDateTimeNowString(),
                             "wait_check_payment": 1,
+                            "purchase_type": purchase_type,
                         };
 
                         let tmpData = await productList.createAndApproveSubScribeOrder(data);
