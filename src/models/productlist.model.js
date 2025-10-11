@@ -639,6 +639,7 @@ productList.GetHistorySubScribeOrderWaitCheckPayment = async function (result) {
 productList.GetHistorySubScribeOrderCheckedPayment = async function (result) {
 
     let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
+    sqlStr += " ,membership_order_history.purchase_type ";
     sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";
     sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";
     sqlStr += " ,line_contact.display_name as line_display_name ";
