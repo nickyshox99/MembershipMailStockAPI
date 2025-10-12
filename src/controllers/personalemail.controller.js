@@ -18,12 +18,7 @@ exports.getAllPersonalEmail = async (req, res) => {
 
         const result = await PersonalEmail.findAll();
 
-        console.log('=== getAllPersonalEmail Debug ===');
-        console.log('Result:', result);
-        console.log('Result type:', typeof result);
-        console.log('Result length:', result ? result.length : 'null');
-        console.log('===============================');
-
+     
         res.status(200).json({
             status: 'success',
             data: result,
@@ -321,9 +316,7 @@ exports.getPersonalEmailStatusByOrderId = async (req, res) => {
         const userData = JSON.parse(req.headers.userdata || '{}');
         const { orderId } = req.params;
 
-        console.log('=== getPersonalEmailStatusByOrderId Debug ===');
-        console.log('Order ID:', orderId);
-
+        
         // Verify token if provided
         let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
         if (token) {
@@ -339,8 +332,7 @@ exports.getPersonalEmailStatusByOrderId = async (req, res) => {
 
         const result = await PersonalEmail.findByOrderId(orderId);
 
-        console.log('Query result:', result);
-        console.log('Result length:', result ? result.length : 'null');
+        
 
         if (!result || result.length === 0) {
             return res.status(404).json({
