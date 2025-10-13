@@ -296,7 +296,7 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
                             res.status(200).json(
                             {   status : 'success' ,
                                 message: 'File uploaded successfully',
-                                url: Secret.apiDomain+'getfile/'+ destFileName,
+                                url: destFileName,  // ส่งแค่ filename ให้ frontend จัดการ path เอง
                             });        
                             return;
                         });
@@ -473,7 +473,7 @@ exports.customerUploadFileAndDeleteOldFile =  async (req, res) => {
                             res.status(200).json(
                             {   status : 'success' ,
                                 message: 'File uploaded successfully',
-                                url: Secret.apiDomain+'getfile/'+ destFileName,
+                                url: destFileName,  // ส่งแค่ filename ให้ frontend จัดการ path เอง
                             });        
                             return;
                         });
