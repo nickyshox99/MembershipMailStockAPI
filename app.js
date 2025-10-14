@@ -46,6 +46,7 @@ const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
 const reportZendRoutes = require('./src/routes/report.zend.route');
 const personalEmailRoutes = require('./src/routes/personalemail.route');
 const usersEmailRoutes = require('./src/routes/usersEmail.route');
+const btnStatusRoutes = require('./src/routes/btnstatus.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
@@ -776,6 +777,7 @@ app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
 //ZEnd ==> Personal email
 
 app.use('/api/personalemail', personalEmailRoutes);
+app.use('/api/btnStatus', btnStatusRoutes);
 
 
 //====================================================================
