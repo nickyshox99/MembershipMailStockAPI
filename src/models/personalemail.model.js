@@ -1,7 +1,7 @@
 'use strict';
 
 var dbConn = require('../../config/db.config');
-const tableName = 'users_email';
+const tableName = 'personal_email';
 const tableKey = 'id';
 
 // PersonalEmail object create
@@ -75,14 +75,14 @@ PersonalEmail.findByUserId = async function(userId) {
 PersonalEmail.create = async function(newPersonalEmail) {
     try {
         let sqlStr = `INSERT INTO ${tableName} 
-                     (user_id, order_id, email, password, status_regis, start_date, end_date, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+                     (user_id, order_id, email, status_regis, start_date, end_date, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`;
         
         const result = await dbConn.raw(sqlStr, [
             newPersonalEmail.user_id,
             newPersonalEmail.order_id,
             newPersonalEmail.email,
-            newPersonalEmail.password,
+            // newPersonalEmail.password,
             newPersonalEmail.status_regis || 0,
             newPersonalEmail.start_date,
             newPersonalEmail.end_date
