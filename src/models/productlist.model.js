@@ -79,7 +79,8 @@ productList.create = async function (objData, result) {
             + ",give_credit "
             + ",subscription_day "
             + ",subscription_times "
-            + " ) VALUES (?,?,?,?,?,?,?,?,?,?)"
+            + ",shop_type "
+            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 objData.product_name
                 , objData.subscription_type_id
@@ -88,9 +89,10 @@ productList.create = async function (objData, result) {
                 , objData.status
                 , objData.type
                 , objData.product_desc
-                , objData.give_credit
+                , objData.give_credit || 0.00
                 , objData.subscription_day
                 , objData.subscription_times
+                , objData.shop_type
             ]);
 
         // const datas=[];
@@ -123,6 +125,7 @@ productList.updateByID = async function (objData, result) {
             + ",give_credit=? "
             + ",subscription_day=? "
             + ",subscription_times=? "
+            + ",shop_type=? "
             + " WHERE id = ? "
             , [
                 objData.product_name
@@ -132,9 +135,10 @@ productList.updateByID = async function (objData, result) {
                 , objData.status
                 , objData.type
                 , objData.product_desc
-                , objData.give_credit
+                , objData.give_credit || 0.00
                 , objData.subscription_day
                 , objData.subscription_times
+                , objData.shop_type || 0
                 , rowid]);
 
 
