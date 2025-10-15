@@ -3029,6 +3029,62 @@ exports.VerifySlipOrder = async function (req, res) {
                             });
                             return;
                         }
+                    } else if (purchase_type === 'email') {
+                        // กรณี email: ใช้เฉพาะ email จาก personal_email (ไม่มี password)
+                        console.log('Using email from personal_email (email only)');
+                        const PersonalEmail = require('../models/personalemail.model');
+                        const personalEmailData = await PersonalEmail.findByOrderId(order_id);
+                        
+                        if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
+                            email = personalEmailData[0].email;
+                            password = null; // ไม่ส่ง password
+                            console.log('Found email in personal_email:', email);
+                        } else {
+                            console.error('No email found in personal_email for order_id:', order_id);
+                            res.status(202).json({
+                                status: 'error',
+                                message: 'ไม่พบข้อมูล email ของลูกค้า',
+                                auth: false,
+                                data: [],
+                            });
+                            return;
+                        }
+                    } else if (purchase_type === 'shop_personal') {
+                        // กรณี shop_personal: ใช้ email/password จาก subscription_group_user (subscription_group_id = 0)
+                        console.log('Using email from subscription_group_user (shop_personal - group_id = 0)');
+                        emailStock = await EmailStock.getEmailStockPersonal(user_id);
+                        
+                        if (emailStock == null) {
+                            res.status(202).json({
+                                status: 'error',
+                                message: 'email personal ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
+                                auth: false,
+                                data: [],
+                            });
+                            return;
+                        }
+                        
+                        email = emailStock['email'];
+                        password = emailStock['password'];
+                        console.log('Found email in shop_personal:', email);
+                    } else if (purchase_type === 'shop_family') {
+                        // กรณี shop_family: ใช้ email/password จาก subscription_group_user (subscription_group_id != 0)
+                        console.log('Using email from subscription_group_user (shop_family - group_id != 0)');
+                        emailStock = await EmailStock.getEmailStockFamily(user_id);
+                        
+                        if (emailStock == null) {
+                            res.status(202).json({
+                                status: 'error',
+                                message: 'email family ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
+                                auth: false,
+                                data: [],
+                            });
+                            return;
+                        }
+                        
+                        email = emailStock['email'];
+                        password = emailStock['password'];
+                        console.log('Found email in shop_family:', email);
                     } else {
                         // กรณี shop หรือไม่ระบุ: ใช้ email/password จาก email_stock (แบบเดิม)
                         console.log('Using email from email_stock (shop)');
@@ -3074,8 +3130,8 @@ exports.VerifySlipOrder = async function (req, res) {
                         return;
                     }
 
-                    // Reserve email stock เฉพาะกรณี shop เท่านั้น
-                    if (purchase_type !== 'personal' && emailStock) {
+                    // Reserve email stock เฉพาะกรณี shop, shop_personal, shop_family เท่านั้น
+                    if ((purchase_type === 'shop_personal' || purchase_type === 'shop_family' || (purchase_type !== 'personal' && purchase_type !== 'email')) && emailStock) {
                         let tmpData3 = await EmailStock.reserveEmailStock(emailStock.id, user_id);
                         if (!tmpData3) {
                             res.status(202).json({
@@ -3086,7 +3142,7 @@ exports.VerifySlipOrder = async function (req, res) {
                             });
                             return;
                         }
-                        console.log('Email stock reserved successfully');
+                        console.log('Email stock reserved successfully for purchase_type:', purchase_type);
                     }
 
 
@@ -3097,7 +3153,13 @@ exports.VerifySlipOrder = async function (req, res) {
                     lineChatAPI.setToken(channelToken);
 
                     let msg = "";
-                    msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+                    if (password) {
+                        // กรณีมี password (personal, shop)
+                        msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+                    } else {
+                        // กรณีไม่มี password (email only)
+                        msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
+                    }
 
                     const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                     if (tmpSend['error']) {
@@ -3121,6 +3183,13 @@ exports.VerifySlipOrder = async function (req, res) {
                             const UsersEmail = require('../models/usersEmail.model');
                             const updateStatus = await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
                             console.log('Updated status_regis to 1 for order_id:', order_id, 'result:', updateStatus);
+                        }
+                        
+                        // Update status_regis เป็น 1 สำหรับกรณี email
+                        if (purchase_type === 'email') {
+                            const PersonalEmail = require('../models/personalemail.model');
+                            const updateStatus = await PersonalEmail.updateStatusByOrderId(order_id, 1);
+                            console.log('Updated status_regis to 1 for email purchase order_id:', order_id, 'result:', updateStatus);
                         }
 
                         res.status(200).json(
