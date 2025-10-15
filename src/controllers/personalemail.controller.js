@@ -425,3 +425,65 @@ exports.updatePersonalEmailStatusByOrderId = async (req, res) => {
     }
 };
 
+// Create new personal email
+exports.createPersonalEmail = async (req, res) => {
+    try {
+        console.log('=== createPersonalEmail Debug ===');
+        const userData = JSON.parse(req.headers.userdata || '{}');
+        const { user_id, order_id, email, status_regis } = req.body;
+
+        console.log('Request body:', req.body);
+
+        // Verify token if provided
+        let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
+        if (token) {
+            const decoded = jwt.verify(token, Secret.SecretKey);
+        }
+
+        // Validate required fields
+        if (!user_id || !order_id || !email) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'user_id, order_id, and email are required'
+            });
+        }
+
+        // Prepare data for insertion
+        const personalEmailData = {
+            user_id: user_id, // ใช้ LINE user ID จริง (ตอนนี้เป็น VARCHAR แล้ว)
+            order_id: order_id,
+            email: email,
+            password: null, // ไม่ใช้ password สำหรับ personal_email
+            status_regis: status_regis || 0,
+            start_date: null,
+            end_date: null
+        };
+
+        console.log('Inserting personal email data:', { ...personalEmailData, password: '***' });
+
+        // Create new personal email
+        const insertId = await PersonalEmail.create(personalEmailData);
+
+        console.log('Personal email created with ID:', insertId);
+
+        res.status(201).json({
+            status: 'success',
+            data: { 
+                id: insertId,
+                user_id: user_id,
+                order_id: order_id,
+                email: email,
+                status_regis: status_regis || 0
+            },
+            message: 'Personal email created successfully'
+        });
+    } catch (error) {
+        console.error('Error in createPersonalEmail:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to create personal email',
+            error: error.message
+        });
+    }
+};
+
