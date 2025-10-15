@@ -767,7 +767,7 @@ app.use('/api/linechat', lineChatRoutes);
 
 app.use('/api/linecontact', lineContactRoutes);
 
-app.use('/api/usersemail', usersEmailRoutes);
+
 
 app.use('/getfile/',express.static(path.join(__dirname, '/assets/')));
 
@@ -776,6 +776,7 @@ app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
 //====================================================================
 //ZEnd ==> Personal email
 
+app.use('/api/usersemail', usersEmailRoutes);
 app.use('/api/personalemail', personalEmailRoutes);
 app.use('/api/btnStatus', btnStatusRoutes);
 
