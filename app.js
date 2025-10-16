@@ -45,6 +45,7 @@ const reportRoutes = require('./src/routes/report.route');
 const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
 const reportZendRoutes = require('./src/routes/report.zend.route');
 const personalEmailRoutes = require('./src/routes/personalemail.route');
+const personalEmailNewRoutes = require('./src/routes/personal_email.route');
 const usersEmailRoutes = require('./src/routes/usersEmail.route');
 const btnStatusRoutes = require('./src/routes/btnstatus.route');
 
@@ -123,6 +124,7 @@ app.use(cors({
 }));
 
 app.use(express.static(path.join(__dirname, '/src')));
+app.use('/assets', express.static(path.join(__dirname, '/assets')));
 
 // parse requests of content-type - application/x-www-form-urlencoded
 //app.use(bodyParser.urlencoded({ limit: '50mb' , extended: true }))
@@ -777,6 +779,7 @@ app.use('/getslipfile/',express.static(path.join(__dirname, '/slipfile/')));
 //ZEnd ==> Personal email
 
 app.use('/api/personalemail', personalEmailRoutes);
+app.use('/api/personal_email', personalEmailNewRoutes);
 app.use('/api/btnStatus', btnStatusRoutes);
 
 
