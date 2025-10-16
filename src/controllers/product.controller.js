@@ -2994,6 +2994,58 @@ exports.VerifySlipOrder = async function (req, res) {
                         "check_slip_by": userid,
                         "check_slip_at": timerHelper.getDateTimeNowString(),
                     };
+
+                    // ถ้า slip ไม่ถูกต้อง (slip_correct = 0) ให้ update เฉพาะข้อมูล order และส่งข้อความแจ้ง user
+                    if (slip_correct == 0) {
+                        console.log('=== Slip Incorrect - Update Order Status and Send Notification ===');
+                        
+                        // ดึงข้อมูล order และ user
+                        let tmpData2 = await productList.getOrderById(order_id);
+                        let user_id = tmpData2['user_id'];
+                        
+                        // ดึงการตั้งค่า LINE
+                        let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
+                        
+                        if (tmpChatSetting && tmpChatSetting['status'] == 1) {
+                            let channelToken = tmpChatSetting['channel_token'];
+                            const lineChatAPI = new LineChatAPI();
+                            lineChatAPI.setToken(channelToken);
+                            
+                            // ส่งข้อความแจ้ง user ว่า slip ไม่ถูกต้อง
+                            let msg = "ขออภัยค่ะ สลิปโอนเงินของคุณไม่ถูกต้อง \nกรุณาตรวจสอบและส่งสลิปใหม่อีกครั้งค่ะ\nหรือติดต่อแอดมินหากมีข้อสงสัย";
+                            
+                            const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
+                            if (tmpSend['error']) {
+                                console.log('Failed to send LINE notification:', tmpSend['error']);
+                            } else {
+                                console.log('LINE notification sent successfully for incorrect slip');
+                            }
+                        }
+                        
+                        // Update order status
+                        let tmpData = await productList.VerifySlipOrder(objData);
+                        
+                        if (tmpData) {
+                            res.status(200).json({
+                                status: 'success',
+                                message: 'Slip marked as incorrect.',
+                                auth: true,
+                                data: [],
+                            });
+                        } else {
+                            res.status(202).json({
+                                status: 'error',
+                                message: 'Failed to update order.',
+                                auth: false,
+                                data: [],
+                            });
+                        }
+                        return;
+                    }
+
+                    // ถ้า slip ถูกต้อง (slip_correct = 1) ให้ดำเนินการส่ง email/password
+                    console.log('=== Slip Correct - Processing Email/Password ===');
+                    
                     //get email from stock
                     let tmpData2 = await productList.getOrderById(order_id);
 

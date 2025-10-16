@@ -98,6 +98,77 @@ exports.getSubscriptionGroup = async function(req, res) {
     
 };
 
+exports.getSubscriptionGroupForReport = async function(req, res) {
+
+    try {
+        console.log('getSubscriptionGroupForReport - For Report Only');
+    
+        const ipAddress = await IpAllowList.getIPv4Address(req.headers['x-forwarded-for']);
+        const ipBlockList = IpAllowList.findBlockedById(ipAddress);
+            
+        if (ipBlockList.length>0)
+        {
+            res.status(202).send('Unauthorize ip. ('+ipAddress+')');
+        }
+        else
+        {
+            const headers = req.headers;
+    
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+    
+                const userid = headers.userid;
+                const token = headers.token;
+    
+                let IsAuth = AdminList.isAuthenicated(userid,token);
+    
+                if (IsAuth) 
+                {
+                    
+                    let tmpData = await SubscriptionGroup.findAllForReport(req.body.searchword);
+                    
+                    res.status(200).json(
+                        { 
+                            status: 'success', 
+                            message: '',
+                            auth : true,
+                            total : count(tmpData),
+                            data : tmpData,
+                        }
+                        );
+                    return;
+                }
+                else
+                {
+                    res.status(202).json(
+                        { 
+                            status: 'error', 
+                            message: 'Authenication Failed',
+                            auth : false,
+                            data : [],
+                        }
+                        );
+                        return;
+                }
+            
+            }
+        }
+    } catch (error) {
+        res.status(202).json(
+            { 
+                status: 'error', 
+                message: error.message,
+                auth : false,
+                data : [],
+            }
+        );
+        return;
+    }
+    
+};
+
 exports.getActiveSubscriptionGroup = async function(req, res) {
 
     try {
