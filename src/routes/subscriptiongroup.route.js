@@ -7,6 +7,8 @@ router.use(cors());
 
 router.post('/getSubscriptionGroup/', subscriptionGroupController.getSubscriptionGroup);
 
+router.post('/getSubscriptionGroupForReport/', subscriptionGroupController.getSubscriptionGroupForReport);
+
 router.post('/getActiveSubscriptionGroup/', subscriptionGroupController.getActiveSubscriptionGroup);
 
 router.post('/getSubscriptionGroupById/', subscriptionGroupController.getSubscriptionGroupById);
