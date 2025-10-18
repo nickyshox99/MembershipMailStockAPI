@@ -439,6 +439,65 @@ exports.inActiveProduct = async function (req, res) {
 
 };
 
+exports.GetProductById = async function (req, res) {
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid ? headers.userid : '';
+                const token = headers.token ? headers.token : '';
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+
+                let tmpData = await productList.findById(req.body.id);
+                if (tmpData) {
+                    res.status(200).json(tmpData);
+                }
+                else {
+                    res.status(202).json({ status: 'error', message: 'Product not found' });
+                }
+                return;
+
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+}
+
 exports.GetActiveProduct = async function (req, res) {
     console.log('GetActiveproduct');
 
@@ -2069,7 +2128,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                     let email = req.body.email || "";
                     let note = req.body.note;
                     let purchase_type = req.body.purchase_type || "";
-                    
+
                     console.log('=== CreateAndApproveSubScribeOrder - Received Data ===');
                     console.log('purchase_type:', purchase_type);
                     console.log('req.body.purchase_type:', req.body.purchase_type);
@@ -2685,7 +2744,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
                         return;
                     }
 
-                  
+
                     let objData = {
                         "id": order_id,
                         "slip_file_url": slip_file_url,
@@ -2737,7 +2796,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
         res.status(202).json(
             {
                 status: 'error',
-                message: "PaymentOrderWithSlip: "+error.message,
+                message: "PaymentOrderWithSlip: " + error.message,
                 auth: false,
                 data: [],
             }
@@ -3051,7 +3110,7 @@ exports.VerifySlipOrder = async function (req, res) {
 
                     let user_id = tmpData2['user_id'];
                     let purchase_type = tmpData2['purchase_type']; // default to 'shop'
-                    
+
                     console.log('=== VerifySlipOrder - Check Purchase Type ===');
                     console.log('order_id:', order_id);
                     console.log('purchase_type:', purchase_type);
@@ -3066,7 +3125,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         console.log('Using email from users_email (personal)');
                         const UsersEmail = require('../models/usersEmail.model');
                         const usersEmailData = await UsersEmail.findByOrderId(order_id);
-                        
+
                         if (usersEmailData && usersEmailData.id) {
                             email = usersEmailData.email;
                             password = usersEmailData.password;
@@ -3141,7 +3200,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         // กรณี shop หรือไม่ระบุ: ใช้ email/password จาก email_stock (แบบเดิม)
                         console.log('Using email from email_stock (shop)');
                         emailStock = await EmailStock.getEmailStockByUserId(user_id);
-                        
+
                         if (emailStock == null) {
                             res.status(202).json({
                                 status: 'error',
@@ -3151,7 +3210,7 @@ exports.VerifySlipOrder = async function (req, res) {
                             });
                             return;
                         }
-                        
+
                         email = emailStock['email'];
                         password = emailStock['password'];
                         console.log('Found email in email_stock:', email);
