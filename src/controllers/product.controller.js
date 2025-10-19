@@ -3057,22 +3057,22 @@ exports.VerifySlipOrder = async function (req, res) {
                     // ถ้า slip ไม่ถูกต้อง (slip_correct = 0) ให้ update เฉพาะข้อมูล order และส่งข้อความแจ้ง user
                     if (slip_correct == 0) {
                         console.log('=== Slip Incorrect - Update Order Status and Send Notification ===');
-                        
+
                         // ดึงข้อมูล order และ user
                         let tmpData2 = await productList.getOrderById(order_id);
                         let user_id = tmpData2['user_id'];
-                        
+
                         // ดึงการตั้งค่า LINE
                         let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
-                        
+
                         if (tmpChatSetting && tmpChatSetting['status'] == 1) {
                             let channelToken = tmpChatSetting['channel_token'];
                             const lineChatAPI = new LineChatAPI();
                             lineChatAPI.setToken(channelToken);
-                            
+
                             // ส่งข้อความแจ้ง user ว่า slip ไม่ถูกต้อง
                             let msg = "ขออภัยค่ะ สลิปโอนเงินของคุณไม่ถูกต้อง \nกรุณาตรวจสอบและส่งสลิปใหม่อีกครั้งค่ะ\nหรือติดต่อแอดมินหากมีข้อสงสัย";
-                            
+
                             const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                             if (tmpSend['error']) {
                                 console.log('Failed to send LINE notification:', tmpSend['error']);
@@ -3080,10 +3080,10 @@ exports.VerifySlipOrder = async function (req, res) {
                                 console.log('LINE notification sent successfully for incorrect slip');
                             }
                         }
-                        
+
                         // Update order status
                         let tmpData = await productList.VerifySlipOrder(objData);
-                        
+
                         if (tmpData) {
                             res.status(200).json({
                                 status: 'success',
@@ -3104,7 +3104,7 @@ exports.VerifySlipOrder = async function (req, res) {
 
                     // ถ้า slip ถูกต้อง (slip_correct = 1) ให้ดำเนินการส่ง email/password
                     console.log('=== Slip Correct - Processing Email/Password ===');
-                    
+
                     //get email from stock
                     let tmpData2 = await productList.getOrderById(order_id);
 
@@ -3145,7 +3145,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         console.log('Using email from personal_email (email only)');
                         const PersonalEmail = require('../models/personalemail.model');
                         const personalEmailData = await PersonalEmail.findByOrderId(order_id);
-                        
+
                         if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
                             email = personalEmailData[0].email;
                             password = null; // ไม่ส่ง password
@@ -3164,7 +3164,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         // กรณี shop_personal: ใช้ email/password จาก subscription_group_user (subscription_group_id = 0)
                         console.log('Using email from subscription_group_user (shop_personal - group_id = 0)');
                         emailStock = await EmailStock.getEmailStockPersonal(user_id);
-                        
+
                         if (emailStock == null) {
                             res.status(202).json({
                                 status: 'error',
@@ -3174,7 +3174,7 @@ exports.VerifySlipOrder = async function (req, res) {
                             });
                             return;
                         }
-                        
+
                         email = emailStock['email'];
                         password = emailStock['password'];
                         console.log('Found email in shop_personal:', email);
@@ -3182,7 +3182,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         // กรณี shop_family: ใช้ email/password จาก subscription_group_user (subscription_group_id != 0)
                         console.log('Using email from subscription_group_user (shop_family - group_id != 0)');
                         emailStock = await EmailStock.getEmailStockFamily(user_id);
-                        
+
                         if (emailStock == null) {
                             res.status(202).json({
                                 status: 'error',
@@ -3192,7 +3192,7 @@ exports.VerifySlipOrder = async function (req, res) {
                             });
                             return;
                         }
-                        
+
                         email = emailStock['email'];
                         password = emailStock['password'];
                         console.log('Found email in shop_family:', email);
@@ -3295,7 +3295,7 @@ exports.VerifySlipOrder = async function (req, res) {
                             const updateStatus = await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
                             console.log('Updated status_regis to 1 for order_id:', order_id, 'result:', updateStatus);
                         }
-                        
+
                         // Update status_regis เป็น 1 สำหรับกรณี email
                         if (purchase_type === 'email') {
                             const PersonalEmail = require('../models/personalemail.model');
@@ -3912,4 +3912,333 @@ exports.SentPaymentMessageExpired = async function (req, res) {
         return;
     }
 
+};
+
+
+// Helper function สำหรับส่ง email/password เข้าไลน์ (สำหรับ shop_family และ shop_personal)
+exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, purchase_type) {
+    console.log('=== sendEmailPasswordToLineForStripe ===');
+    console.log('order_id:', order_id);
+    console.log('user_id:', user_id);
+    console.log('purchase_type:', purchase_type);
+
+    try {
+        // ดึงข้อมูล order
+        let orderData = await productList.getOrderById(order_id);
+        if (!orderData || orderData.length <= 0) {
+            console.error('Order not found:', order_id);
+            return { success: false, message: 'Order not found' };
+        }
+
+        let email = '';
+        let password = '';
+        let emailStock = null;
+
+        // ดึง email/password ตาม purchase_type
+        if (purchase_type === 'shop_personal') {
+            console.log('Getting email from shop_personal');
+            emailStock = await EmailStock.getEmailStockPersonal(user_id);
+
+            if (emailStock == null) {
+                console.error('No email stock available for shop_personal');
+                return { success: false, message: 'email personal ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่' };
+            }
+
+            email = emailStock['email'];
+            password = emailStock['password'];
+            console.log('Found email in shop_personal:', email);
+
+        } else if (purchase_type === 'shop_family') {
+            console.log('Getting email from shop_family');
+            emailStock = await EmailStock.getEmailStockFamily(user_id);
+
+            if (emailStock == null) {
+                console.error('No email stock available for shop_family');
+                return { success: false, message: 'email family ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่' };
+            }
+
+            email = emailStock['email'];
+            password = emailStock['password'];
+            console.log('Found email in shop_family:', email);
+        } else {
+            console.error('Invalid purchase_type for this function:', purchase_type);
+            return { success: false, message: 'Invalid purchase_type. Only shop_family and shop_personal are supported.' };
+        }
+
+        // Reserve email stock
+        console.log('Reserving email stock, id:', emailStock.id);
+        let reserveResult = await EmailStock.reserveEmailStock(emailStock.id, user_id);
+        if (!reserveResult) {
+            console.error('Failed to reserve email stock');
+            return { success: false, message: 'Failed to reserve email stock' };
+        }
+        console.log('Email stock reserved successfully');
+
+        // ดึงการตั้งค่า LINE
+        let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
+
+        if (!tmpChatSetting || tmpChatSetting.length == 0) {
+            console.error('LINE setting not found');
+            return { success: false, message: 'LINE setting not found' };
+        }
+
+        if (tmpChatSetting['status'] != 1) {
+            console.error('LINE is not active');
+            return { success: false, message: 'LINE is not active' };
+        }
+
+        // ส่งข้อความเข้าไลน์
+        let channelToken = tmpChatSetting['channel_token'];
+        const lineChatAPI = new LineChatAPI();
+        lineChatAPI.setToken(channelToken);
+
+        let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+
+        console.log('Sending LINE message to user:', user_id);
+        const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
+
+        if (tmpSend['error']) {
+            console.error('Failed to send LINE message:', tmpSend['error']);
+            return { success: false, message: 'Failed to send LINE message: ' + tmpSend['error'], email, password };
+        }
+
+        console.log(' Successfully sent email/password to LINE');
+        return { success: true, message: 'Success', email, password };
+
+    } catch (error) {
+        console.error('Error in sendEmailPasswordToLineForStripe:', error);
+        return { success: false, message: error.message };
+    }
+};
+
+// API Endpoint สำหรับ Stripe Webhook เรียกเพื่อส่ง credentials
+exports.SendStripeCredentials = async function (req, res) {
+    console.log('SendStripeCredentials');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+
+        // รับ parameter จาก request body
+        const { order_id, user_id, purchase_type } = req.body;
+
+        console.log('Received request:', { order_id, user_id, purchase_type });
+
+        // Validate required fields
+        if (!order_id || !user_id || !purchase_type) {
+            res.status(400).json({
+                status: 'error',
+                message: 'Missing required fields: order_id, user_id, purchase_type',
+                auth: false,
+                data: [],
+            });
+            return;
+        }
+
+        // เรียก helper function
+        const result = await exports.sendEmailPasswordToLineForStripe(order_id, user_id, purchase_type);
+
+        if (result.success) {
+            res.status(200).json({
+                status: 'success',
+                message: result.message,
+                auth: true,
+                email: result.email,
+                data: [],
+            });
+        } else {
+            res.status(202).json({
+                status: 'error',
+                message: result.message,
+                auth: false,
+                data: [],
+            });
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+            data: [],
+        });
+    }
+};
+
+// API สำหรับส่ง Email/Password แบบ Manual (สำหรับ email และ personal)
+exports.SendEmailPasswordManual = async function (req, res) {
+    console.log('SendEmailPasswordManual');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+
+        const headers = req.headers;
+        const userid = headers.userid;
+        const token = headers.token;
+
+        let IsAuth = await AdminList.isAuthenicated(userid, token);
+
+        if (IsAuth) {
+            const { order_id } = req.body;
+
+            if (!order_id) {
+                res.status(400).json({
+                    status: 'error',
+                    message: 'Missing order_id',
+                    auth: false,
+                });
+                return;
+            }
+
+            // ดึงข้อมูล order
+            let orderData = await productList.getOrderById(order_id);
+            if (!orderData || orderData.length <= 0) {
+                res.status(202).json({
+                    status: 'error',
+                    message: 'Order not found',
+                    auth: false,
+                });
+                return;
+            }
+
+            const user_id = orderData['user_id'];
+            const purchase_type = orderData['purchase_type'];
+
+            console.log('order_id:', order_id, 'user_id:', user_id, 'purchase_type:', purchase_type);
+
+            // เช็คว่าเป็น type ที่รองรับ
+            if (purchase_type !== 'personal' && purchase_type !== 'email') {
+                res.status(202).json({
+                    status: 'error',
+                    message: 'Invalid purchase_type. Only email and personal are supported.',
+                    auth: false,
+                });
+                return;
+            }
+
+            let email = '';
+            let password = '';
+
+            // ดึง email/password ตาม purchase_type
+            if (purchase_type === 'personal') {
+                const UsersEmail = require('../models/usersEmail.model');
+                const usersEmailData = await UsersEmail.findByOrderId(order_id);
+
+                if (usersEmailData && usersEmailData.id) {
+                    email = usersEmailData.email;
+                    password = usersEmailData.password;
+                } else {
+                    res.status(202).json({
+                        status: 'error',
+                        message: 'ไม่พบข้อมูล email ของลูกค้า',
+                        auth: false,
+                    });
+                    return;
+                }
+            } else if (purchase_type === 'email') {
+                const PersonalEmail = require('../models/personalemail.model');
+                const personalEmailData = await PersonalEmail.findByOrderId(order_id);
+
+                if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
+                    email = personalEmailData[0].email;
+                    password = null;
+                } else {
+                    res.status(202).json({
+                        status: 'error',
+                        message: 'ไม่พบข้อมูล email ของลูกค้า',
+                        auth: false,
+                    });
+                    return;
+                }
+            }
+
+            // ดึงการตั้งค่า LINE
+            let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
+
+            if (!tmpChatSetting || tmpChatSetting.length == 0) {
+                res.status(202).json({
+                    status: 'error',
+                    message: 'LINE setting not found',
+                    auth: false,
+                });
+                return;
+            }
+
+            if (tmpChatSetting['status'] != 1) {
+                res.status(202).json({
+                    status: 'error',
+                    message: 'LINE is not active',
+                    auth: false,
+                });
+                return;
+            }
+
+            // ส่งข้อความเข้าไลน์
+            let channelToken = tmpChatSetting['channel_token'];
+            const lineChatAPI = new LineChatAPI();
+            lineChatAPI.setToken(channelToken);
+
+            let msg = "";
+            if (password) {
+                msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+            } else {
+                msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
+            }
+
+            const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
+
+            if (tmpSend['error']) {
+                res.status(202).json({
+                    status: 'error',
+                    message: 'Failed to send LINE message: ' + tmpSend['error'],
+                    auth: false,
+                });
+                return;
+            }
+
+            // Update status_regis = 1
+            if (purchase_type === 'personal') {
+                const UsersEmail = require('../models/usersEmail.model');
+                await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
+            } else if (purchase_type === 'email') {
+                const PersonalEmail = require('../models/personalemail.model');
+                await PersonalEmail.updateStatusByOrderId(order_id, 1);
+            }
+
+            console.log(' Successfully sent email/password to LINE');
+            res.status(200).json({
+                status: 'success',
+                message: 'ส่งข้อมูลเข้าไลน์สำเร็จ',
+                auth: true,
+                email: email,
+            });
+
+        } else {
+            res.status(202).json({
+                status: 'error',
+                message: 'Authentication Failed',
+                auth: false,
+            });
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+        });
+    }
 };
