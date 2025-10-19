@@ -905,7 +905,12 @@ productList.GetSubScribeOrderById = async function (id, user_id, result) {
         st.subscription_name,
         st.subscription_img,
         lc.display_name as line_display_name,
-        lc.picture_url as line_profile_url
+        lc.picture_url as line_profile_url,
+        (SELECT payment_status 
+         FROM payment_history 
+         WHERE order_id = moh.id 
+         ORDER BY id DESC 
+         LIMIT 1) as payment_status
     FROM membership_order_history moh 
     LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id 
     LEFT JOIN line_contact lc ON lc.user_id = moh.user_id
