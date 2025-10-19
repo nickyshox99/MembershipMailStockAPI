@@ -70,4 +70,9 @@ router.post('/SentPaymentMessageNearOrder/', productController.SentPaymentMessag
 
 router.post('/SentPaymentMessageExpired/', productController.SentPaymentMessageExpired);
 
+// เพิ่มบรรทัดนี้ในส่วนของ routes
+router.post('/send-stripe-credentials', productController.SendStripeCredentials);
+
+router.post('/send-email-password-manual', productController.SendEmailPasswordManual);
+
 module.exports = router
