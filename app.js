@@ -48,6 +48,7 @@ const personalEmailRoutes = require('./src/routes/personalemail.route');
 const personalEmailNewRoutes = require('./src/routes/personal_email.route');
 const usersEmailRoutes = require('./src/routes/usersEmail.route');
 const btnStatusRoutes = require('./src/routes/btnstatus.route');
+const paymentTypeRoutes = require('./src/routes/paymenttype.route');
 
 const lineChatSettingRoutes  =require('./src/routes/linechatsetting.route');
 const lineChatRoutes  =require('./src/routes/linechat.route');
@@ -782,6 +783,7 @@ app.use('/api/usersemail', usersEmailRoutes);
 app.use('/api/personalemail', personalEmailRoutes);
 app.use('/api/personal_email', personalEmailNewRoutes);
 app.use('/api/btnStatus', btnStatusRoutes);
+app.use('/api/paymenttype', paymentTypeRoutes);
 
 
 //====================================================================
