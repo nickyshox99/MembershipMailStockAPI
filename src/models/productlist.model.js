@@ -279,7 +279,6 @@ productList.createSubScribeOrder = async function (objData, result) {
 productList.createAndApproveSubScribeOrder = async function (objData, result) {
 
     try {
-
         const datas = await dbConn.raw("INSERT INTO membership_order_history (" +
             "user_id "
             + ",email "
@@ -324,16 +323,40 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
                 , objData.purchase_type
             ]);
 
-        // const datas=[];
-        // datas['affectedRows'] = 0;
-        //dbConn.end;
+        // เก็บ order_id ที่เพิ่งสร้าง
+        const orderId = datas[0].insertId;
+
+        // บันทึกข้อมูลการชำระเงินลง payment_history
+        const paymentData = await dbConn.raw("INSERT INTO payment_history ( "
+            + "order_id "
+            + ",payment_id "
+            + ",payment_status "
+            + ",payment_method_types "
+            + ",amount "
+            + ",currency "
+            + ",email "
+            + ",purchase_type "
+            + " ) VALUES (?,?,?,?,?,?,?,?)"
+            , [
+                orderId
+                , objData.payment_id || ''
+                , "pending"
+                , "qr"
+                , objData.amount || 0
+                , objData.currency || 'THB'
+                , objData.email
+                , objData.purchase_type
+            ]);
+
+        console.log('Order created with ID:', orderId, 'Payment history saved');
+
         return {
-            id: datas[0].insertId,
+            id: orderId,
             ...objData
-            
         };
+
     } catch (error) {
-        console.log(error);
+        console.log('createAndApproveSubScribeOrder Error:', error);
         return false;
     }
 
@@ -449,7 +472,6 @@ productList.PaymentOrderWithSlip = async function (objData, result) {
     const rowid = objData.id;
 
     try {
-
         const datas = await dbConn.raw("UPDATE membership_order_history SET "
             + "slip_file_url=? "
             + ",slip_file_at=? "
@@ -461,6 +483,14 @@ productList.PaymentOrderWithSlip = async function (objData, result) {
                 objData.slip_file_url
                 , objData.slip_file_at
                 , rowid
+            ]
+        );
+        const paymentData = await dbConn.raw("UPDATE payment_history SET "
+            + "payment_status=? "
+            + " WHERE order_id = ? "
+            , [
+                "success"
+                , objData.id
             ]
         );
         return true;

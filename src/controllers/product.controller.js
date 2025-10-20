@@ -2684,6 +2684,7 @@ exports.SkipFamliyInviteOrder = async function (req, res) {
 
 };
 
+
 exports.PaymentOrderWithSlip = async function (req, res) {
     console.log('PaymentOrderWithSlip');
 
@@ -2749,6 +2750,7 @@ exports.PaymentOrderWithSlip = async function (req, res) {
                         "id": order_id,
                         "slip_file_url": slip_file_url,
                         "slip_file_at": timerHelper.getDateTimeNowString(),
+                    
                     };
 
                     let tmpData = await productList.PaymentOrderWithSlip(objData);
