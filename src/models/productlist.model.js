@@ -542,12 +542,12 @@ productList.VerifySlipOrder = async function (objData, result) {
             + "wait_check_payment=0 "
             + ",slip_correct=? "
             + ",check_slip_by=? "
-            + ",check_slip_at=? "
+            + ",check_slip_at=? "            
             + " WHERE id = ? "
             , [
                 objData.slip_correct
                 , objData.check_slip_by
-                , objData.check_slip_at
+                , objData.check_slip_at                
                 , rowid
             ]
         );

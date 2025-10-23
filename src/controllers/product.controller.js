@@ -3022,6 +3022,7 @@ exports.VerifySlipOrder = async function (req, res) {
                 if (IsAuth) {
                     let order_id = req.body.order_id ?? 0;
                     let slip_correct = req.body.slip_correct;
+                    let invite_link = req.body.invite_link ?? "";
 
                     if (!slip_correct || order_id == 0) {
                         res.status(202).json(
@@ -3053,7 +3054,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         "id": order_id,
                         "slip_correct": slip_correct,
                         "check_slip_by": userid,
-                        "check_slip_at": timerHelper.getDateTimeNowString(),
+                        "check_slip_at": timerHelper.getDateTimeNowString(),                        
                     };
 
                     // ถ้า slip ไม่ถูกต้อง (slip_correct = 0) ให้ update เฉพาะข้อมูล order และส่งข้อความแจ้ง user
@@ -3272,7 +3273,11 @@ exports.VerifySlipOrder = async function (req, res) {
                     } else {
                         // กรณีไม่มี password (email only)
                         msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
+                        if (invite_link && invite_link!='') {
+                            msg += "ลิงค์สำหรับเข้าร่วมสมาชิกครอบครัว : " + invite_link;
+                        }
                     }
+                    console.log('msg:', msg);
 
                     const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                     if (tmpSend['error']) {

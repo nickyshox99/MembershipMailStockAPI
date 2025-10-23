@@ -840,6 +840,7 @@ exports.addMemberToGroup = async function(req, res) {
                     const password = req.body.password? req.body.password : "";
                     const line_user_id = req.body.line_user_id? req.body.line_user_id : "";
                     const group_id = req.body.group_id? req.body.group_id : 0;
+                    const note = req.body.note? req.body.note : "";
                                         
                     let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -900,6 +901,7 @@ exports.addMemberToGroup = async function(req, res) {
                         line_user_id : line_user_id,
                         update_at : timerHelper.getDateTimeNowString(),
                         update_by : admin_id,
+                        note : note,
                     }
 
                     let tmpData = await SubscriptionGroup.addMemberToGroup(objData);
@@ -1731,6 +1733,7 @@ exports.updateMemberData = async function(req, res) {
                 const email = req.body.email ? req.body.email : "";
                 const password = req.body.password ? req.body.password : "";
                 const user_id = req.body.user_id ? req.body.user_id : "";
+                const note = req.body.note ? req.body.note : "";
                                         
                 let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -1739,7 +1742,7 @@ exports.updateMemberData = async function(req, res) {
                     return;
                 }
 
-                let objData = {id: id, email: email, password: password, user_id: user_id}
+                let objData = {id: id, email: email, password: password, user_id: user_id, note: note}
                 console.log("objData to update:", objData);
                 let tmpData = await SubscriptionGroup.updateMemberData(objData);
                 console.log("Update result:", tmpData);

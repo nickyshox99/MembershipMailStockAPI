@@ -292,7 +292,8 @@ SubscriptionGroup.addMemberToGroup = async function (objData, result) {
             + ",user_id "
             + ",email "
             + ",password "
-            + " ) VALUES (?,?,?,?,?,?)"
+            + ",note "
+            + " ) VALUES (?,?,?,?,?,?,?)"
             , [
                 objData.subscription_group_id
                 , objData.update_at
@@ -300,6 +301,7 @@ SubscriptionGroup.addMemberToGroup = async function (objData, result) {
                 , objData.user_id || ''
                 , objData.email
                 , objData.password || ''
+                , objData.note || ''
             ]);
 
         return true;
@@ -420,18 +422,19 @@ SubscriptionGroup.addPaymentNoteGroup = async function (objData, result) {
 };
 
 SubscriptionGroup.updateMemberData = async function (objData, result) {
-
-    console.log(objData);
+    
     try {
         const datas = await dbConn.raw("UPDATE subscription_group_user SET " +
             "email = ?, " +
             "password = ?, " +
-            "user_id = ? " +
+            "user_id = ?, " +
+            "note = ? " +
             "WHERE id = ?"
             , [
                 objData.email,
                 objData.password,
                 objData.user_id || '',
+                objData.note || '',
                 objData.id
             ]);
 

@@ -291,12 +291,12 @@ exports.uploadFileAndDeleteOldFile =  async (req, res) => {
                                 });
                             }
 
-                            console.log(Secret.apiDomain+'getfile/'+ destFileName);
+                            let fileUrl = Secret.apiDomain+'getfile/'+ destFileName;                            
 
                             res.status(200).json(
                             {   status : 'success' ,
                                 message: 'File uploaded successfully',
-                                url: destFileName,  // ส่งแค่ filename ให้ frontend จัดการ path เอง
+                                url: fileUrl,  // ส่งแค่ filename ให้ frontend จัดการ path เอง
                             });        
                             return;
                         });
