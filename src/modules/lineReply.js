@@ -47,7 +47,7 @@ async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, cha
     else {
       await lineChatAPI.replyMessage(
         reply_token,
-        'ไม่พบข้อมูลผู้ใช้ กรุณาลงทะเบียนก่อน พิมพ์ "สมัคร" เพื่อดูข้อมูลเพิ่มเติม'
+        'ไม่พบข้อมูลผู้ใช้'
       );
     }
   } catch (error) {
