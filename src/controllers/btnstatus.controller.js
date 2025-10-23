@@ -15,12 +15,13 @@ exports.GetBtnStatus = async function (req, res) {
         );
         return;
     } catch (error) {
+        console.error('GetBtnStatus Error:', error);
         res.status(202).json(
             {
                 status: 'error',
-                message: error.message,
+                message: error.message || 'Unknown error occurred',
                 auth: false,
-                data: btnStatus,
+                data: null,
             }
         );
         return;
