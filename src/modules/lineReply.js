@@ -29,7 +29,7 @@ async function handleRegistration(reply_token, sourceUserId, oSecretkey, channel
  * @param {object} profileData - ข้อมูลโปรไฟล์ผู้ใช้
  * @param {object} oSecretkey - Object ที่มี webDomain
  */
-async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken) {
+async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,greeting_msg,greeting_banner_url) {
   try {
     let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
     const lineChatAPI = new LineChatAPI();
@@ -39,10 +39,19 @@ async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, cha
       let userData = userList[0];
       // let replyMessage = oSecretkey.webDomain + "buyproduct?sourceUserId=" + profileData['user_id'];
       let replyMessage = oSecretkey.webDomain + "SelectTopic?sourceUserId=" + profileData['user_id'];
-      await lineChatAPI.replyMessage(
-        reply_token,
-        "เปิดลิงค์นี้เพื่อทำการซื้อ " + replyMessage,
-      );
+
+      if (greeting_banner_url.length>0) {
+        await lineChatAPI.replyImage(reply_token,greeting_banner_url,greeting_banner_url,replyMessage)
+      }
+      else
+      {
+        await lineChatAPI.replyMessage(
+          reply_token,
+          greeting_msg+" " + replyMessage,
+        );
+      }
+
+     
     }
     else {
       await lineChatAPI.replyMessage(
@@ -97,17 +106,32 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
 /**
  * ฟังก์ชันสำหรับตอบกลับเมื่อผู้ใช้พิมพ์ข้อความอื่นๆ
  * @param {string} reply_token - Token สำหรับตอบกลับ
+ * @param {object} profileData - ข้อมูลโปรไฟล์ผู้ใช้
+ * @param {object} oSecretkey - Object ที่มี webDomain
+ * @param {string} channelToken - Token ของช่องทาง
+ * @param {string} greeting_msg - ข้อความทักทาย
+ * @param {string} greeting_banner_url - URL รูปภาพแบนเนอร์ทักทาย
  */
-async function handleDefaultMessage(reply_token, oSecretkey, channelToken) {
+async function handleDefaultMessage(reply_token, profileData, oSecretkey, channelToken, greeting_msg, greeting_banner_url) {
   try {
-    let replyMessage = 'พิมพ์คำสั่ง เช่น "ซื้อ","ต่ออายุ","เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
+    let replyMessage = greeting_msg ? greeting_msg : 'พิมพ์คำสั่ง เช่น "ซื้อ","ต่ออายุ","เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
     const lineChatAPI = new LineChatAPI();
     lineChatAPI.setToken(channelToken);
 
-    await lineChatAPI.replyMessage(
-      reply_token,
-      replyMessage
-    );
+    if (greeting_banner_url && greeting_banner_url.length > 0) {
+      // ถ้ามี greeting_banner_url แต่ไม่มี linkUrl จะส่งรูปธรรมดา (ไม่คลิกได้)
+      await lineChatAPI.replyImage(reply_token, greeting_banner_url, greeting_banner_url);
+      
+      // ถ้ามีข้อความทักทาย แสดงข้อความแยก
+      if (greeting_msg && greeting_msg.length > 0) {
+        await lineChatAPI.replyMessage(reply_token, greeting_msg);
+      }
+    } else {
+      await lineChatAPI.replyMessage(
+        reply_token,
+        replyMessage
+      );
+    }
   } catch (error) {
     console.error('Error in handleDefaultMessage:', error.message);
   }

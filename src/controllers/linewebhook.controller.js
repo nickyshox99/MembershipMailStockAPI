@@ -453,6 +453,16 @@ module.exports = function (wsConnections) {
           line_chat_active_id = getLastId[0]['id'];
         }
 
+        let tmpMessageSetting = await MainModel.queryFirstRow(`SELECT * FROM meta_setting WHERE meta='line_message'`);
+        if (tmpMessageSetting.length == 0) {
+          console.log("No have meta_setting line_message ");
+          res.status(202).json({
+            status: "error",
+          });
+          return;
+        }
+        let messageSetting = JSON.parse(tmpMessageSetting['value']);
+
         let tmpDataContent = [];
         if (message_type == 2) {
           if (msg_detail['id']) {
@@ -504,14 +514,17 @@ module.exports = function (wsConnections) {
           // if (tmp_msg_detail.includes("สมัคร")) {
           //   await lineReply.handleRegistration(reply_token, sourceUserId, oSecretkey, channelToken);
           // }
-           if (tmp_msg_detail.includes("ต่ออายุ") || tmp_msg_detail.includes("ซื้อ")) {
-            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken);
+          if (tmp_msg_detail.includes("ซื้อ")) {            
+            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,messageSetting["order_msg"],messageSetting["order_msg_url"]);
+          }
+          else if (tmp_msg_detail.includes("ต่ออายุ")) {            
+            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,messageSetting["buy_more_msg"],messageSetting["buy_more_url"]);
           }
           else if (tmp_msg_detail.includes("เช็ควัน")) {
             await lineReply.handleCheckDays(reply_token, profileData, oSecretkey, channelToken);
           }
-          else if (tmp_msg_detail) {
-            await lineReply.handleDefaultMessage(reply_token, oSecretkey, channelToken);
+          else if (tmp_msg_detail) {            
+            await lineReply.handleDefaultMessage(reply_token, profileData, oSecretkey, channelToken,messageSetting["greeting_msg"],messageSetting["greeting_banner_url"]);
           }
         }
 

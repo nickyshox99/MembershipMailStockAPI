@@ -149,6 +149,64 @@ class LineChatAPI {
         }
     }
 
+    async replyImage(replyToken, originalContentUrl, previewImageUrl, linkUrl) {        
+        try {
+            let messages = [];
+
+            // ถ้ามี linkUrl ใช้ Flex Message เพื่อให้รูปคลิกได้
+            if (linkUrl) {
+                messages.push({
+                    "type": "flex",
+                    "altText": "รูปภาพ",
+                    "contents": {
+                        "type": "bubble",
+                        "hero": {
+                            "type": "image",
+                            "url": originalContentUrl,
+                            "size": "full",
+                            "aspectRatio": "20:13",
+                            "aspectMode": "cover",
+                            "action": {
+                                "type": "uri",
+                                "uri": linkUrl
+                            }
+                        }
+                    }
+                });
+            } else {
+                // ถ้าไม่มี linkUrl ใช้ image message ธรรมดา
+                messages.push({
+                    "type": "image",
+                    "originalContentUrl": originalContentUrl,
+                    "previewImageUrl": previewImageUrl,
+                });
+            }
+
+            let body = {
+                replyToken: replyToken,
+                messages: messages,
+            };
+
+            let headers = {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${this.channelToken}`,
+            };
+
+            // console.log(headers);
+            
+            const url = `${this.api}bot/message/reply`;
+        
+            const res = await axios.post(url, body, {
+                headers: headers,
+            });
+    
+            return res.data;
+        } catch (error) {                      
+            console.log(error.message);
+            return {error: error.message};
+        }
+    }
+
     async pushSticker(toUser,packageId,stickerId) {
         try {
 
