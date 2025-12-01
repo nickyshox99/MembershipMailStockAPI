@@ -5,23 +5,23 @@ var dbConn = require('../../config/db.config');
 const Cryptof = require('./cryptof.model');
 
 const jwt = require('jsonwebtoken');
-const tableName = 'subscription_group'
+const tableName = 'subscription_group_stock'
 const tableKey = 'id'
 
 //User object create
-let SubscriptionGroup = async function () {
+let SubscriptionGroupStock = async function () {
 
 };
 
-SubscriptionGroup.findAll = async function (searchword, result) {
+SubscriptionGroupStock.findAll = async function (searchword, result) {
 
     try {
         searchword = searchword ? searchword : "";
 
         let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " ,(SELECT end_at FROM subscription_group_payment WHERE subscription_group_payment.subscription_group_id=" + tableName + ".id ORDER BY subscription_group_payment.end_at DESC  LIMIT 1  ) as end_at ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id ) as CountMember ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id AND subscription_group_user.user_id IS NOT NULL AND subscription_group_user.user_id != '' ) as CountUsedMember ";
+        sqlStr += " ,(SELECT end_at FROM subscription_group_payment_stock WHERE subscription_group_payment_stock.subscription_group_stock_id=" + tableName + ".id ORDER BY subscription_group_payment_stock.end_at DESC  LIMIT 1  ) as end_at ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id ) as CountMember ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id AND subscription_group_user_stock.user_id IS NOT NULL AND subscription_group_user_stock.user_id != '' ) as CountUsedMember ";
         sqlStr += " FROM " + tableName;
         sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
         sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
@@ -36,18 +36,18 @@ SubscriptionGroup.findAll = async function (searchword, result) {
 
 };
 
-SubscriptionGroup.findAllForReport = async function (searchword, result) {
+SubscriptionGroupStock.findAllForReport = async function (searchword, result) {
 
     try {
         searchword = searchword ? searchword : "";
 
         let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " ,(SELECT end_at FROM subscription_group_payment WHERE subscription_group_payment.subscription_group_id=" + tableName + ".id ORDER BY subscription_group_payment.end_at DESC  LIMIT 1  ) as end_at ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id AND subscription_group_user.subscription_group_id != 0 ) as CountMember ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user WHERE subscription_group_user.subscription_group_id=" + tableName + ".id AND subscription_group_user.subscription_group_id != 0 AND subscription_group_user.user_id IS NOT NULL AND subscription_group_user.user_id != '' ) as CountUsedMember ";
+        sqlStr += " ,(SELECT end_at FROM subscription_group_payment_stock WHERE subscription_group_payment_stock.subscription_group_stock_id=" + tableName + ".id ORDER BY subscription_group_payment_stock.end_at DESC  LIMIT 1  ) as end_at ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id AND subscription_group_user_stock.subscription_group_stock_id != 0 ) as CountMember ";
+        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id AND subscription_group_user_stock.subscription_group_stock_id != 0 AND subscription_group_user_stock.user_id IS NOT NULL AND subscription_group_user_stock.user_id != '' ) as CountUsedMember ";
         sqlStr += " FROM " + tableName;
         sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
+        sqlStr += " where 1=1 AND (subscription_group_stock.group_name like '%" + searchword + "%') ";
 
         let datas = await dbConn.raw(sqlStr);
 
@@ -59,34 +59,29 @@ SubscriptionGroup.findAllForReport = async function (searchword, result) {
 
 };
 
-SubscriptionGroup.findAllActive = async function (searchword, result) {
+SubscriptionGroupStock.findAllActive = async function (searchword, result) {
 
     try {
         searchword = searchword ? searchword : "";
 
-        let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " FROM " + tableName;
-        sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
-
-        //console.log(sqlStr);
+        let sqlStr = "Select subscription_group_stock.*, subscription_group_stock.id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
+        sqlStr += " FROM subscription_group_stock";
+        sqlStr += " LEFT JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id ";
+        sqlStr += " where 1=1 AND (subscription_group_stock.group_name like '%" + searchword + "%') ";
         let datas = await dbConn.raw(sqlStr);
-
         return datas[0];
     } catch (error) {
         console.log(error);
         return [];
     }
-};
-
-
-SubscriptionGroup.findById = async function (id, result) {
+};   
+SubscriptionGroupStock.findById = async function (id, result) {
 
     try {
-        let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " FROM " + tableName;
-        sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " where 1=1 AND (" + tableName + ".id = " + id + ") ";
+        let sqlStr = "Select subscription_group_stock.*, subscription_group_stock.id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
+        sqlStr += " FROM subscription_group_stock";
+        sqlStr += " LEFT JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id ";
+        sqlStr += " where 1=1 AND (subscription_group_stock.id = " + id + ") ";
 
         const datas = await dbConn.raw(sqlStr);
         return datas[0][0];
@@ -96,17 +91,17 @@ SubscriptionGroup.findById = async function (id, result) {
     }
 };
 
-SubscriptionGroup.getSubscribeMemberByGroupById = async function (id, result) {
+SubscriptionGroupStock.getSubscribeMemberByGroupById = async function (id, result) {
 
     try {
-        let sqlStr = "Select subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
+        let sqlStr = "Select subscription_group_user_stock.*, subscription_group_user_stock.id as id , subscription_group_user_stock.user_id,subscription_group_user_stock.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
         sqlStr += " ,line_contact.display_name as line_display_name ";
         sqlStr += " ,line_contact.picture_url as line_profile_url ";
-        sqlStr += " FROM " + tableName;
-        sqlStr += " INNER JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " INNER JOIN subscription_group_user ON " + tableName + ".id = subscription_group_user.subscription_group_id ";
-        sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user.user_id ";
-        sqlStr += " where 1=1 AND (" + tableName + ".id = " + id + ") ";
+        sqlStr += " FROM subscription_group_stock";
+        sqlStr += " INNER JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id ";
+        sqlStr += " INNER JOIN subscription_group_user_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id ";
+        sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user_stock.user_id ";
+        sqlStr += " where 1=1 AND (subscription_group_stock.id = " + id + ") ";
 
         const datas = await dbConn.raw(sqlStr);
         return datas[0];
@@ -116,13 +111,13 @@ SubscriptionGroup.getSubscribeMemberByGroupById = async function (id, result) {
     }
 };
 
-SubscriptionGroup.getSubscribePaymentById = async function (group_id, result) {
+SubscriptionGroupStock.getSubscribePaymentById = async function (group_id, result) {
 
     try {
-        let sqlStr = "Select subscription_group_payment.id as id ,subscription_group_payment.* ";
-        sqlStr += " FROM subscription_group_payment ";
-        sqlStr += " INNER JOIN subscription_group ON subscription_group.id = subscription_group_payment.subscription_group_id ";
-        sqlStr += " where 1=1 AND (subscription_group.id = " + group_id + ") ";
+        let sqlStr = "Select subscription_group_payment_stock.id as id ,subscription_group_payment_stock.* ";
+        sqlStr += " FROM subscription_group_payment_stock ";
+        sqlStr += " INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_payment_stock.subscription_group_stock_id ";
+        sqlStr += " where 1=1 AND (subscription_group_stock.id = " + group_id + ") ";
 
         const datas = await dbConn.raw(sqlStr);
         return datas[0];
@@ -133,15 +128,15 @@ SubscriptionGroup.getSubscribePaymentById = async function (group_id, result) {
 
 };
 
-SubscriptionGroup.getGroupOfMemberByMemberId = async function (user_id, result) {
+SubscriptionGroupStock.getGroupOfMemberByMemberId = async function (user_id, result) {
 
     try {
-        let sqlStr = "Select group_name, subscription_group_user.*, subscription_group_user.id as id , subscription_group_user.user_id,subscription_group_user.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " FROM " + tableName;
-        sqlStr += " INNER JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " INNER JOIN subscription_group_user ON " + tableName + ".id = subscription_group_user.subscription_group_id ";
-        sqlStr += " where 1=1 AND (subscription_group_user.user_id = '" + user_id + "') ";
-        console.log(sqlStr);
+        let sqlStr = "Select group_name, subscription_group_user_stock.*, subscription_group_user_stock.id as id , subscription_group_user_stock.user_id,subscription_group_user_stock.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
+        sqlStr += " FROM subscription_group_stock";
+        sqlStr += " INNER JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id ";
+        sqlStr += " INNER JOIN subscription_group_user_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id ";
+        sqlStr += " where 1=1 AND (subscription_group_user_stock.user_id = '" + user_id + "') ";
+            
         const datas = await dbConn.raw(sqlStr);
         return datas[0];
     } catch (error) {
@@ -163,11 +158,11 @@ function compareMeta(inputData, metaData) {
     return inputData;
 }
 
-SubscriptionGroup.create = async function (objData, result) {
+SubscriptionGroupStock.create = async function (objData, result) {
     console.log(objData);
     try {
         const datas = await dbConn.raw(
-            "INSERT INTO " + tableName + " (" +
+            "INSERT INTO subscription_group_stock (" +
             "group_name, update_at, update_by, subscription_type_id, head_email, password" +
             ") VALUES (?,?,?,?,?,?)",
             [
@@ -188,13 +183,13 @@ SubscriptionGroup.create = async function (objData, result) {
 };
 
 
-SubscriptionGroup.updateByID = async function (objData, result) {
+SubscriptionGroupStock.updateByID = async function (objData, result) {
 
     const rowid = objData.id;
 
     try {
         const datas = await dbConn.raw(
-            "INSERT INTO " + tableName + " (" +
+            "INSERT INTO subscription_group_stock (" +
             "group_name, update_at, update_by, subscription_type_id, head_email, password, status" +
             ") VALUES (?,?,?,?,?,?,?)",
             [
@@ -217,7 +212,7 @@ SubscriptionGroup.updateByID = async function (objData, result) {
 
 };
 
-SubscriptionGroup.deleteByID = async function (objData, result) {
+SubscriptionGroupStock.deleteByID = async function (objData, result) {
 
     try {
 
@@ -233,7 +228,7 @@ SubscriptionGroup.deleteByID = async function (objData, result) {
 
 };
 
-SubscriptionGroup.inactiveByID = async function (objData, result) {
+SubscriptionGroupStock.inactiveByID = async function (objData, result) {
 
     try {
 
@@ -253,12 +248,12 @@ SubscriptionGroup.inactiveByID = async function (objData, result) {
 
 };
 
-SubscriptionGroup.checkDuplicateMember = async function (objData, result) {
+SubscriptionGroupStock.checkDuplicateMember = async function (objData, result) {
 
     try {
         let sqlStr = "Select count(*) as totalCount ";
-        sqlStr += " FROM subscription_group_user";
-        sqlStr += " where 1=1 AND (subscription_group_id = " + objData.subscription_group_id + ") ";
+        sqlStr += " FROM subscription_group_user_stock";
+        sqlStr += " where 1=1 AND (subscription_group_stock_id = " + objData.subscription_group_stock_id + ") ";
         sqlStr += " AND (user_id = '" + objData.user_id + "') ";
         sqlStr += " AND (email = '" + objData.email + "') ";
 
@@ -270,23 +265,23 @@ SubscriptionGroup.checkDuplicateMember = async function (objData, result) {
     }
 };
 
-SubscriptionGroup.addMemberToGroup = async function (objData, result) {
+SubscriptionGroupStock.addMemberToGroup = async function (objData, result) {
 
     console.log(objData);
     try {
 
         const datas2 = await dbConn.raw(`
-            DELETE FROM subscription_group_user WHERE subscription_group_user.email=? 
-            and subscription_group_user.subscription_group_id IN (
-            SELECT subscription_group.id FROM subscription_group
-            WHERE subscription_group.subscription_type_id=?
+            DELETE FROM subscription_group_user_stock WHERE subscription_group_user_stock.email=? 
+            and subscription_group_user_stock.subscription_group_stock_id IN (
+            SELECT subscription_group_stock.id FROM subscription_group_stock
+            WHERE subscription_group_stock.subscription_type_id=?
             ) `
             , [
                 objData.email,
                 objData.subscription_type_id,
             ]);
 
-        const datas = await dbConn.raw("INSERT INTO  subscription_group_user (" +
+        const datas = await dbConn.raw("INSERT INTO  subscription_group_user_stock (" +
             "subscription_group_id "
             + ",update_at"
             + ",update_by"
@@ -296,7 +291,7 @@ SubscriptionGroup.addMemberToGroup = async function (objData, result) {
             + ",note "
             + " ) VALUES (?,?,?,?,?,?,?)"
             , [
-                objData.subscription_group_id
+                objData.subscription_group_stock_id
                 , objData.update_at
                 , objData.update_by
                 , objData.user_id || ''
@@ -314,7 +309,7 @@ SubscriptionGroup.addMemberToGroup = async function (objData, result) {
 
 };
 
-SubscriptionGroup.setMemberToHeaderGroup = async function (objData, result) {
+SubscriptionGroupStock.setMemberToHeaderGroup = async function (objData, result) {
 
 
     try {
@@ -322,24 +317,24 @@ SubscriptionGroup.setMemberToHeaderGroup = async function (objData, result) {
             + "is_header_group=0"
             + ",update_at=? "
             + ",update_by=? "
-            + "WHERE subscription_group_id = ? "
+            + "WHERE subscription_group_stock_id = ? "
             , [
                 objData.isHeader
                 , objData.update_at
                 , objData.update_by
-                , objData.subscription_group_id
+                , objData.subscription_group_stock_id
             ]);
 
         const datas = await dbConn.raw("UPDATE " + tableName + " SET "
             + "is_header_group=?"
             + ",update_at=? "
             + ",update_by=? "
-            + "WHERE subscription_group_id = ? and email=? "
+            + "WHERE subscription_group_stock_id = ? and email=? "
             , [
                 objData.isHeader
                 , objData.update_at
                 , objData.update_by
-                , objData.subscription_group_id
+                , objData.subscription_group_stock_id
                 , objData.email
             ]);
 
@@ -351,13 +346,13 @@ SubscriptionGroup.setMemberToHeaderGroup = async function (objData, result) {
 
 };
 
-SubscriptionGroup.deleteMemberFromGroupByID = async function (objData, result) {
+SubscriptionGroupStock.deleteMemberFromGroupByID = async function (objData, result) {
 
     try {
 
         let lstID = objData.listId.join(",");
 
-        const datas = await dbConn.raw("DELETE FROM subscription_group_user WHERE id in (" + lstID + ")");
+        const datas = await dbConn.raw("DELETE FROM subscription_group_user_stock WHERE id in (" + lstID + ")");
 
         return datas[0];
     } catch (error) {
@@ -367,13 +362,13 @@ SubscriptionGroup.deleteMemberFromGroupByID = async function (objData, result) {
 
 };
 
-SubscriptionGroup.deletePaymentHistoryByID = async function (objData, result) {
+SubscriptionGroupStock.deletePaymentHistoryByID = async function (objData, result) {
 
     try {
 
         let lstID = objData.listId.join(",");
 
-        const datas = await dbConn.raw("DELETE FROM subscription_group_payment WHERE id in (" + lstID + ")");
+        const datas = await dbConn.raw("DELETE FROM subscription_group_payment_stock WHERE id in (" + lstID + ")");
 
         return datas[0];
     } catch (error) {
@@ -385,13 +380,13 @@ SubscriptionGroup.deletePaymentHistoryByID = async function (objData, result) {
 
 
 
-SubscriptionGroup.addPaymentNoteGroup = async function (objData, result) {
+SubscriptionGroupStock.addPaymentNoteGroup = async function (objData, result) {
 
 
     try {
 
-        const datas = await dbConn.raw("INSERT INTO  subscription_group_payment (" +
-            "subscription_group_id "
+        const datas = await dbConn.raw("INSERT INTO  subscription_group_payment_stock (" +
+            "subscription_group_stock_id "
             + ",start_at"
             + ",end_at"
             + ",update_at"
@@ -402,7 +397,7 @@ SubscriptionGroup.addPaymentNoteGroup = async function (objData, result) {
             + ",ref_img2 "
             + " ) VALUES (?,?,?,?,?,?,?,?,?)"
             , [
-                objData.subscription_group_id
+                objData.subscription_group_stock_id
                 , objData.start_at
                 , objData.end_at
                 , objData.update_at
@@ -422,10 +417,10 @@ SubscriptionGroup.addPaymentNoteGroup = async function (objData, result) {
 
 };
 
-SubscriptionGroup.updateMemberData = async function (objData, result) {
+SubscriptionGroupStock.updateMemberData = async function (objData, result) {
     
     try {
-        const datas = await dbConn.raw("UPDATE subscription_group_user SET " +
+        const datas = await dbConn.raw("UPDATE subscription_group_user_stock SET " +
             "email = ?, " +
             "password = ?, " +
             "user_id = ?, " +
@@ -446,4 +441,4 @@ SubscriptionGroup.updateMemberData = async function (objData, result) {
     }
 };
 
-module.exports = SubscriptionGroup;
+module.exports = SubscriptionGroupStock;
