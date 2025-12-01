@@ -1842,7 +1842,7 @@ exports.addMemberToGroupStock = async function(req, res) {
                     objData =
                     {
                         subscription_type_id : tmpData3.subscription_type_id,
-                        subscription_group_id : group_id,
+                        subscription_group_stock_id : group_id,
                         user_id : user_id,
                         email : email,
                         password : password,
