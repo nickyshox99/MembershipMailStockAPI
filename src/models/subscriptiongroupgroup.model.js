@@ -162,16 +162,17 @@ SubscriptionGroupStock.create = async function (objData, result) {
     console.log(objData);
     try {
         const datas = await dbConn.raw(
-            "INSERT INTO subscription_group_stock (" +
-            "group_name, update_at, update_by, subscription_type_id, head_email, password" +
-            ") VALUES (?,?,?,?,?,?)",
+            "INSERT INTO " + tableName + " (" +
+            "group_name, update_at, update_by, subscription_type_id, head_email, password, invite_url" +
+            ") VALUES (?,?,?,?,?,?,?)",
             [
                 objData.group_name,
                 objData.update_at,
                 objData.update_by,
                 objData.subscription_type_id,
                 objData.head_email,
-                objData.password
+                objData.password,
+                objData.invite_url
             ]
         );
 
@@ -189,9 +190,16 @@ SubscriptionGroupStock.updateByID = async function (objData, result) {
 
     try {
         const datas = await dbConn.raw(
-            "INSERT INTO subscription_group_stock (" +
-            "group_name, update_at, update_by, subscription_type_id, head_email, password, status" +
-            ") VALUES (?,?,?,?,?,?,?)",
+            "UPDATE " + tableName + " SET " +
+            "group_name = ?, " +
+            "update_at = ?, " +
+            "update_by = ?, " +
+            "subscription_type_id = ?, " +
+            "head_email = ?, " +
+            "password = ?, " +
+            "invite_url = ?, " +            
+            "status = ? " +
+            "WHERE id = ?",
             [
                 objData.group_name,
                 objData.update_at,
@@ -199,7 +207,9 @@ SubscriptionGroupStock.updateByID = async function (objData, result) {
                 objData.subscription_type_id,
                 objData.head_email,
                 objData.password,
-                objData.status || 1  // ถ้าไม่ได้ส่งมา ให้ default = 1
+                objData.invite_url,
+                objData.status || 1,  // ถ้าไม่ได้ส่งมา ให้ default = 1
+                rowid
             ]
         );
 

@@ -1400,6 +1400,7 @@ exports.updateById = async function(req, res) {
 
                     let objData = req.body;
                     objData.update_at = timerHelper.getDateTimeNowString();
+                    objData.update_by = admin_id;
 
                     let tmpData = await SubscriptionGroup.updateByID(objData);
     
@@ -1515,6 +1516,7 @@ exports.updateStockById = async function(req, res) {
 
                     let objData = req.body;
                     objData.update_at = timerHelper.getDateTimeNowString();
+                    objData.update_by = admin_id;
 
                     let tmpData = await SubscriptionGroupStock.updateByID(objData);
     

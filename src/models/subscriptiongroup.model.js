@@ -194,9 +194,15 @@ SubscriptionGroup.updateByID = async function (objData, result) {
 
     try {
         const datas = await dbConn.raw(
-            "INSERT INTO " + tableName + " (" +
-            "group_name, update_at, update_by, subscription_type_id, head_email, password, status" +
-            ") VALUES (?,?,?,?,?,?,?)",
+            "UPDATE " + tableName + " SET " +
+            "group_name = ?, " +
+            "update_at = ?, " +
+            "update_by = ?, " +
+            "subscription_type_id = ?, " +
+            "head_email = ?, " +
+            "password = ?, " +
+            "status = ? " +
+            "WHERE id = ?",
             [
                 objData.group_name,
                 objData.update_at,
@@ -204,7 +210,8 @@ SubscriptionGroup.updateByID = async function (objData, result) {
                 objData.subscription_type_id,
                 objData.head_email,
                 objData.password,
-                objData.status || 1  // ถ้าไม่ได้ส่งมา ให้ default = 1
+                objData.status || 1,  // ถ้าไม่ได้ส่งมา ให้ default = 1
+                rowid
             ]
         );
 
