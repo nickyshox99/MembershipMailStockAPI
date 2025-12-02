@@ -81,9 +81,9 @@ EmailStock.getEmailStockFamily = async function (userId) {
 EmailStock.getInviteStockFamily = async function (userId,email) {
     try {
         //หากลุ่มที่ User ยังไม่ครบ 5 คน
-        let sqlStr = `SELECT subscription_group_stock.id FROM subscription_group_stock 
+        let sqlStr = `SELECT subscription_group_user_stock.id,subscription_group_user_stock.invite_url FROM subscription_group_stock 
                       INNER JOIN subscription_group_user_stock ON subscription_group_user_stock.subscription_group_stock_id = subscription_group_stock.id
-                      WHERE subscription_group_user_stock.email=''                                    
+                      WHERE subscription_group_user_stock.user_id=''  
                       `;
         const datas = await dbConn.raw(sqlStr);
 
@@ -97,14 +97,14 @@ EmailStock.getInviteStockFamily = async function (userId,email) {
             WHERE 
             id=? 
             `
-                        
+
             const datas2 = await dbConn.raw(sqlStr2
                 ,[
                     'admin',
                     timerHelper.getDateTimeNowString(),                    
                     userId,
                     email,                    
-                    datas[0][0]['id'],                    
+                    datas[0][0]['id']                    
                 ]
             );
 

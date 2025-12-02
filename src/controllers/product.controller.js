@@ -3971,7 +3971,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         }  else if (purchase_type === 'email') {
             console.log('Getting invite url');
             inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
-
+            console.log("inviteStock ",inviteStock)
         }
             else {
             console.error('Invalid purchase_type for this function:', purchase_type);
@@ -3979,14 +3979,22 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         }
 
         // Reserve email stock
-        console.log('Reserving email stock, id:', emailStock.id);
-        let reserveResult = await EmailStock.reserveEmailStock(emailStock.id, user_id);
-        if (!reserveResult) {
-            console.error('Failed to reserve email stock');
-            return { success: false, message: 'Failed to reserve email stock' };
-        }
-        console.log('Email stock reserved successfully');
+        let reserveResult;
 
+        if (purchase_type === 'email') {
+            
+        }
+        else
+        {
+            console.log('Reserving email stock, id:', emailStock.id);
+            reserveResult = await EmailStock.reserveEmailStock(emailStock.id, user_id);
+            if (!reserveResult) {
+                console.error('Failed to reserve email stock');
+                return { success: false, message: 'Failed to reserve email stock' };
+            }
+            console.log('Email stock reserved successfully');
+        }
+        
         // ดึงการตั้งค่า LINE
         let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting`);
 
@@ -4006,7 +4014,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         lineChatAPI.setToken(channelToken);
 
         let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] ;
-        if(inviteStock)
+        if(inviteStock!='')
         {
             msg += "\n link เพื่อเข้ากลุ่มคือ \n"+ inviteStock
         }
