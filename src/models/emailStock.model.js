@@ -81,27 +81,30 @@ EmailStock.getEmailStockFamily = async function (userId) {
 EmailStock.getInviteStockFamily = async function (userId,email) {
     try {
         //หากลุ่มที่ User ยังไม่ครบ 5 คน
-        let sqlStr = `SELECT subscription_group_stock.id,count(*) as counts FROM subscription_group_stock 
+        let sqlStr = `SELECT subscription_group_stock.id FROM subscription_group_stock 
                       INNER JOIN subscription_group_user_stock ON subscription_group_user_stock.subscription_group_stock_id = subscription_group_stock.id
-                      GROUP BY subscription_group_stock.id 
-                      HAVING Count(*) < 5
+                      WHERE subscription_group_user_stock.email=''                                    
                       `;
         const datas = await dbConn.raw(sqlStr);
 
         if (datas[0].length > 0) {
             //insert userId เข้ากลุ่ม
-            let sqlStr2 = `INSERT INTO subscription_group_user_stock 
-            (
-            subscription_group_stock_id,update_by,update_at,user_id,email,is_header_group,password,note
-            )VALUES(
-            ?,'admin',?,?,?,0,'',''
-            )`
+            let sqlStr2 = `UPDATE subscription_group_user_stock SET            
+            update_by=?, 
+            update_at=?, 
+            user_id=?, 
+            email=?            
+            WHERE 
+            id=? 
+            `
+                        
             const datas2 = await dbConn.raw(sqlStr2
                 ,[
-                    datas[0][0]['id'],
-                    timerHelper.getDateTimeNowString(),
+                    'admin',
+                    timerHelper.getDateTimeNowString(),                    
                     userId,
-                    email
+                    email,                    
+                    datas[0][0]['id'],                    
                 ]
             );
 
