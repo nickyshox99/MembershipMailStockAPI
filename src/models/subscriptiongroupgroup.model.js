@@ -103,7 +103,6 @@ SubscriptionGroupStock.getSubscribeMemberByGroupById = async function (id, resul
         sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user_stock.user_id ";
         sqlStr += " where 1=1 AND (subscription_group_stock.id = " + id + ") ";
 
-        console.log(sqlStr);
         const datas = await dbConn.raw(sqlStr);
         return datas[0];
     } catch (error) {
