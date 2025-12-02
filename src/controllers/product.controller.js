@@ -3940,7 +3940,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let email = '';
         let password = '';
         let emailStock = null;
-
+        let inviteStock='';
         // ดึง email/password ตาม purchase_type
         if (purchase_type === 'shop_personal') {
             console.log('Getting email from shop_personal');
@@ -3967,7 +3967,13 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
             email = emailStock['email'];
             password = emailStock['password'];
             console.log('Found email in shop_family:', email);
-        } else {
+
+        }  else if (purchase_type === 'email') {
+            console.log('Getting invite url');
+            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
+
+        }
+            else {
             console.error('Invalid purchase_type for this function:', purchase_type);
             return { success: false, message: 'Invalid purchase_type. Only shop_family and shop_personal are supported.' };
         }
@@ -3999,7 +4005,15 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         const lineChatAPI = new LineChatAPI();
         lineChatAPI.setToken(channelToken);
 
-        let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+        let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] ;
+        if(inviteStock)
+        {
+            msg += "\n link เพื่อเข้ากลุ่มคือ \n"+ inviteStock
+        }
+        else
+        {
+            msg += " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";        
+        }
 
         console.log('Sending LINE message to user:', user_id);
         const tmpSend = await lineChatAPI.pushMessage(user_id, msg);

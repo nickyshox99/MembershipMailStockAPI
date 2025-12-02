@@ -1,6 +1,7 @@
 'use strict';
 
 var dbConn = require('../../config/db.config');
+const timerHelper = require('../modules/timehelper');
 
 
 //User object create
@@ -69,6 +70,44 @@ EmailStock.getEmailStockFamily = async function (userId) {
             const datas2 = await dbConn.raw(sqlStr2,[]);
 
             return datas2[0][0];
+        }
+
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+EmailStock.getInviteStockFamily = async function (userId,email) {
+    try {
+        //หากลุ่มที่ User ยังไม่ครบ 5 คน
+        let sqlStr = `SELECT subscription_group_stock.id,count(*) as counts FROM subscription_group_stock 
+                      INNER JOIN subscription_group_user_stock ON subscription_group_user_stock.subscription_group_stock_id = subscription_group_stock.id
+                      GROUP BY subscription_group_stock.id 
+                      HAVING Count(*) < 5
+                      `;
+        const datas = await dbConn.raw(sqlStr);
+
+        if (datas[0].length > 0) {
+            //insert userId เข้ากลุ่ม
+            let sqlStr2 = `INSERT INTO subscription_group_user_stock 
+            (
+            subscription_group_stock_id,update_by,update_at,user_id,email,is_header_group,password,note
+            )VALUES(
+            ?,'admin',?,?,?,0,'',''
+            )`
+            const datas2 = await dbConn.raw(sqlStr2
+                ,[
+                    datas[0][0]['id'],
+                    timerHelper.getDateTimeNowString(),
+                    userId,
+                    email
+                ]
+            );
+
+            return datas[0][0]['invite_url'];
+        } else {
+            return "Famliy เต็มกรุณาติดต่อเจ้าหน้าที่"
         }
 
     } catch (error) {
