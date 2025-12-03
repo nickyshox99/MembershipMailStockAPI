@@ -111,6 +111,7 @@ MemberList.getUserByLineSourceId = async function(line_source_id, result) {
     sqlStr += " FROM line_contact ";    
     sqlStr += " where 1=1 AND line_contact.user_id='"+ line_source_id+"'";
 
+    
     const datas = await dbConn.raw(sqlStr);
     //console.log(datas);
     return datas[0];

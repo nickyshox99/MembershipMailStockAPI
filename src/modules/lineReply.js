@@ -71,13 +71,14 @@ async function handleRenewalOrPurchase(reply_token, profileData, oSecretkey, cha
  */
 async function handleCheckDays(reply_token, profileData, oSecretkey, channelToken) {
   try {
-    let replyMessage = "ไม่มีข้อมูล";
+    let replyMessage = "ไม่มีข้อมูล";    
     let userList = await MemberList.getUserByLineSourceId(profileData['user_id']);
+    
     const lineChatAPI = new LineChatAPI();
     lineChatAPI.setToken(channelToken);
 
     if (userList.length > 0) {
-      let products = await ProductList.GetDayExpireByUserId(userList[0].id);
+      let products = await ProductList.GetDayExpireByUserId(profileData['user_id']);      
       if (products.length > 0) {
         replyMessage = "";
         for (let index = 0; index < products.length; index++) {

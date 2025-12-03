@@ -920,6 +920,8 @@ productList.GetDayExpireByUserId = async function (userid, result) {
         ORDER BY days_left ASC;
     `;
 
+    console.log(sqlStr)
+
     let datas = await dbConn.raw(sqlStr);
 
 
