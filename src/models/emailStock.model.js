@@ -130,4 +130,20 @@ EmailStock.reserveEmailStock = async function (emailStockId,userId) {
     }
 };
 
+EmailStock.getRemainInviteStock = async function()
+{
+    try {        
+        let sqlStr = `SELECT subscription_group_user_stock.id,subscription_group_user_stock.invite_url FROM subscription_group_stock 
+                      INNER JOIN subscription_group_user_stock ON subscription_group_user_stock.subscription_group_stock_id = subscription_group_stock.id
+                      WHERE subscription_group_user_stock.user_id=''  
+                      `;
+        const datas = await dbConn.raw(sqlStr);
+        return datas[0][0].length
+
+    } catch (error) {
+        console.log(error);
+        return 0;
+    }
+}
+
 module.exports = EmailStock;

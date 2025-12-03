@@ -4271,3 +4271,62 @@ exports.SendEmailPasswordManual = async function (req, res) {
         });
     }
 };
+
+exports.GetRemainInviteInStock = async function (req, res) {
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid ? headers.userid : '';
+                const token = headers.token ? headers.token : '';
+
+                //let IsAuth = await AdminList.isAuthenicated(userid,token);
+                let IsAuth = true;
+
+
+                let tmpData = await EmailStock.getRemainInviteStock();
+                if (tmpData) {
+                    res.status(200).json(tmpData);
+                }
+                else {
+                    res.status(202).json({ status: 'error', message: 'Product not found' });
+                }
+                return;
+
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+}

@@ -66,6 +66,7 @@ router.post('/GetOrderExpired/', productController.GetOrderExpired);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 
+
 router.post('/SentPaymentMessageNearOrder/', productController.SentPaymentMessageNearOrder);
 
 router.post('/SentPaymentMessageExpired/', productController.SentPaymentMessageExpired);
@@ -74,5 +75,7 @@ router.post('/SentPaymentMessageExpired/', productController.SentPaymentMessageE
 router.post('/send-stripe-credentials', productController.SendStripeCredentials);
 
 router.post('/send-email-password-manual', productController.SendEmailPasswordManual);
+
+router.post('/GetRemainInviteInStock/', productController.GetRemainInviteInStock);
 
 module.exports = router
