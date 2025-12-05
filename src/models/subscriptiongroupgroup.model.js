@@ -171,8 +171,8 @@ SubscriptionGroupStock.create = async function (objData, result) {
                 objData.update_by,
                 objData.subscription_type_id,
                 objData.head_email,
-                objData.password,
-                objData.invite_url
+                objData.password || '',
+                objData.invite_url || ''
             ]
         );
 
@@ -206,8 +206,8 @@ SubscriptionGroupStock.updateByID = async function (objData, result) {
                 objData.update_by,
                 objData.subscription_type_id,
                 objData.head_email,
-                objData.password,
-                objData.invite_url,
+                objData.password || '',
+                objData.invite_url || '',
                 objData.status || 1,  // ถ้าไม่ได้ส่งมา ให้ default = 1
                 rowid
             ]
@@ -280,34 +280,36 @@ SubscriptionGroupStock.addMemberToGroup = async function (objData, result) {
     console.log(objData);
     try {
 
-        const datas2 = await dbConn.raw(`
-            DELETE FROM subscription_group_user_stock WHERE subscription_group_user_stock.email=? 
-            and subscription_group_user_stock.subscription_group_stock_id IN (
-            SELECT subscription_group_stock.id FROM subscription_group_stock
-            WHERE subscription_group_stock.subscription_type_id=?
-            ) `
-            , [
-                objData.email,
-                objData.subscription_type_id,
-            ]);
+        // const datas2 = await dbConn.raw(`
+        //     DELETE FROM subscription_group_user_stock WHERE subscription_group_user_stock.email=? 
+        //     and subscription_group_user_stock.subscription_group_stock_id IN (
+        //     SELECT subscription_group_stock.id FROM subscription_group_stock
+        //     WHERE subscription_group_stock.subscription_type_id=?
+        //     ) `
+        //     , [
+        //         objData.email,
+        //         objData.subscription_type_id,
+        //     ]);
 
         const datas = await dbConn.raw("INSERT INTO  subscription_group_user_stock (" +
-            "subscription_group_id "
+            "subscription_group_stock_id "
             + ",update_at"
             + ",update_by"
             + ",user_id "
             + ",email "
             + ",password "
             + ",note "
-            + " ) VALUES (?,?,?,?,?,?,?)"
+            + ",invite_url "
+            + " ) VALUES (?,?,?,?,?,?,?,?)"
             , [
                 objData.subscription_group_stock_id
                 , objData.update_at
                 , objData.update_by
                 , objData.user_id || ''
-                , objData.email
+                , objData.email || ''
                 , objData.password || ''
                 , objData.note || ''
+                ,objData.invite_url || ''
             ]);
 
         return true;
@@ -434,13 +436,16 @@ SubscriptionGroupStock.updateMemberData = async function (objData, result) {
             "email = ?, " +
             "password = ?, " +
             "user_id = ?, " +
+            "invite_url = ?, " +
             "note = ? " +
             "WHERE id = ?"
             , [
                 objData.email,
                 objData.password,
                 objData.user_id || '',
+                objData.invite_url || '',
                 objData.note || '',
+                
                 objData.id
             ]);
 

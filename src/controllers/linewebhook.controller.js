@@ -517,9 +517,9 @@ module.exports = function (wsConnections) {
           if (tmp_msg_detail.includes("ซื้อ")) {            
             await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,messageSetting["order_msg"],messageSetting["order_msg_url"]);
           }
-          else if (tmp_msg_detail.includes("ต่ออายุ")) {            
-            await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,messageSetting["buy_more_msg"],messageSetting["buy_more_url"]);
-          }
+          // else if (tmp_msg_detail.includes("ต่ออายุ")) {            
+          //   await lineReply.handleRenewalOrPurchase(reply_token, profileData, oSecretkey, channelToken,messageSetting["buy_more_msg"],messageSetting["buy_more_url"]);
+          // }
           else if (tmp_msg_detail.includes("เช็ควัน")) {
             await lineReply.handleCheckDays(reply_token, profileData, oSecretkey, channelToken);
           }

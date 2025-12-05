@@ -1789,6 +1789,7 @@ exports.addMemberToGroupStock = async function(req, res) {
                     const line_user_id = req.body.line_user_id? req.body.line_user_id : "";
                     const group_id = req.body.group_id? req.body.group_id : 0;
                     const note = req.body.note? req.body.note : "";
+                    const invite_url = req.body.invite_url? req.body.invite_url : "";
                                         
                     let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -1810,20 +1811,20 @@ exports.addMemberToGroupStock = async function(req, res) {
                         user_id : user_id,
                         email : email,
                     }
-                    let tmpData2 = await SubscriptionGroupStock.checkDuplicateMember(objData); 
-                    if (tmpData2[0].totalCount>0) 
-                    {
-                        res.status(202).json(
-                            { 
-                                status: 'error', 
-                                message: 'This member already exists in this group.',
-                                auth : false,
-                                data : [],
-                            }
-                            );
-                        return;
+                    // let tmpData2 = await SubscriptionGroupStock.checkDuplicateMember(objData); 
+                    // if (tmpData2[0].totalCount>0) 
+                    // {
+                    //     res.status(202).json(
+                    //         { 
+                    //             status: 'error', 
+                    //             message: 'This member already exists in this group.',
+                    //             auth : false,
+                    //             data : [],
+                    //         }
+                    //         );
+                    //     return;
                         
-                    }
+                    // }
 
                     let tmpData3 = await SubscriptionGroupStock.findById(group_id);                    
                     if (!tmpData3) 
@@ -1850,6 +1851,7 @@ exports.addMemberToGroupStock = async function(req, res) {
                         update_at : timerHelper.getDateTimeNowString(),
                         update_by : admin_id,
                         note : note,
+                        invite_url:invite_url,
                     }
 
                     let tmpData = await SubscriptionGroupStock.addMemberToGroup(objData);
@@ -3482,6 +3484,7 @@ exports.updateMemberStockData = async function(req, res) {
                 const password = req.body.password ? req.body.password : "";
                 const user_id = req.body.user_id ? req.body.user_id : "";
                 const note = req.body.note ? req.body.note : "";
+                const invite_url = req.body.invite_url ? req.body.invite_url : "";
                                         
                 let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -3490,7 +3493,7 @@ exports.updateMemberStockData = async function(req, res) {
                     return;
                 }
 
-                let objData = {id: id, email: email, password: password, user_id: user_id, note: note}
+                let objData = {id: id, email: email, password: password, user_id: user_id, note: note,invite_url : invite_url}
                 console.log("objData to update:", objData);
                 let tmpData = await SubscriptionGroupStock.updateMemberData(objData);
                 console.log("Update result:", tmpData);

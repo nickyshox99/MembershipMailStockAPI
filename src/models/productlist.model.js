@@ -209,17 +209,19 @@ productList.getHistoryOrderByMemberID = async function (memberId, startTime, end
     return datas[0];
 };
 
-productList.getLastSubscriptionOrderByMemberID = async function (memberId, subTypeId, email, result) {
+productList.getLastSubscriptionOrderByMemberID = async function (memberId, subTypeId,purchase_type , result) {
 
     let sqlStr = "Select membership_order_history.* ";
     sqlStr += " FROM membership_order_history ";
     sqlStr += " WHERE 1=1 ";
     sqlStr += " AND (user_id='" + memberId + "' )";
     sqlStr += " AND (subscription_type_id=" + subTypeId + " )";
+    sqlStr += " AND (purchase_type='"+purchase_type+"')";
     sqlStr += " AND end_date is not NULL ";
     sqlStr += " AND approve_date is not NULL ";
     sqlStr += " AND canceled = 0 ";
     sqlStr += " ORDER BY end_date DESC LIMIT 1 ";
+
 
     let datas = await dbConn.raw(sqlStr);
 
@@ -743,12 +745,13 @@ productList.GetOrderNearExpire = async function (result) {
      FROM membership_order_history moh 
 
      INNER JOIN (
-       SELECT user_id, subscription_type_id, MAX(end_date) AS max_end_date 
+       SELECT user_id, subscription_type_id, purchase_type, MAX(end_date) AS max_end_date 
        FROM membership_order_history 
-       WHERE slip_correct = 1 GROUP BY user_id, subscription_type_id
+       WHERE slip_correct = 1 GROUP BY user_id, subscription_type_id, purchase_type
      ) latest 
        ON moh.user_id = latest.user_id 
       AND moh.subscription_type_id = latest.subscription_type_id 
+      AND moh.purchase_type = latest.purchase_type
       AND moh.end_date = latest.max_end_date
 
      LEFT JOIN (
@@ -802,12 +805,13 @@ SELECT
      FROM membership_order_history moh 
 
      INNER JOIN (
-       SELECT user_id, subscription_type_id, MAX(end_date) AS max_end_date 
+       SELECT user_id, subscription_type_id, purchase_type, MAX(end_date) AS max_end_date 
        FROM membership_order_history 
-       WHERE slip_correct = 1 GROUP BY user_id, subscription_type_id
+       WHERE slip_correct = 1 GROUP BY user_id, subscription_type_id, purchase_type
      ) latest 
        ON moh.user_id = latest.user_id 
       AND moh.subscription_type_id = latest.subscription_type_id 
+      AND moh.purchase_type = latest.purchase_type
       AND moh.end_date = latest.max_end_date
 
      LEFT JOIN (
@@ -859,13 +863,15 @@ productList.GetOrderJustExpired = async function (result) {
             SELECT 
                 email, 
                 MAX(end_date) AS max_end_date,
-                subscription_type_id
+                subscription_type_id,
+                purchase_type
             FROM membership_order_history
             WHERE slip_correct=1
-            GROUP BY email, subscription_type_id
+            GROUP BY email, subscription_type_id, purchase_type
         ) latest 
         ON moh.email = latest.email 
         AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.purchase_type = latest.purchase_type
         AND moh.end_date = latest.max_end_date
         LEFT JOIN ( 
             SELECT 
@@ -905,15 +911,17 @@ productList.GetDayExpireByUserId = async function (userid, result) {
             SELECT 
                 email, 
                 MAX(end_date) AS max_end_date,
-                subscription_type_id
+                subscription_type_id,
+                purchase_type
             FROM membership_order_history
             WHERE slip_correct=1
-            GROUP BY email, subscription_type_id
+            GROUP BY email, subscription_type_id, purchase_type
         ) latest 
         ON moh.email = latest.email 
         AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.purchase_type = latest.purchase_type
         AND moh.end_date = latest.max_end_date        
-        LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id
+        LEFT JOIN subscription_type st ON st.id = moh.subscription_type_id        
         WHERE moh.slip_correct = 1        
         AND moh.user_id='${userid}' 
         AND moh.canceled<>1
@@ -969,13 +977,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) > 0
@@ -991,13 +1001,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) <= 0
@@ -1013,13 +1025,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 1 AND 3
@@ -1035,13 +1049,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 4 AND 7
@@ -1057,13 +1073,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) BETWEEN 8 AND 30
@@ -1079,13 +1097,15 @@ productList.getAccountSummaryReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest 
     ON moh.email = latest.email 
     AND moh.subscription_type_id = latest.subscription_type_id 
+    AND moh.purchase_type = latest.purchase_type
     AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1
     AND DATEDIFF(latest.max_end_date,CURDATE()) > 30
@@ -1160,12 +1180,14 @@ productList.getSubscriptionTypeReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1 AND canceled<>1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest ON moh.email = latest.email 
         AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.purchase_type = latest.purchase_type
         AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1 AND moh.canceled <> 1
     GROUP BY subscription_name, duration_text
@@ -1238,12 +1260,14 @@ productList.getOrderStatusReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1 AND canceled<>1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest ON moh.email = latest.email 
         AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.purchase_type = latest.purchase_type
         AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1 
     AND moh.canceled<>1
@@ -1260,12 +1284,14 @@ productList.getOrderStatusReport = async function (result) {
         SELECT 
             email, 
             MAX(end_date) AS max_end_date,
-            subscription_type_id
+            subscription_type_id,
+            purchase_type
         FROM membership_order_history
         WHERE slip_correct=1 AND canceled<>1
-        GROUP BY email, subscription_type_id
+        GROUP BY email, subscription_type_id, purchase_type
     ) latest ON moh.email = latest.email 
         AND moh.subscription_type_id = latest.subscription_type_id 
+        AND moh.purchase_type = latest.purchase_type
         AND moh.end_date = latest.max_end_date
     WHERE moh.slip_correct = 1 
     AND moh.canceled<>1

@@ -140,11 +140,13 @@ PersonalEmail.findByOrderId = async function(orderId) {
             ue.*,
             lc.display_name as line_display_name,
             lc.picture_url as line_profile_url
-            FROM ${tableName} ue
+            FROM users_email ue
             LEFT JOIN line_contact lc ON lc.user_id COLLATE utf8mb4_unicode_ci = ue.user_id COLLATE utf8mb4_unicode_ci
-            WHERE ue.order_id = ? 
+            WHERE ue.order_id = ${orderId} 
             ORDER BY ue.id DESC`;
-        const datas = await dbConn.raw(sqlStr, [orderId]);
+        
+        const datas = await dbConn.raw(sqlStr);
+        
         return datas[0];
     } catch (error) {
         console.error('Error in PersonalEmail.findByOrderId:', error);
@@ -241,9 +243,6 @@ PersonalEmail.updateStatus = async function(id, status) {
 // Update personal email status by order ID
 PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
     try {
-        console.log('=== updateStatusByOrderId Debug ===');
-        console.log('Input orderId:', orderId, 'Type:', typeof orderId);
-        console.log('Input status:', status, 'Type:', typeof status);
         
         // Validate status
         const validStatus = parseInt(status);
@@ -258,12 +257,9 @@ PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
             throw new Error('Invalid Order ID provided');
         }
         
-        let sqlStr = `UPDATE ${tableName} SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = '${validOrderId}'`;
-        console.log('Update SQL:', sqlStr);
+        let sqlStr = `UPDATE users_email SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = '${validOrderId}'`;        
         
-        const result = await dbConn.raw(sqlStr);
-        console.log('Update result:', result[0]);
-        console.log('Affected rows:', result[0].affectedRows);
+        const result = await dbConn.raw(sqlStr);        
         
         return result[0].affectedRows;
     } catch (error) {

@@ -12,7 +12,7 @@ router.get('/getPersonalEmailById/:id', personalEmailController.getPersonalEmail
 router.get('/getPersonalEmailByEmail/:email', personalEmailController.getPersonalEmailByEmail);
 router.get('/getPersonalEmailByUserId/:userId', personalEmailController.getPersonalEmailByUserId);
 router.get('/getPersonalEmailByOrderId/:orderId', personalEmailController.getPersonalEmailByOrderId);
-router.get('/getPersonalEmailStatusByOrderId/:orderId', personalEmailController.getPersonalEmailStatusByOrderId);
+router.get('/getPersonalEmailStatusByOrderId/:id', personalEmailController.getPersonalEmailStatusByOrderId);
 
 // PUT endpoints
 router.put('/updatePersonalEmailStatus/:id', personalEmailController.updatePersonalEmailStatus);

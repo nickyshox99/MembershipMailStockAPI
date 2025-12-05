@@ -16,6 +16,18 @@ function formatDateToDDMMYYYY(date) {
   return `${day}/${month}/${year}`;
 }
 
+function formatDateToDDMMYYYY2(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
 /**
  * ฟังก์ชันสำหรับตอบกลับเมื่อผู้ใช้พิมพ์ "สมัคร"
  * @param {string} reply_token - Token สำหรับตอบกลับ
@@ -98,7 +110,7 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
         for (let index = 0; index < products.length; index++) {
           const element = products[index];
           const dayLeft = element['days_left'] < 0 ? " หมดอายุ " : " เหลือ " + element['days_left'] + " วัน";
-          const formattedDate = formatDateToDDMMYYYY(element['end_date']);
+          const formattedDate = formatDateToDDMMYYYY2(element['end_date']);
           replyMessage += element['email'] + " ⏰หมดอายุวันที่ " + formattedDate +' '+ element['subscription_name'] + dayLeft + "\n";
         }
       }

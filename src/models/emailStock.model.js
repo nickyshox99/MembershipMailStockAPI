@@ -138,7 +138,7 @@ EmailStock.getRemainInviteStock = async function()
                       WHERE subscription_group_user_stock.user_id=''  
                       `;
         const datas = await dbConn.raw(sqlStr);
-        return datas[0][0].length
+        return datas[0][0]
 
     } catch (error) {
         console.log(error);

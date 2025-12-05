@@ -2127,15 +2127,50 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                     let product_id = req.body.product_id;
                     let email = req.body.email || "";
                     let note = req.body.note;
-                    let purchase_type = req.body.purchase_type || "";
-
-                    console.log('=== CreateAndApproveSubScribeOrder - Received Data ===');
-                    console.log('purchase_type:', purchase_type);
-                    console.log('req.body.purchase_type:', req.body.purchase_type);
-
+                    let purchase_type = req.body.purchase_type || "";                    
                     let row_product = await productList.findById(product_id);
 
-
+                    //Check Stock
+                    // if (purchase_type=="shop_personal") {
+                    //     let stock = await EmailStock.getEmailStockPersonal()
+                    //     if (!stock || !(stock.length>0)) {
+                    //         res.status(202).json(
+                    //             {
+                    //                 status: 'error',
+                    //                 message: 'สินค้าหมด กรุณาติดต่อแอดมิน',
+                    //                 auth: false,
+                    //                 data: [],
+                    //             }
+                    //         );
+                    //         return;
+                    //     }
+                    // }else if (purchase_type=="shop_family") {
+                    //     let stock = await EmailStock.getEmailStockFamily()
+                    //     if (!stock || !(stock.length>0)) {
+                    //         res.status(202).json(
+                    //             {
+                    //                 status: 'error',
+                    //                 message: 'สินค้าหมด กรุณาติดต่อแอดมิน',
+                    //                 auth: false,
+                    //                 data: [],
+                    //             }
+                    //         );
+                    //         return;
+                    //     }
+                    // }else if (purchase_type=="email") {
+                    //     let stock = await EmailStock.getRemainInviteStock()
+                    //     if (!stock || !(stock.length>0)) {
+                    //         res.status(202).json(
+                    //             {
+                    //                 status: 'error',
+                    //                 message: 'สินค้าหมด กรุณาติดต่อแอดมิน',
+                    //                 auth: false,
+                    //                 data: [],
+                    //             }
+                    //         );
+                    //         return;
+                    //     }
+                    // }
 
 
                     let chkproduct = row_product['id'] ? true : false;
@@ -2144,7 +2179,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                         let end_date = new Date(start_date.getTime() + (row_product["subscription_day"] * 86400000));
 
                         //calculate start_date,end_date
-                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(line_id, row_product["subscription_type_id"], email);
+                        let lastHistData = await productList.getLastSubscriptionOrderByMemberID(line_id, row_product["subscription_type_id"], purchase_type);
 
                         if (lastHistData.length > 0) {
                             start_date = new Date(lastHistData[0]["end_date"].getTime() + (86400000));
@@ -3924,10 +3959,6 @@ exports.SentPaymentMessageExpired = async function (req, res) {
 
 // Helper function สำหรับส่ง email/password เข้าไลน์ (สำหรับ shop_family และ shop_personal)
 exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, purchase_type) {
-    console.log('=== sendEmailPasswordToLineForStripe ===');
-    console.log('order_id:', order_id);
-    console.log('user_id:', user_id);
-    console.log('purchase_type:', purchase_type);
 
     try {
         // ดึงข้อมูล order
@@ -3953,10 +3984,11 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
 
             email = emailStock['email'];
             password = emailStock['password'];
-            console.log('Found email in shop_personal:', email);
 
-        } else if (purchase_type === 'shop_family') {
-            console.log('Getting email from shop_family');
+            let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+
+
+        } else if (purchase_type === 'shop_family') {            
             emailStock = await EmailStock.getEmailStockFamily(user_id);
 
             if (emailStock == null) {
@@ -3966,12 +3998,12 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
 
             email = emailStock['email'];
             password = emailStock['password'];
-            console.log('Found email in shop_family:', email);
+            let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})            
 
-        }  else if (purchase_type === 'email') {
-            console.log('Getting invite url');
-            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
-            console.log("inviteStock ",inviteStock)
+        }  else if (purchase_type === 'email') {            
+            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);            
+        }  else if (purchase_type === 'personal') {
+            
         }
             else {
             console.error('Invalid purchase_type for this function:', purchase_type);
@@ -3982,6 +4014,9 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let reserveResult;
 
         if (purchase_type === 'email') {
+            
+        }
+        else if (purchase_type === 'personal') {
             
         }
         else
@@ -4013,17 +4048,63 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         const lineChatAPI = new LineChatAPI();
         lineChatAPI.setToken(channelToken);
 
-        let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] ;
+        let msg=''
         if(inviteStock!='')
         {
-            msg += "\n ลิ้งค์เข้าครอบครัว : \n"+ inviteStock                
+            let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
+            email = paymentHistory[0]['email'] || ''
+            let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+
+            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
+            msg += "\n"
+            msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteStock                
+            msg += `\nเมลลูกค้า : ${email}`
+            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+            msg += "\n"
+            msg += "\nวิธีการเข้าใช้งาน"
+            msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
+            msg += "\n"
+            msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
+            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+        }
+        else if (purchase_type === 'personal') {
+            let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
+            email = paymentHistory[0]['email'] || ''
+            let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+
+            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
+            msg += "\n"
+            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
+            msg += "\n"
+            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+        }
+        else if (purchase_type === 'shop_personal') {
+            
+            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
+            msg += "\n"
+            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
+            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
+            msg += "\n"
+            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+        }
+        else if (purchase_type === 'shop_family') {
+            
+            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
+            msg += "\n"
+            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
+            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
+            msg += "\n"
+            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+            msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
+            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
         }
         else
-        {
+        {            
             msg += " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";        
         }
-
-        msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ "
+        
 
         console.log('Sending LINE message to user:', user_id);
         const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
@@ -4223,7 +4304,11 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             let msg = "";
             if (password) {
-                msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
+                msg += "✅ดำเนินการเสร็จสิ้น สามารถเช็คในแอพเข้าใช้งานได้เลยค่ะ"                
+                msg += "\nEmail : " + email + "\n password : " + password + " \n เช็ควันหมดอายุ พิมพ์คำว่า เช็ควัน \n";
+                msg += "\n"
+                msg += "\n⚠️พรีเมี่ยมจะตัดเมื่อครบรอบหมดอายุ เนื่องจากเป็นการสมัครบิลต่อบิล"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
             } else {
                 msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
             }
