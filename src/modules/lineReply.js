@@ -3,6 +3,20 @@ const MemberList = require('../models/memberlist.model');
 const ProductList = require('../models/productlist.model');
 
 /**
+ * ฟังก์ชันสำหรับแปลงวันที่เป็นรูปแบบ dd/MM/yyyy
+ * @param {string|Date} date - วันที่ที่ต้องการแปลง
+ * @returns {string} วันที่ในรูปแบบ dd/MM/yyyy
+ */
+function formatDateToDDMMYYYY(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/**
  * ฟังก์ชันสำหรับตอบกลับเมื่อผู้ใช้พิมพ์ "สมัคร"
  * @param {string} reply_token - Token สำหรับตอบกลับ
  * @param {string} sourceUserId - ID ของผู้ใช้
@@ -84,7 +98,8 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
         for (let index = 0; index < products.length; index++) {
           const element = products[index];
           const dayLeft = element['days_left'] < 0 ? " หมดอายุ " : " เหลือ " + element['days_left'] + " วัน";
-          replyMessage += element['email'] + " หมดอายุวันที่ " + element['end_date'] + element['subscription_name'] + dayLeft + "\n";
+          const formattedDate = formatDateToDDMMYYYY(element['end_date']);
+          replyMessage += element['email'] + " ⏰หมดอายุวันที่ " + formattedDate +' '+ element['subscription_name'] + dayLeft + "\n";
         }
       }
 

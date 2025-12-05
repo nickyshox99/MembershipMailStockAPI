@@ -4016,12 +4016,14 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] ;
         if(inviteStock!='')
         {
-            msg += "\n link เพื่อเข้ากลุ่มคือ \n"+ inviteStock
+            msg += "\n link เพื่อเข้ากลุ่มคือ \n"+ inviteStock            
         }
         else
         {
             msg += " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";        
         }
+        
+        msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ "
 
         console.log('Sending LINE message to user:', user_id);
         const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
