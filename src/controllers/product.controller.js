@@ -3948,7 +3948,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
 
             if (emailStock == null) {
                 console.error('No email stock available for shop_personal');
-                return { success: false, message: 'email personal ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่' };
+                return { success: false, message: 'email personal ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
             }
 
             email = emailStock['email'];
@@ -3961,7 +3961,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
 
             if (emailStock == null) {
                 console.error('No email stock available for shop_family');
-                return { success: false, message: 'email family ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่' };
+                return { success: false, message: 'email family ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
             }
 
             email = emailStock['email'];
@@ -3990,7 +3990,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
             reserveResult = await EmailStock.reserveEmailStock(emailStock.id, user_id);
             if (!reserveResult) {
                 console.error('Failed to reserve email stock');
-                return { success: false, message: 'Failed to reserve email stock' };
+                return { success: false, message: 'Failed to reserve email stock กรุณาติดต่อแอดมิน' };
             }
             console.log('Email stock reserved successfully');
         }
@@ -4016,13 +4016,13 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] ;
         if(inviteStock!='')
         {
-            msg += "\n link เพื่อเข้ากลุ่มคือ \n"+ inviteStock            
+            msg += "\n ลิ้งค์เข้าครอบครัว : \n"+ inviteStock                
         }
         else
         {
             msg += " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";        
         }
-        
+
         msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ "
 
         console.log('Sending LINE message to user:', user_id);
