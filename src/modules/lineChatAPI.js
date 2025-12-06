@@ -42,12 +42,14 @@ class LineChatAPI {
     }
 
     async getProfile(userId) {
-        // console.log("getProfile :",userId);
+            console.log("getProfile :",userId);
             try {
             let headers = {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${this.channelToken}`,
             };
+
+            console.log(headers)
             
             const url = `${this.api}bot/profile/${userId}`;
         
