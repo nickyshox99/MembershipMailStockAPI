@@ -142,7 +142,7 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
  */
 async function handleDefaultMessage(reply_token, profileData, oSecretkey, channelToken, greeting_msg, greeting_banner_url) {
   try {
-    let replyMessage = greeting_msg ? greeting_msg : 'พิมพ์คำสั่ง เช่น "ซื้อ","ต่ออายุ","เช็ควัน" เพื่อดูข้อมูลเพิ่มเติม';
+    let replyMessage = greeting_msg||''
     const lineChatAPI = new LineChatAPI();
     lineChatAPI.setToken(channelToken);
 
@@ -151,14 +151,17 @@ async function handleDefaultMessage(reply_token, profileData, oSecretkey, channe
       await lineChatAPI.replyImage(reply_token, greeting_banner_url, greeting_banner_url);
       
       // ถ้ามีข้อความทักทาย แสดงข้อความแยก
-      if (greeting_msg && greeting_msg.length > 0) {
-        await lineChatAPI.replyMessage(reply_token, greeting_msg);
-      }
+      // if (greeting_msg && greeting_msg.length > 0) {
+      //   await lineChatAPI.replyMessage(reply_token, greeting_msg);
+      // }
     } else {
-      await lineChatAPI.replyMessage(
-        reply_token,
-        replyMessage
-      );
+      if (replyMessage!='') {
+        await lineChatAPI.replyMessage(
+          reply_token,
+          replyMessage
+        );
+      }
+      
     }
   } catch (error) {
     console.error('Error in handleDefaultMessage:', error.message);

@@ -376,11 +376,6 @@ exports.updatePersonalEmailStatusByOrderId = async (req, res) => {
         const userData = JSON.parse(req.headers.userdata || '{}');
         const { orderId, status } = req.body;
 
-        console.log('=== updatePersonalEmailStatusByOrderId Debug ===');
-        console.log('Order ID from body:', orderId);
-        console.log('Status from body:', status);
-        console.log('Full body:', req.body);
-
         // Verify token if provided
         let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
         if (token) {

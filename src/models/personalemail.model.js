@@ -241,10 +241,7 @@ PersonalEmail.updateStatus = async function(id, status) {
 // Update personal email status by order ID
 PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
     try {
-        console.log('=== updateStatusByOrderId Debug ===');
-        console.log('Input orderId:', orderId, 'Type:', typeof orderId);
-        console.log('Input status:', status, 'Type:', typeof status);
-        
+                
         // Validate status
         const validStatus = parseInt(status);
         if (isNaN(validStatus) || validStatus < 0 || validStatus > 1) {
@@ -258,12 +255,10 @@ PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
             throw new Error('Invalid Order ID provided');
         }
         
-        let sqlStr = `UPDATE ${tableName} SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = '${validOrderId}'`;
-        console.log('Update SQL:', sqlStr);
+        let sqlStr = `UPDATE users_email SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = ${validOrderId}`;
         
-        const result = await dbConn.raw(sqlStr);
-        console.log('Update result:', result[0]);
-        console.log('Affected rows:', result[0].affectedRows);
+        
+        const result = await dbConn.raw(sqlStr);        
         
         return result[0].affectedRows;
     } catch (error) {
