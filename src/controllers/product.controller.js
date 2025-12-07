@@ -3301,18 +3301,46 @@ exports.VerifySlipOrder = async function (req, res) {
                     const lineChatAPI = new LineChatAPI();
                     lineChatAPI.setToken(channelToken);
 
-                    let msg = "";
-                    if (password) {
-                        // กรณีมี password (personal, shop)
-                        msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";
-                    } else {
-                        // กรณีไม่มี password (email only)
-                        msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + tmpData2['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
-                        if (invite_link && invite_link!='') {
-                            msg += "ลิงค์สำหรับเข้าร่วมสมาชิกครอบครัว : " + invite_link;
-                        }
+                    let msg = "";                    
+
+                    if (purchase_type === 'personal') {
+                        let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
+                        email = paymentHistory[0]['email'] || ''
+                        let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+            
+                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
+                        msg += "\n"
+                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
+                        msg += "\n"
+                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
                     }
-                    console.log('msg:', msg);
+                    else if (purchase_type === 'shop_personal') {
+                        
+                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
+                        msg += "\n"
+                        msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
+                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
+                        msg += "\n"
+                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                    }
+                    else if (purchase_type === 'shop_family') {
+                        
+                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
+                        msg += "\n"
+                        msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
+                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
+                        msg += "\n"
+                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                        msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
+                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                    }
+                    else
+                    {            
+                        msg += " \n Email : " + email + "\n password : " + password + " \n เพื่อเข้าสู่ระบบ \n";        
+                    }
+                    
 
                     const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
                     if (tmpSend['error']) {
