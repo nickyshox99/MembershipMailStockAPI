@@ -24,7 +24,7 @@ PersonalEmail.findAll = async function() {
             ue.*,
             lc.display_name as line_display_name,
             lc.picture_url as line_profile_url
-            FROM ${tableName} ue
+            FROM users_email ue
             LEFT JOIN line_contact lc ON lc.user_id COLLATE utf8mb4_unicode_ci = ue.user_id COLLATE utf8mb4_unicode_ci
             ORDER BY ue.id DESC`;
         const datas = await dbConn.raw(sqlStr);

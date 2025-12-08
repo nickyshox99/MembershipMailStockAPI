@@ -46,7 +46,7 @@ const subscriptionGruopRoutes = require('./src/routes/subscriptiongroup.route');
 const reportZendRoutes = require('./src/routes/report.zend.route');
 const personalEmailRoutes = require('./src/routes/personalemail.route');
 const personalEmailNewRoutes = require('./src/routes/personal_email.route');
-const usersEmailRoutes = require('./src/routes/usersEmail.route');
+const usersEmailRoutes = require('./src/routes/usersemail.route');
 const btnStatusRoutes = require('./src/routes/btnstatus.route');
 const paymentTypeRoutes = require('./src/routes/paymenttype.route');
 

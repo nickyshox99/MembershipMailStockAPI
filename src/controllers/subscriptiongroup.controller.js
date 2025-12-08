@@ -2715,7 +2715,7 @@ exports.addPaymentNoteGroupStock = async function(req, res) {
 
                     let objData =
                     {
-                        subscription_group_id : group_id,
+                        subscription_group_stock_id : group_id,
                         start_at  : start_at ,
                         end_at  : end_at ,
                         update_by   : admin_id  ,

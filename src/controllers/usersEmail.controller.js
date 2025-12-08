@@ -1,6 +1,6 @@
 'use strict';
 
-const UsersEmail = require('../models/usersEmail.model');
+const UsersEmail = require('../models/usersemail.model');
 const IpAllowList = require('../models/ipallowlist.model');
 
 /**
@@ -47,16 +47,16 @@ exports.insertUserEmail = async function (req, res) {
         }
 
         // Check if order_id already exists (เช็คแค่ order_id เพราะ user คนเดียวสามารถซื้อหลาย order ได้)
-        const existingByOrderId = await UsersEmail.findByOrderId(order_id);
-        if (existingByOrderId && existingByOrderId.id) {
-            res.status(202).json({
-                status: 'error',
-                message: 'Order ID already exists',
-                auth: false,
-                data: [],
-            });
-            return;
-        }
+        // const existingByOrderId = await UsersEmail.findByOrderId(order_id);
+        // if (existingByOrderId && existingByOrderId.id) {
+        //     res.status(202).json({
+        //         status: 'error',
+        //         message: 'Order ID already exists',
+        //         auth: false,
+        //         data: [],
+        //     });
+        //     return;
+        // }
 
         // Prepare data for insertion
         const objData = {

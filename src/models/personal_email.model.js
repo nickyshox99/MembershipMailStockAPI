@@ -257,7 +257,8 @@ PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
             throw new Error('Invalid Order ID provided');
         }
         
-        let sqlStr = `UPDATE users_email SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = ${validOrderId}`;
+        //สลับไปเรื่อย
+        let sqlStr = `UPDATE personal_email SET status_regis = ${validStatus}, updated_at = NOW() WHERE order_id = ${validOrderId}`;
         
         const result = await dbConn.raw(sqlStr);        
         

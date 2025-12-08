@@ -3161,7 +3161,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     if (purchase_type === 'personal') {
                         // กรณี personal: ใช้ email/password จาก users_email
                         console.log('Using email from users_email (personal)');
-                        const UsersEmail = require('../models/usersEmail.model');
+                        const UsersEmail = require('../models/usersemail.model');
                         const usersEmailData = await UsersEmail.findByOrderId(order_id);
 
                         if (usersEmailData && usersEmailData.id) {
@@ -3361,7 +3361,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     if (tmpData) {
                         // Update status_regis เป็น 1 สำหรับกรณี personal
                         if (purchase_type === 'personal') {
-                            const UsersEmail = require('../models/usersEmail.model');
+                            const UsersEmail = require('../models/usersemail.model');
                             const updateStatus = await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
                             console.log('Updated status_regis to 1 for order_id:', order_id, 'result:', updateStatus);
                         }
@@ -3995,6 +3995,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
             console.error('Order not found:', order_id);
             return { success: false, message: 'Order not found' };
         }
+        
 
         let email = '';
         let password = '';
@@ -4028,7 +4029,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
             password = emailStock['password'];
             let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})            
 
-        }  else if (purchase_type === 'email') {            
+        }  else if (purchase_type === 'email') {                   
             inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);            
         }  else if (purchase_type === 'personal') {
             
@@ -4079,9 +4080,8 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let msg=''
         if(inviteStock!='')
         {
-            let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
-            email = paymentHistory[0]['email'] || ''
-            let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+            
+            email = orderData['email'] || ''            
 
             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
             msg += "\n"
@@ -4273,7 +4273,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             // ดึง email/password ตาม purchase_type
             if (purchase_type === 'personal') {
-                const UsersEmail = require('../models/usersEmail.model');
+                const UsersEmail = require('../models/usersemail.model');
                 const usersEmailData = await UsersEmail.findByOrderId(order_id);
 
                 if (usersEmailData && usersEmailData.id) {
@@ -4354,7 +4354,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             // Update status_regis = 1
             if (purchase_type === 'personal') {
-                const UsersEmail = require('../models/usersEmail.model');
+                const UsersEmail = require('../models/usersemail.model');
                 await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
             } else if (purchase_type === 'email') {
                 const PersonalEmail = require('../models/personalemail.model');

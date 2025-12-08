@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const usersEmailController = require('../controllers/usersEmail.controller');
+const usersEmailController = require('../controllers/usersemail.controller');
 
 // Insert user email
 router.post('/insert', usersEmailController.insertUserEmail);
