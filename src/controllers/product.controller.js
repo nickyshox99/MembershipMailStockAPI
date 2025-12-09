@@ -4033,7 +4033,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
             let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})            
 
         }  else if (purchase_type === 'email') {                   
-            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);            
+            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
         }  else if (purchase_type === 'personal') {
             
         }
@@ -4273,7 +4273,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             let email = '';
             let password = '';
-
+            let inviteStock;
             // ดึง email/password ตาม purchase_type
             if (purchase_type === 'personal') {
                 
@@ -4291,20 +4291,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
                     return;
                 }
             } else if (purchase_type === 'email') {
-                
-                const personalEmailData = await Personal_Email.findByOrderId(order_id);
-
-                if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
-                    email = personalEmailData[0].email;
-                    password = null;
-                } else {
-                    res.status(202).json({
-                        status: 'error',
-                        message: 'ไม่พบข้อมูล email ของลูกค้า',
-                        auth: false,
-                    });
-                    return;
-                }
+                inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);                
             }
 
             // ดึงการตั้งค่า LINE
@@ -4334,14 +4321,34 @@ exports.SendEmailPasswordManual = async function (req, res) {
             lineChatAPI.setToken(channelToken);
 
             let msg = "";
-            if (password) {
+            if(inviteStock!='')
+            {                
+                email = orderData['email'] || ''  
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
+                msg += "\n"
+                msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteStock                
+                msg += `\nเมลลูกค้า : ${email}`
+                msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+                msg += "\n"
+                msg += "\nวิธีการเข้าใช้งาน"
+                msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
+                msg += "\n"
+                msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            }            
+            else if (password) {
                 msg += "✅ดำเนินการเสร็จสิ้น สามารถเช็คในแอพเข้าใช้งานได้เลยค่ะ"                
                 msg += "\nEmail : " + email + "\n password : " + password + " \n เช็ควันหมดอายุ พิมพ์คำว่า เช็ควัน \n";
                 msg += "\n"
                 msg += "\n⚠️พรีเมี่ยมจะตัดเมื่อครบรอบหมดอายุ เนื่องจากเป็นการสมัครบิลต่อบิล"
                 msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
-            } else {
-                msg = "ขอบคุณลูกค้าที่ทำการสั่งซื้อ " + orderData['product_name'] + " \n Email : " + email + " \n เพื่อเข้าสู่ระบบ \n";
+            }
+            else {
+                msg += "✅ดำเนินการเสร็จสิ้น สามารถเช็คในแอพเข้าใช้งานได้เลยค่ะ"                
+                msg += "\nEmail : " + email + "\n เช็ควันหมดอายุ พิมพ์คำว่า เช็ควัน \n";
+                msg += "\n"
+                msg += "\n⚠️พรีเมี่ยมจะตัดเมื่อครบรอบหมดอายุ เนื่องจากเป็นการสมัครบิลต่อบิล"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
             }
 
             const tmpSend = await lineChatAPI.pushMessage(user_id, msg);
