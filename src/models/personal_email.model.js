@@ -5,7 +5,7 @@ const tableName = 'personal_email';
 const tableKey = 'id';
 
 // PersonalEmail object create
-var PersonalEmail = function(personalEmail) {
+var Personal_Email = function(personalEmail) {
     this.user_id = personalEmail.user_id;
     this.order_id = personalEmail.order_id;
     this.email = personalEmail.email;
@@ -18,7 +18,7 @@ var PersonalEmail = function(personalEmail) {
 };
 
 // Find all personal emails
-PersonalEmail.findAll = async function() {
+Personal_Email.findAll = async function() {
     try {
         let sqlStr = `SELECT 
             ue.*,
@@ -36,7 +36,7 @@ PersonalEmail.findAll = async function() {
 };
 
 // Find personal email by ID
-PersonalEmail.findById = async function(id) {
+Personal_Email.findById = async function(id) {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE id = ?";
         const datas = await dbConn.raw(sqlStr, [id]);
@@ -48,7 +48,7 @@ PersonalEmail.findById = async function(id) {
 };
 
 // Find personal email by email
-PersonalEmail.findByEmail = async function(email) {
+Personal_Email.findByEmail = async function(email) {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE email = ?";
         const datas = await dbConn.raw(sqlStr, [email]);
@@ -60,7 +60,7 @@ PersonalEmail.findByEmail = async function(email) {
 };
 
 // Find personal email by user ID
-PersonalEmail.findByUserId = async function(userId) {
+Personal_Email.findByUserId = async function(userId) {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE user_id = ? ORDER BY id DESC";
         const datas = await dbConn.raw(sqlStr, [userId]);
@@ -72,7 +72,7 @@ PersonalEmail.findByUserId = async function(userId) {
 };
 
 // Create new personal email
-PersonalEmail.create = async function(newPersonalEmail) {
+Personal_Email.create = async function(newPersonalEmail) {
     try {
         let sqlStr = `INSERT INTO ${tableName} 
                      (user_id, order_id, email, password, status_regis, start_date, end_date, created_at, updated_at) 
@@ -96,7 +96,7 @@ PersonalEmail.create = async function(newPersonalEmail) {
 };
 
 // Update personal email
-PersonalEmail.update = async function(id, personalEmail) {
+Personal_Email.update = async function(id, personalEmail) {
     try {
         let sqlStr = `UPDATE ${tableName} SET 
                      user_id = ?, order_id = ?, email = ?, password = ?, 
@@ -122,7 +122,7 @@ PersonalEmail.update = async function(id, personalEmail) {
 };
 
 // Delete personal email
-PersonalEmail.delete = async function(id) {
+Personal_Email.delete = async function(id) {
     try {
         let sqlStr = "DELETE FROM " + tableName + " WHERE id = ?";
         const result = await dbConn.raw(sqlStr, [id]);
@@ -134,7 +134,7 @@ PersonalEmail.delete = async function(id) {
 };
 
 // Find personal emails by order ID
-PersonalEmail.findByOrderId = async function(orderId) {
+Personal_Email.findByOrderId = async function(orderId) {
     try {
         let sqlStr = `SELECT 
             ue.*,
@@ -155,7 +155,7 @@ PersonalEmail.findByOrderId = async function(orderId) {
 };
 
 // Find active personal emails
-PersonalEmail.findActiveEmails = async function() {
+Personal_Email.findActiveEmails = async function() {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE status_regis = 1 ORDER BY id DESC";
         const datas = await dbConn.raw(sqlStr);
@@ -167,7 +167,7 @@ PersonalEmail.findActiveEmails = async function() {
 };
 
 // Find inactive personal emails
-PersonalEmail.findInactiveEmails = async function() {
+Personal_Email.findInactiveEmails = async function() {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE status_regis = 0 ORDER BY id DESC";
         const datas = await dbConn.raw(sqlStr);
@@ -179,7 +179,7 @@ PersonalEmail.findInactiveEmails = async function() {
 };
 
 // Search personal emails with multiple criteria
-PersonalEmail.search = async function(searchParams) {
+Personal_Email.search = async function(searchParams) {
     try {
         let sqlStr = "SELECT * FROM " + tableName + " WHERE 1=1";
         let params = [];
@@ -215,7 +215,7 @@ PersonalEmail.search = async function(searchParams) {
 };
 
 // Update personal email status only
-PersonalEmail.updateStatus = async function(id, status) {
+Personal_Email.updateStatus = async function(id, status) {
     try {
         // Validate and convert parameters
         const validId = parseInt(id) || 0;
@@ -241,7 +241,7 @@ PersonalEmail.updateStatus = async function(id, status) {
 };
 
 // Update personal email status by order ID
-PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
+Personal_Email.updateStatusByOrderId = async function(orderId, status) {
     try {
         
         // Validate status
@@ -269,4 +269,4 @@ PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
     }
 };
 
-module.exports = PersonalEmail;
+module.exports = Personal_Email;

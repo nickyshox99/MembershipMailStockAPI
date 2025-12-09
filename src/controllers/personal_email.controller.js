@@ -1,6 +1,6 @@
 'use strict';
 
-const PersonalEmail = require('../models/personal_email.model');
+const Personal_Email = require('../models/personal_email.model');
 const jwt = require('jsonwebtoken');
 const Secret = require('../../config/secret');
 
@@ -16,7 +16,7 @@ exports.getAllPersonalEmail = async (req, res) => {
             // Additional token verification logic can be added here
         }
 
-        const result = await PersonalEmail.findAll();
+        const result = await Personal_Email.findAll();
 
      
         res.status(200).json({
@@ -59,7 +59,7 @@ exports.getPersonalEmailById = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.findById(id);
+        const result = await Personal_Email.findById(id);
 
         console.log('Searching for ID:', id);
         console.log('Query result:', result);
@@ -117,7 +117,7 @@ exports.getPersonalEmailByEmail = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.findByEmail(email);
+        const result = await Personal_Email.findByEmail(email);
 
         console.log('Searching for email:', email);
         console.log('Query result:', result);
@@ -175,7 +175,7 @@ exports.getPersonalEmailByUserId = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.findByUserId(userId);
+        const result = await Personal_Email.findByUserId(userId);
 
         console.log('Searching for userId:', userId);
         console.log('Query result:', result);
@@ -233,7 +233,7 @@ exports.getPersonalEmailByOrderId = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.findByOrderId(orderId);
+        const result = await Personal_Email.findByOrderId(orderId);
 
         console.log('Searching for orderId:', orderId);
         console.log('Query result:', result);
@@ -293,7 +293,7 @@ exports.getPersonalEmailStatusByOrderId = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.findByOrderId(orderId);
+        const result = await Personal_Email.findByOrderId(orderId);
         
         if (!result || result.length === 0) {
             return res.status(404).json({
@@ -366,7 +366,7 @@ exports.updatePersonalEmailStatus = async (req, res) => {
 
         console.log('Updating ID:', id, 'Status:', status);
 
-        const result = await PersonalEmail.updateStatus(id, status);
+        const result = await Personal_Email.updateStatus(id, status);
 
         console.log('Update result:', result);
 
@@ -431,7 +431,7 @@ exports.updatePersonalEmailStatusByOrderId = async (req, res) => {
 
         console.log('Updating Order ID:', orderId, 'Status:', status);
 
-        const result = await PersonalEmail.updateStatusByOrderId(orderId, status);
+        const result = await Personal_Email.updateStatusByOrderId(orderId, status);
 
         console.log('Update result:', result);
 
