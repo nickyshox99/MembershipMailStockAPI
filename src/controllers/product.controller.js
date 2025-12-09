@@ -11,6 +11,9 @@ const LineChatAPI = require('./../modules/lineChatAPI');
 const EmailStock = require('../models/emailStock.model');
 const oSecretkey = require('../../config/secret');
 
+const UsersEmail = require('../models/usersemail.model');
+const Personal_Email = require('../models/personal_email.model');
+
 
 // const bcrypt = require('bcrypt');
 // const saltRounds = 60;
@@ -3181,8 +3184,8 @@ exports.VerifySlipOrder = async function (req, res) {
                     } else if (purchase_type === 'email') {
                         // กรณี email: ใช้เฉพาะ email จาก personal_email (ไม่มี password)
                         console.log('Using email from personal_email (email only)');
-                        const PersonalEmail = require('../models/personalemail.model');
-                        const personalEmailData = await PersonalEmail.findByOrderId(order_id);
+                        const Personal_Email = require('../models/personal_email.model');
+                        const personalEmailData = await Personal_Email.findByOrderId(order_id);
 
                         if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
                             email = personalEmailData[0].email;
@@ -4273,7 +4276,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             // ดึง email/password ตาม purchase_type
             if (purchase_type === 'personal') {
-                const UsersEmail = require('../models/usersemail.model');
+                
                 const usersEmailData = await UsersEmail.findByOrderId(order_id);
 
                 if (usersEmailData && usersEmailData.id) {
@@ -4288,8 +4291,8 @@ exports.SendEmailPasswordManual = async function (req, res) {
                     return;
                 }
             } else if (purchase_type === 'email') {
-                const PersonalEmail = require('../models/personalemail.model');
-                const personalEmailData = await PersonalEmail.findByOrderId(order_id);
+                
+                const personalEmailData = await Personal_Email.findByOrderId(order_id);
 
                 if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
                     email = personalEmailData[0].email;
@@ -4358,7 +4361,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
                 await UsersEmail.updateStatusRegisByOrderId(order_id, 1);
             } else if (purchase_type === 'email') {
                 const PersonalEmail = require('../models/personalemail.model');
-                await PersonalEmail.updateStatusByOrderId(order_id, 1);
+                await Personal_Email.updateStatusByOrderId(order_id, 1);
             }
 
             console.log(' Successfully sent email/password to LINE');
