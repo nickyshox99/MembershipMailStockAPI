@@ -14,6 +14,8 @@ router.post('/add/', productController.addProduct);
 
 router.post('/updatebyId/', productController.updatebyId);
 
+router.post('/updateEndDateById/', productController.updateEndDateById);
+
 router.post('/deleteProduct/', productController.deleteProduct);
 
 router.post('/inactive/', productController.inActiveProduct);

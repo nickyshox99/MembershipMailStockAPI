@@ -254,6 +254,116 @@ exports.updatebyId = async function (req, res) {
 
 };
 
+exports.updateEndDateById = async function (req, res) {
+
+    console.log('updateEndDateById');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                let cTime = new Date();
+                cTime = new Date(cTime.getTime() + (offsetTime));
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = AdminList.isAuthenicated(userid, token);
+                // let IsAuth = true;
+
+                const objData = req.body;
+
+                if (objData.id == undefined || objData.id == null || objData.id == "") {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Product ID not found',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+
+                }
+
+                if (IsAuth) {
+                    const result = await productList.updateEndDateById(objData);
+                    if (result) {
+
+                        res.status(202).json(
+                            {
+                                status: 'success',
+                                message: '',
+                                auth: true,
+                            }
+                        );
+                        return;
+                    }
+                    else {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Error Update Enddate Product',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+
+
+
+};
+
+
 exports.deleteProduct = async function (req, res) {
 
     console.log('deleteProduct');

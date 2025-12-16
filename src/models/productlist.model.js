@@ -6,6 +6,7 @@ const Cryptof = require('./cryptof.model');
 const adminSettingList = require('./adminsetting.model');
 
 const jwt = require('jsonwebtoken');
+const timerHelper = require('../modules/timehelper');
 const tableName = 'product_list'
 const tableKey = 'id'
 
@@ -141,6 +142,29 @@ productList.updateByID = async function (objData, result) {
                 , objData.shop_type || 0
                 , rowid]);
 
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+
+};
+
+productList.updateEndDateById = async function (objData, result) {
+
+    const rowid = objData.id;
+
+    try {
+
+        const end_date_time = new Datetime(objData.end_date)
+
+        const datas = await dbConn.raw("UPDATE " + tableName + " SET "
+            + "end_date=? "                        
+            + " WHERE id = ? "
+            , [
+                timerHelper.convertDateToString(end_date_time)
+                , rowid]);
 
         return true;
     } catch (error) {
