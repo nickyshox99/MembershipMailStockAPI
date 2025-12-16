@@ -157,9 +157,9 @@ productList.updateEndDateById = async function (objData, result) {
 
     try {
 
-        const end_date_time = new Datetime(objData.end_date)
+        const end_date_time = new Date(objData.end_date);
 
-        const datas = await dbConn.raw("UPDATE " + tableName + " SET "
+        const datas = await dbConn.raw("UPDATE membership_order_history SET "
             + "end_date=? "                        
             + " WHERE id = ? "
             , [
