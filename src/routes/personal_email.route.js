@@ -22,6 +22,7 @@ router.put('/updatePersonalEmailStatusByOrderId', personalEmailController.update
 router.post('/updatePersonalEmailStatus/:id', personalEmailController.updatePersonalEmailStatus);
 router.post('/updatePersonalEmailStatusByOrderId', personalEmailController.updatePersonalEmailStatusByOrderId);
 
+router.post('/deletePersonalEmail', personalEmailController.deletePersonalEmail);
 
 
 module.exports = router

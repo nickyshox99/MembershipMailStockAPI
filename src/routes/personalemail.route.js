@@ -25,6 +25,8 @@ router.post('/updatePersonalEmailStatusByOrderId', personalEmailController.updat
 // POST endpoint for creating new personal email
 router.post('/createPersonalEmail', personalEmailController.createPersonalEmail);
 
+router.post('/deletePersonalEmail', personalEmailController.deletePersonalEmail);
+
 
 
 module.exports = router

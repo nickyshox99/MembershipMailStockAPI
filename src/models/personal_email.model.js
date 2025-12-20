@@ -122,10 +122,13 @@ Personal_Email.update = async function(id, personalEmail) {
 };
 
 // Delete personal email
-Personal_Email.delete = async function(id) {
+// Delete personal email
+Personal_Email.delete = async function(objData) {
     try {
-        let sqlStr = "DELETE FROM " + tableName + " WHERE id = ?";
-        const result = await dbConn.raw(sqlStr, [id]);
+        let lstID = objData.listId.join(",");
+
+        let sqlStr = "DELETE FROM "+ tableName+" WHERE id in (" + lstID + ")";
+        const result = await dbConn.raw(sqlStr);
         return result[0].affectedRows;
     } catch (error) {
         console.error('Error in PersonalEmail.delete:', error);
@@ -137,13 +140,30 @@ Personal_Email.delete = async function(id) {
 Personal_Email.findByOrderId = async function(orderId) {
     try {
         let sqlStr = `SELECT 
-            ue.*,
-            lc.display_name as line_display_name,
-            lc.picture_url as line_profile_url
+                ue.*,
+                lc.display_name AS line_display_name,
+                lc.picture_url AS line_profile_url,
+                (
+                    SELECT sgs.group_name
+                    FROM subscription_group_stock sgs
+                    LEFT JOIN subscription_group_user_stock sgus
+                        ON sgus.subscription_group_stock_id = sgs.id
+                    WHERE sgs.id <> 0
+                    AND sgus.email COLLATE utf8mb4_unicode_ci 
+                        = ue.email COLLATE utf8mb4_unicode_ci
+                    ORDER BY sgs.id DESC
+                    LIMIT 1
+                ) AS group_name
             FROM personal_email ue
-            LEFT JOIN line_contact lc ON lc.user_id COLLATE utf8mb4_unicode_ci = ue.user_id COLLATE utf8mb4_unicode_ci
+            LEFT JOIN line_contact lc
+                ON lc.user_id COLLATE utf8mb4_unicode_ci
+                = ue.user_id COLLATE utf8mb4_unicode_ci
+            LEFT JOIN subscription_group_user_stock sgus2
+                ON sgus2.email COLLATE utf8mb4_unicode_ci
+                = ue.email COLLATE utf8mb4_unicode_ci
             WHERE ue.order_id = ${orderId} 
-            ORDER BY ue.id DESC`;
+            ORDER BY ue.id DESC
+            `;
         
         const datas = await dbConn.raw(sqlStr);
         
@@ -268,5 +288,7 @@ Personal_Email.updateStatusByOrderId = async function(orderId, status) {
         throw error;
     }
 };
+
+
 
 module.exports = Personal_Email;

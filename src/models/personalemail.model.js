@@ -122,10 +122,12 @@ PersonalEmail.update = async function(id, personalEmail) {
 };
 
 // Delete personal email
-PersonalEmail.delete = async function(id) {
+PersonalEmail.delete = async function(objData) {
     try {
-        let sqlStr = "DELETE FROM " + tableName + " WHERE id = ?";
-        const result = await dbConn.raw(sqlStr, [id]);
+        let lstID = objData.listId.join(",");
+
+        let sqlStr = "DELETE FROM users_email WHERE id in (" + lstID + ")";
+        const result = await dbConn.raw(sqlStr);
         return result[0].affectedRows;
     } catch (error) {
         console.error('Error in PersonalEmail.delete:', error);
@@ -266,5 +268,7 @@ PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
         throw error;
     }
 };
+
+
 
 module.exports = PersonalEmail;

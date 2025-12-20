@@ -192,6 +192,25 @@ productList.deleteByID = async function (objData, result) {
 
 };
 
+productList.deleteOrderByID = async function (objData, result) {
+
+    try {
+
+
+        let lstID = objData.listId.join(",");
+
+        const datas = await dbConn.raw("DELETE FROM membership_order_history WHERE id in (" + lstID + ")");
+
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;
+    }
+
+};
+
+
+
 productList.inActiveByID = async function (objData, result) {
 
     const rowid = objData.id;

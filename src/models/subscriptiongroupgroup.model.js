@@ -186,6 +186,7 @@ SubscriptionGroupStock.create = async function (objData, result) {
 
 SubscriptionGroupStock.updateByID = async function (objData, result) {
 
+    
     const rowid = objData.id;
 
     try {
@@ -208,7 +209,7 @@ SubscriptionGroupStock.updateByID = async function (objData, result) {
                 objData.head_email,
                 objData.password || '',
                 objData.invite_url || '',
-                objData.status || 1,  // ถ้าไม่ได้ส่งมา ให้ default = 1
+                objData.status ,  // ถ้าไม่ได้ส่งมา ให้ default = 1
                 rowid
             ]
         );

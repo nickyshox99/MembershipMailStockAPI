@@ -30,6 +30,8 @@ router.post('/SendProductByID/', productController.SendProductByID);
 
 router.post('/ExchangeProductByID/', productController.ExchangeProductByID);
 
+router.post('/deleteOrderById/', productController.DeleteOrderByID);
+
 router.post('/GetHistoryOrderByMemberID/', productController.GetHistoryOrderByMemberID);
 
 router.post('/CreateSubScribeOrder/', productController.CreateSubScribeOrder);

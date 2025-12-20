@@ -1144,6 +1144,101 @@ exports.SendProductByID = async function (req, res) {
 
 };
 
+exports.DeleteOrderByID = async function (req, res) {
+
+    console.log('DeleteOrderByID');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+
+                let cTime = new Date();
+                cTime = new Date(cTime.getTime() + (offsetTime));
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                // const userid = headers.userid;
+                // const token = headers.token;
+
+                //let IsAuth = MemberList.isAuthenicated(userid, token);
+                let IsAuth = true;
+
+                if (IsAuth) {
+                    const result = await productList.deleteOrderByID(req.body);
+                    if (result) {
+
+                        res.status(202).json(
+                            {
+                                status: 'success',
+                                message: '',
+                                auth: true,
+                            }
+                        );
+                        return;
+                    }
+                    else {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Error Create Product',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+
+
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
+
+
+
+
+};
+
 exports.ExchangeProductByID = async function (req, res) {
 
     console.log('ExchangeProductByID');
@@ -3428,6 +3523,23 @@ exports.VerifySlipOrder = async function (req, res) {
                         msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
                         msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
                     }
+                    else if (purchase_type === 'email') {
+                        let paymentHistory = await MainModel.query("SELECT * FROM personal_email WHERE order_id="+order_id)
+                        email = paymentHistory[0]['email'] || ''
+                        userid = paymentHistory[0]['user_id'] || ''
+                        let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
+                        let inviteUrl =  EmailStock.getInviteStockFamily(userid,email);
+            
+                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
+                        msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteUrl
+                        msg += "\nเมลลูกค้า : "+email
+                        msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" :`
+                        
+                        msg += "\nวิธีการเข้าใช้งาน"
+                        msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
+                        msg += "\n"
+                        msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
+                    }
                     else if (purchase_type === 'shop_personal') {
                         
                         msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
@@ -4383,7 +4495,7 @@ exports.SendEmailPasswordManual = async function (req, res) {
 
             let email = '';
             let password = '';
-            let inviteStock;
+            let inviteStock='';
             // ดึง email/password ตาม purchase_type
             if (purchase_type === 'personal') {
                 

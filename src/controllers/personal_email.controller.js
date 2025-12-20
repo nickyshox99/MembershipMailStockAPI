@@ -465,3 +465,33 @@ exports.updatePersonalEmailStatusByOrderId = async (req, res) => {
         });
     }
 };
+
+exports.deletePersonalEmail = async (req, res) => {
+    try {
+        
+        const userData = JSON.parse(req.headers.userdata || '{}');
+        
+
+        // Verify token if provided
+        let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
+        if (token) {
+            const decoded = jwt.verify(token, Secret.SecretKey);
+        }
+                     
+
+        // Create new personal email
+        const insertId = await Personal_Email.delete(req.body);
+
+        res.status(201).json({
+            status: 'success',           
+            message: 'Personal email deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error in deletePersonalEmail:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to delete personal email',
+            error: error.message
+        });
+    }
+};
