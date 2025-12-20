@@ -3485,6 +3485,7 @@ exports.updateMemberStockData = async function(req, res) {
                 const user_id = req.body.user_id ? req.body.user_id : "";
                 const note = req.body.note ? req.body.note : "";
                 const invite_url = req.body.invite_url ? req.body.invite_url : "";
+                const update_at = req.body.update_at ? req.body.update_at : "";
                                         
                 let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
@@ -3493,7 +3494,7 @@ exports.updateMemberStockData = async function(req, res) {
                     return;
                 }
 
-                let objData = {id: id, email: email, password: password, user_id: user_id, note: note,invite_url : invite_url}
+                let objData = {id: id, email: email, password: password, user_id: user_id, note: note,invite_url : invite_url,update_at:update_at}
                 console.log("objData to update:", objData);
                 let tmpData = await SubscriptionGroupStock.updateMemberData(objData);
                 console.log("Update result:", tmpData);

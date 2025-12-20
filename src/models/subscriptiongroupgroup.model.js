@@ -438,15 +438,16 @@ SubscriptionGroupStock.updateMemberData = async function (objData, result) {
             "password = ?, " +
             "user_id = ?, " +
             "invite_url = ?, " +
-            "note = ? " +
-            "WHERE id = ?"
+            "note = ?, " +
+            "update_at = ? " +
+            " WHERE id = ?"
             , [
                 objData.email,
                 objData.password,
                 objData.user_id || '',
                 objData.invite_url || '',
-                objData.note || '',
-                
+                objData.note || '',                
+                objData.update_at || '',
                 objData.id
             ]);
 
