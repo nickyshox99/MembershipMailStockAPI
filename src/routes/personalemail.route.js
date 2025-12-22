@@ -22,6 +22,8 @@ router.put('/updatePersonalEmailStatusByOrderId', personalEmailController.update
 router.post('/updatePersonalEmailStatus/:id', personalEmailController.updatePersonalEmailStatus);
 router.post('/updatePersonalEmailStatusByOrderId', personalEmailController.updatePersonalEmailStatusByOrderId);
 
+router.post('/updatePersonalData/:id', personalEmailController.updatePersonalData);
+
 // POST endpoint for creating new personal email
 router.post('/createPersonalEmail', personalEmailController.createPersonalEmail);
 

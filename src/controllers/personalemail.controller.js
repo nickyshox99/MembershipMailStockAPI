@@ -310,6 +310,49 @@ exports.updatePersonalEmailStatus = async (req, res) => {
     }
 };
 
+exports.updatePersonalData = async (req, res) => {
+    try {
+        const userData = JSON.parse(req.headers.userdata || '{}');
+        const { id } = req.params;
+        const { email,password,updated_at } = req.body;
+
+        // Verify token if provided
+        let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
+        if (token) {
+            const decoded = jwt.verify(token, Secret.SecretKey);
+        }
+
+        if (!id) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'ID parameter is required'
+            });
+        }
+
+        const result = await PersonalEmail.updatePersonalData(id, email,password,updated_at);
+
+        if (result === 0) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Personal email not found'
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: { affectedRows: result },
+            message: 'Personal email status updated successfully'
+        });
+    } catch (error) {
+        console.error('Error in updatePersonalEmailStatus:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to update personal email status',
+            error: error.message
+        });
+    }
+};
+
 // Get personal email status by order ID
 exports.getPersonalEmailStatusByOrderId = async (req, res) => {
     try {

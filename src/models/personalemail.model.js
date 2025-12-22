@@ -1,6 +1,7 @@
 'use strict';
 
 var dbConn = require('../../config/db.config');
+const timerHelper = require('../modules/timehelper');
 const tableName = 'personal_email';
 const tableKey = 'id';
 
@@ -233,6 +234,30 @@ PersonalEmail.updateStatus = async function(id, status) {
         console.log('Update SQL:', sqlStr);
         
         const result = await dbConn.raw(sqlStr);
+        return result[0].affectedRows;
+    } catch (error) {
+        console.error('Error in PersonalEmail.updateStatus:', error);
+        throw error;
+    }
+};
+
+PersonalEmail.updatePersonalData = async function(id, email,password,updated_at) {
+    try {
+        // Validate and convert parameters
+                
+        let sqlStr = `UPDATE users_email 
+        SET 
+        email = ?,
+        password = ?,
+        updated_at = ? 
+        WHERE id = ?`;
+                
+        const result = await dbConn.raw(sqlStr,[
+            email
+            ,password
+            ,timerHelper.convertDatetimeToString(new Date(updated_at))
+            ,id
+        ]);
         return result[0].affectedRows;
     } catch (error) {
         console.error('Error in PersonalEmail.updateStatus:', error);
