@@ -3526,9 +3526,9 @@ exports.VerifySlipOrder = async function (req, res) {
                     else if (purchase_type === 'email') {
                         let paymentHistory = await MainModel.query("SELECT * FROM personal_email WHERE order_id="+order_id)
                         email = paymentHistory[0]['email'] || ''
-                        userid = paymentHistory[0]['user_id'] || ''
+                        var tmpuserid = paymentHistory[0]['user_id'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
-                        let inviteUrl =  EmailStock.getInviteStockFamily(userid,email);
+                        let inviteUrl =  EmailStock.getInviteStockFamily(tmpuserid,email);
             
                         msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
                         msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteUrl

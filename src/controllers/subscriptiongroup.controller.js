@@ -3485,7 +3485,7 @@ exports.updateMemberStockData = async function(req, res) {
                 const user_id = req.body.user_id ? req.body.user_id : "";
                 const note = req.body.note ? req.body.note : "";
                 const invite_url = req.body.invite_url ? req.body.invite_url : "";
-                const update_at = req.body.update_at ? req.body.update_at : "";
+                const update_at = req.body.update_at ? timerHelper.convertDatetimeToString(req.body.update_at) : timerHelper.getDateTimeNowString();
                                         
                 let adminPagePermission = await AdminList.getCustomPagePermission2(admin_id,page_name);
 
