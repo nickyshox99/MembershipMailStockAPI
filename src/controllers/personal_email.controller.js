@@ -215,7 +215,7 @@ exports.getPersonalEmailByUserId = async (req, res) => {
 // Get personal email by order ID
 exports.getPersonalEmailByOrderId = async (req, res) => {
     try {
-        console.log('=== getPersonalEmailByOrderId Debug ===');
+        
         const userData = JSON.parse(req.headers.userdata || '{}');
         const { orderId } = req.params;
 
@@ -235,9 +235,7 @@ exports.getPersonalEmailByOrderId = async (req, res) => {
 
         const result = await Personal_Email.findByOrderId(orderId);
 
-        console.log('Searching for orderId:', orderId);
-        console.log('Query result:', result);
-        console.log('Result length:', result ? result.length : 'null');
+       
 
         if (!result || result.length === 0) {
             return res.status(404).json({

@@ -2092,6 +2092,131 @@ exports.GetSubScribeOrderById = async function (req, res) {
 
 };
 
+exports.UpdatePersonalData = async function (req, res) {
+    console.log('UpdatePersonalData');
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+            const userid = headers.userid;
+            const token = headers.token;
+            const email = req.body.email;
+            const password = req.body.password;
+            const order_id = req.body.order_id;
+            const purchase_type = req.body.purchase_type;
+            const group_id = req.body.group_id;
+
+
+            //handles null error
+            if (headers.userid.length === 0 || headers.token.length === 0) {
+                res.status(400).send({ status: 'error', message: 'Please provide all required headers' });
+            } else {
+    
+                let IsAuth = await MemberList.isAuthenicated(userid, token);
+                // let IsAuth = true;
+
+                if (IsAuth) {
+                    let user_id ="";
+                    let row_order = await MainModel.query("SELECT * FROM membership_order_history WHERE id="+order_id)
+                    if (row_order.length > 0) {
+                        user_id = row_order[0]['user_id']
+                    }
+
+                    if (purchase_type === 'personal') {
+                        let tmpResult = await MainModel.update("users_email",{email:email,password:password},{id:order_id})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+                        tmpResult = await MainModel.update("membership_order_history",{email:email},{id:order_id})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+                    }
+                    else if (purchase_type === 'email') {
+                        let tmpResult = await MainModel.update("subscription_group_user_stock",{email:'',user_id:''},{email:email})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+                        tmpResult = await MainModel.update("subscription_group_user_stock",{email:email,user_id:user_id},{id:group_id})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+                    }
+                    
+                    
+                    res.status(200).json(
+                        {
+                            status: 'success',
+                            message: 'Personal data updated successfully.',
+                            auth: true,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+            }
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(202).send('Internal error: cannot update personal data.');
+        return;
+    }
+}
+
 exports.GetHistoryOrderByMemberID = async function (req, res) {
     console.log('GetHistoryOrderByMemberID');
 

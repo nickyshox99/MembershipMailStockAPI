@@ -72,6 +72,8 @@ router.post('/GetOrderExpired/', productController.GetOrderExpired);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
 
+router.post('/UpdatePersonalData/', productController.UpdatePersonalData);
+
 
 router.post('/SentPaymentMessageNearOrder/', productController.SentPaymentMessageNearOrder);
 

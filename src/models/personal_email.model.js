@@ -143,29 +143,39 @@ Personal_Email.findByOrderId = async function(orderId) {
                 ue.*,
                 lc.display_name AS line_display_name,
                 lc.picture_url AS line_profile_url,
-                (
-                    SELECT sgs.group_name
-                    FROM subscription_group_stock sgs
-                    LEFT JOIN subscription_group_user_stock sgus
-                        ON sgus.subscription_group_stock_id = sgs.id
-                    WHERE sgs.id <> 0
-                    AND sgus.email COLLATE utf8mb4_unicode_ci 
-                        = ue.email COLLATE utf8mb4_unicode_ci
-                    ORDER BY sgs.id DESC
-                    LIMIT 1
-                ) AS group_name
+                latest_group.group_name,
+                latest_group.group_id
             FROM personal_email ue
             LEFT JOIN line_contact lc
-                ON lc.user_id COLLATE utf8mb4_unicode_ci
-                = ue.user_id COLLATE utf8mb4_unicode_ci
-            LEFT JOIN subscription_group_user_stock sgus2
-                ON sgus2.email COLLATE utf8mb4_unicode_ci
-                = ue.email COLLATE utf8mb4_unicode_ci
-            WHERE ue.order_id = ${orderId} 
+                ON lc.user_id COLLATE utf8mb4_unicode_ci = ue.user_id COLLATE utf8mb4_unicode_ci
+            LEFT JOIN (
+                SELECT 
+                    sgus.email,
+                    sgs.id AS group_id,
+                    sgs.group_name
+                FROM subscription_group_user_stock sgus
+                INNER JOIN subscription_group_stock sgs
+                    ON sgs.id = sgus.subscription_group_stock_id
+                    AND sgs.id <> 0
+                INNER JOIN (
+                    SELECT 
+                        email,
+                        MAX(sgs2.id) AS max_group_id
+                    FROM subscription_group_user_stock sgus2
+                    INNER JOIN subscription_group_stock sgs2
+                        ON sgs2.id = sgus2.subscription_group_stock_id
+                        AND sgs2.id <> 0
+                    GROUP BY email
+                ) latest_ids
+                    ON latest_ids.email COLLATE utf8mb4_unicode_ci = sgus.email COLLATE utf8mb4_unicode_ci
+                    AND latest_ids.max_group_id = sgs.id
+            ) latest_group
+                ON latest_group.email COLLATE utf8mb4_unicode_ci = ue.email COLLATE utf8mb4_unicode_ci
+            WHERE ue.order_id = ?
             ORDER BY ue.id DESC
             `;
         
-        const datas = await dbConn.raw(sqlStr);
+        const datas = await dbConn.raw(sqlStr, [orderId]);
         
         return datas[0];
     } catch (error) {
