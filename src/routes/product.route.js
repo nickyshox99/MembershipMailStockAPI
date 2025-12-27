@@ -36,6 +36,8 @@ router.post('/GetHistoryOrderByMemberID/', productController.GetHistoryOrderByMe
 
 router.post('/CreateSubScribeOrder/', productController.CreateSubScribeOrder);
 
+router.post('/RenewSubScribeOrder/', productController.RenewSubScribeOrder);
+
 router.post('/CreateAndApproveSubScribeOrder/', productController.CreateAndApproveSubScribeOrder);
 
 router.post('/ApproveSubScribeOrder/', productController.ApproveSubScribeOrder);

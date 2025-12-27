@@ -32,6 +32,8 @@ const OffsetTime = require('../../config/offsettime');
 const offsetTime = OffsetTime.offsetTime;
 const offsetTime24hrs = OffsetTime.offsetTime24hrs;
 
+const lineChatAPI = new LineChatAPI();
+
 exports.default = async function (req, res) {
     const ipAddress = await IpAllowList.getIPv4Address(req);
     // const ipAddress = req.socket.remoteAddress;
@@ -2293,7 +2295,192 @@ exports.CreateSubScribeOrder = async function (req, res) {
     }
 
 
+};
 
+exports.RenewSubScribeOrder = async function (req, res) {
+    console.log('RenewSubScribeOrder');
+
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        // const ipAddress = req.socket.remoteAddress;
+        // const ipAllowList = IpAllowList.findById(ipAddress).map((row) => row.ip_address);
+        // const ipAllowList = IpAllowList.findById(ipAddress);    
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        else {
+            const headers = req.headers;
+
+            //handles null error
+            if (false) {
+
+            } else {
+
+                // console.log(req.body.userid);
+                // console.log(req.body.token);
+
+                const userid = headers.userid;
+                const token = headers.token;
+
+                let IsAuth = await AdminList.isAuthenicated(userid, token);
+                //let IsAuth = true;
+
+                if (IsAuth) {
+                    let admin = req.body.username ? req.body.username : "System";   
+                    let previous_order_id = req.body.previous_order_id;
+                    let row_previous_order = await productList.getOrderById(previous_order_id);
+                    if (row_previous_order.length <= 0) {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Not found previous order.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+                
+                    let purchase_type = row_previous_order['purchase_type'];
+                    let data = {
+                        "user_id": row_previous_order['user_id'],
+                        "email": row_previous_order['email'],
+                        "product_id": row_previous_order['product_id'],
+                        "subscription_type_id": row_previous_order['subscription_type_id'],
+                        "product_name": row_previous_order['product_name'],
+                        "previouse_order_id": previous_order_id,
+                        "create_by": admin,
+                        "create_date": timerHelper.getDateTimeNowString(),
+                        "buy_date": timerHelper.getDateTimeNowString(),
+                        "note": row_previous_order['note'],
+                        "purchase_type": row_previous_order['purchase_type'],
+                        "start_date": row_previous_order['start_date'],
+                        "end_date": row_previous_order['end_date'],
+                        "approve_by": admin,
+                        "approve_date": timerHelper.getDateTimeNowString(),
+                    };
+
+                    let tmpData = await productList.createAndApproveSubScribeOrder(data);
+                    if (tmpData) {
+
+                        if (this.purchaseType === 'personal') {
+                            //insert user into users_email
+                            let data_users_email = {
+                                "user_id": row_previous_order['user_id'],
+                                "order_id": tmpData.id,
+                                "email": row_previous_order['email'],
+                                "password": row_previous_order['password'],
+                                "create_by": admin,
+                                "create_date": timerHelper.getDateTimeNowString(),
+                            };
+                            let tmpData_users_email = await UsersEmail.insertUserEmail(data_users_email);
+                            
+                        }
+                        else if (this.purchaseType === 'email') {
+                            //insert user into personal_email
+                        
+                            let data_personal_email = {
+                                user_id: row_previous_order['user_id'],
+                                order_id: tmpData.id,
+                                email: row_previous_order['email'],
+                                password: row_previous_order['password'],
+                                status_regis: 0,
+                                start_date: null,
+                                end_date: null
+                            };
+                            let tmpData_personal_email = await Personal_Email.create(data_personal_email);
+                            
+                        }
+                        //send link ConfirmPayment
+                        let msg = "กรุณาชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
+                        msg += oSecretkey.webDomain + "confirmpayment?user_id=" + row_previous_order['user_id'] + "&id=" + tmpData.id + "&purchase_type=" + purchase_type + "&email=" + row_previous_order['email'];
+                        
+                        tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting WHERE status=1 `)
+
+                        if (tmpChatSetting.length == 0) {
+                            console.log("Invalid Pair Key");
+                            res.status(202).json({
+                                status: "error",
+                                message: 'Not found line setting',
+                                auth: false,
+                                data: [],
+                            });
+                            return;
+                        }
+
+                                        
+
+                        let channelToken = "";
+                        channelToken = tmpChatSetting['channel_token'];
+
+                        const lineChatAPI = new LineChatAPI();
+                        lineChatAPI.setToken(channelToken);
+                    
+                        const tmpSend = await lineChatAPI.pushMessage(row_previous_order['user_id'], msg);
+                        if (tmpSend['error']) {
+                            res.status(200).json(
+                                {
+                                    status: 'success',
+                                    message: tmpSend['error'],
+                                    auth: true,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+
+
+                        res.status(200).json(
+                            {
+                                status: 'success',
+                                message: 'Order created successfully.',
+                                auth: true,
+                                data: [],
+                            }
+                        );
+                    }
+                    else {
+                        res.status(202).json(
+                            {
+                                status: 'error',
+                                message: 'Create order failed.',
+                                auth: false,
+                                data: [],
+                            }
+                        );
+                        return;
+                    }
+                }
+                else {
+                    res.status(202).json(
+                        {
+                            status: 'error',
+                            message: 'Authenication Failed',
+                            auth: false,
+                            data: [],
+                        }
+                    );
+                    return;
+                }
+
+            }
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(202).json(
+                    
+            {
+                status: 'error',
+                message: error.message,
+                auth: false,
+                data: [],
+            }
+        );
+        return;
+    }
 
 };
 
@@ -3302,7 +3489,7 @@ exports.VerifySlipOrder = async function (req, res) {
 
                     // ถ้า slip ไม่ถูกต้อง (slip_correct = 0) ให้ update เฉพาะข้อมูล order และส่งข้อความแจ้ง user
                     if (slip_correct == 0) {
-                        console.log('=== Slip Incorrect - Update Order Status and Send Notification ===');
+                        
 
                         // ดึงข้อมูล order และ user
                         let tmpData2 = await productList.getOrderById(order_id);
@@ -3348,19 +3535,13 @@ exports.VerifySlipOrder = async function (req, res) {
                         return;
                     }
 
-                    // ถ้า slip ถูกต้อง (slip_correct = 1) ให้ดำเนินการส่ง email/password
-                    console.log('=== Slip Correct - Processing Email/Password ===');
-
                     //get email from stock
                     let tmpData2 = await productList.getOrderById(order_id);
 
                     let user_id = tmpData2['user_id'];
                     let purchase_type = tmpData2['purchase_type']; // default to 'shop'
 
-                    console.log('=== VerifySlipOrder - Check Purchase Type ===');
-                    console.log('order_id:', order_id);
-                    console.log('purchase_type:', purchase_type);
-
+                    
                     let email = '';
                     let password = '';
                     let emailStock = null;
@@ -3409,21 +3590,24 @@ exports.VerifySlipOrder = async function (req, res) {
                     } else if (purchase_type === 'shop_personal') {
                         // กรณี shop_personal: ใช้ email/password จาก subscription_group_user (subscription_group_id = 0)
                         console.log('Using email from subscription_group_user (shop_personal - group_id = 0)');
-                        emailStock = await EmailStock.getEmailStockPersonal(user_id);
 
-                        if (emailStock == null) {
-                            res.status(202).json({
-                                status: 'error',
-                                message: 'email personal ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
-                                auth: false,
-                                data: [],
-                            });
-                            return;
+                        if (row_order["previouse_order_id"] == null) {
+                            emailStock = await EmailStock.getEmailStockPersonal(user_id);
+
+                            if (emailStock == null) {
+                                res.status(202).json({
+                                    status: 'error',
+                                    message: 'email personal ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
+                                    auth: false,
+                                    data: [],
+                                });
+                                return;
+                            }
+
+                            email = emailStock['email'];
+                            password = emailStock['password'];
                         }
-
-                        email = emailStock['email'];
-                        password = emailStock['password'];
-                        console.log('Found email in shop_personal:', email);
+                        
                     } else if (purchase_type === 'shop_family') {
                         // กรณี shop_family: ใช้ email/password จาก subscription_group_user (subscription_group_id != 0)
                         console.log('Using email from subscription_group_user (shop_family - group_id != 0)');
@@ -3516,50 +3700,83 @@ exports.VerifySlipOrder = async function (req, res) {
                         email = paymentHistory[0]['email'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
             
-                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
-                        msg += "\n"
-                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
-                        msg += "\n"
-                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        if (row_order["previouse_order_id"] == null) {
+                            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
+                            msg += "\n"
+                            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
+                            msg += "\n"
+                            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        }
+                        else {
+                            msg += "✅ขอบคุณสำหรับการต่ออายุ (เมลลูกค้ารายบุคคล) "
+                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+                        }
+                        
                     }
                     else if (purchase_type === 'email') {
                         let paymentHistory = await MainModel.query("SELECT * FROM personal_email WHERE order_id="+order_id)
                         email = paymentHistory[0]['email'] || ''
                         var tmpuserid = paymentHistory[0]['user_id'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
-                        let inviteUrl =  EmailStock.getInviteStockFamily(tmpuserid,email);
+
+                        if (row_order["previouse_order_id"] == null) {
+                            let inviteUrl =  await EmailStock.getInviteStockFamily(tmpuserid,email);
             
-                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
-                        msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteUrl
-                        msg += "\nเมลลูกค้า : "+email
-                        msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" :`
+                            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
+                            msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteUrl
+                            msg += "\nเมลลูกค้า : "+email
+                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" :`
+                            
+                            msg += "\nวิธีการเข้าใช้งาน"
+                            msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
+                            msg += "\n"
+                            msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
+                        }
+                        else
+                        {
+                            msg += "✅ขอบคุณสำหรับการต่ออายุ (เมลลูกค้าแบบครอบครัว) "
+                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+                            
+                        }
                         
-                        msg += "\nวิธีการเข้าใช้งาน"
-                        msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
-                        msg += "\n"
-                        msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
                     }
                     else if (purchase_type === 'shop_personal') {
                         
-                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
-                        msg += "\n"
-                        msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
-                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
-                        msg += "\n"
-                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        if (row_order["previouse_order_id"] == null) {
+                            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
+                            msg += "\n"
+                            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
+                            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
+                            msg += "\n"
+                            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        }
+                        else
+                        {
+                            msg += "✅ขอบคุณสำหรับการต่ออายุ (เมลร้านรายบุคคล) "
+                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+                        }
+                        
                     }
                     else if (purchase_type === 'shop_family') {
                         
-                        msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
-                        msg += "\n"
-                        msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
-                        msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
-                        msg += "\n"
-                        msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-                        msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
-                        msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        if (row_order["previouse_order_id"] == null) {
+                            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
+                            msg += "\n"
+                            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
+                            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
+                            msg += "\n"
+                            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                            msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
+                            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+                        }
+                        else
+                        {
+                            msg += "✅ขอบคุณสำหรับการต่ออายุ (เมลร้านแบบครอบครัว) "
+                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
+                        }
+                        
                     }
                     else
                     {            
