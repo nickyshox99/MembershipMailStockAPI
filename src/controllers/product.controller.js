@@ -4209,6 +4209,50 @@ exports.SentPaymentMessageExpired = async function (req, res) {
 
 };
 
+exports.CheckRemainEmailStockPersonal = async function (req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        
+        //let IsAuth = await AdminList.isAuthenicated(userid, token);
+        let IsAuth = true;
+        if (IsAuth) {
+            let userid = req.body.userid;
+            checkUseOldIdEmailStockPersonal = await EmailStock.checkUseOldIdEmailStockPersonal(userid);
+            if (checkUseOldIdEmailStockPersonal.length > 0) {
+                res.status(200).json({ status: 'success', message: 'Found old id email stock personal', auth: true, data: checkUseOldIdEmailStockPersonal });
+                return;
+            }
+
+            let tmpData = await EmailStock.checkRemainEmailStockPersonal(userid);
+            
+            if (tmpData) {
+                res.status(200).json({ status: 'success', message: 'Email stock is available', auth: true, data: tmpData['total'] });
+            }
+            else {
+                res.status(202).json({ status: 'error', message: 'Email stock is not available', auth: false, data: [] });
+            }
+        }
+        else {
+            res.status(202).json({ status: 'error', message: 'Authentication Failed', auth: false, data: [] });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+            data: [],
+        });
+    }
+    return;
+};  
 
 // Helper function สำหรับส่ง email/password เข้าไลน์ (สำหรับ shop_family และ shop_personal)
 exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, purchase_type) {

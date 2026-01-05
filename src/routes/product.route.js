@@ -82,4 +82,6 @@ router.post('/send-email-password-manual', productController.SendEmailPasswordMa
 
 router.post('/GetRemainInviteInStock/', productController.GetRemainInviteInStock);
 
+router.post('/CheckRemainEmailStockPersonal/', productController.CheckRemainEmailStockPersonal);
+
 module.exports = router
