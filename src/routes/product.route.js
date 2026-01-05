@@ -88,4 +88,8 @@ router.post('/GetRemainInviteInStock/', productController.GetRemainInviteInStock
 
 router.post('/CheckRemainEmailStockPersonal/', productController.CheckRemainEmailStockPersonal);
 
+router.post('/CheckRemainEmailStockFamily/', productController.CheckRemainEmailStockFamily);
+
+router.post('/CheckRemainInviteStockFamily/', productController.CheckRemainInviteStockFamily);
+
 module.exports = router

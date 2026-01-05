@@ -74,10 +74,10 @@ EmailStock.checkUseOldIdEmailStockPersonal = async function (userId) {
     try {
         let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` = 0";
         const datas = await dbConn.raw(sqlStr,[userId]);
-        return datas[0][0];
+        return datas[0] || [];
     } catch (error) {
         console.log(error);
-        return null;
+        return [];
     }
 };
 
@@ -100,6 +100,31 @@ EmailStock.getEmailStockFamily = async function (userId) {
     } catch (error) {
         console.log(error);
         return null;
+    }
+};
+
+EmailStock.checkRemainEmailStockFamily = async function (userId) {
+    try {
+             // หา email ว่างจาก personal stock (subscription_group_id = 0)
+             let sqlStr2 = "SELECT count(*) as total FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` IS NULL) AND `subscription_group_id` != 0 AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+             const datas2 = await dbConn.raw(sqlStr2,[]);
+
+             return datas2[0][0];
+
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+EmailStock.checkUseOldIdEmailStockFamily = async function (userId) {
+    try {
+        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` != 0";
+        const datas = await dbConn.raw(sqlStr,[userId]);
+        return datas[0] || [];
+    } catch (error) {
+        console.log(error);
+        return [];
     }
 };
 
@@ -143,6 +168,31 @@ EmailStock.getInviteStockFamily = async function (userId,email) {
         return null;
     }
 };
+
+EmailStock.checkRemainInviteStockFamily = async function () {
+    try {
+        let sqlStr = `SELECT count(*) as total FROM subscription_group_user_stock 
+        WHERE subscription_group_user_stock.email is null or subscription_group_user_stock.email = ''`;
+        const datas = await dbConn.raw(sqlStr,[]);
+        return datas[0][0] || [];
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+};
+
+EmailStock.checkUseOldIdInviteStockFamily = async function (userId) {
+    try {
+        let sqlStr = `SELECT * FROM subscription_group_user_stock 
+        WHERE subscription_group_user_stock.user_id=?`;
+        const datas = await dbConn.raw(sqlStr,[userId]);
+        return datas[0] || [];
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+};
+
 
 EmailStock.reserveEmailStock = async function (emailStockId,userId) {
     try{

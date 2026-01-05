@@ -4566,16 +4566,16 @@ exports.CheckRemainEmailStockPersonal = async function (req, res) {
         let IsAuth = true;
         if (IsAuth) {
             let userid = req.body.userid;
-            checkUseOldIdEmailStockPersonal = await EmailStock.checkUseOldIdEmailStockPersonal(userid);
+            let checkUseOldIdEmailStockPersonal = await EmailStock.checkUseOldIdEmailStockPersonal(userid);
             if (checkUseOldIdEmailStockPersonal.length > 0) {
-                res.status(200).json({ status: 'success', message: 'Found old id email stock personal', auth: true, data: checkUseOldIdEmailStockPersonal });
+                res.status(200).json({ status: 'success', message: 'Found old id email stock personal', auth: true, data: { remain : 0 , use_old_id : 1 } });
                 return;
             }
 
             let tmpData = await EmailStock.checkRemainEmailStockPersonal(userid);
             
             if (tmpData) {
-                res.status(200).json({ status: 'success', message: 'Email stock is available', auth: true, data: tmpData['total'] });
+                res.status(200).json({ status: 'success', message: 'Email stock is available', auth: true, data: { remain : tmpData['total'] , use_old_id : 0 } });
             }
             else {
                 res.status(202).json({ status: 'error', message: 'Email stock is not available', auth: false, data: [] });
@@ -4595,6 +4595,100 @@ exports.CheckRemainEmailStockPersonal = async function (req, res) {
     }
     return;
 };  
+
+exports.CheckRemainEmailStockFamily = async function (req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        
+        //let IsAuth = await AdminList.isAuthenicated(userid, token);
+        let IsAuth = true;
+        if (IsAuth) {
+            let userid = req.body.userid;
+            let checkUseOldIdEmailStockFamily = await EmailStock.checkUseOldIdEmailStockFamily(userid);
+            if (checkUseOldIdEmailStockFamily.length > 0) {
+                res.status(200).json({ status: 'success', message: 'Found old id email stock family', auth: true, data: { remain : 0 , use_old_id : 1 } });
+                return;
+            }
+
+            let tmpData = await EmailStock.checkRemainEmailStockFamily(userid);
+            if (tmpData) {
+                res.status(200).json({ status: 'success', message: 'Email stock is available', auth: true, data: { remain : tmpData['total'] , use_old_id : 0 } });
+            }
+            else {
+                res.status(202).json({ status: 'error', message: 'Email stock is not available', auth: false, data: [] });
+            }
+        }
+        else {
+            res.status(202).json({ status: 'error', message: 'Authentication Failed', auth: false, data: [] });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+            data: [],
+        });
+    }
+    return;
+};  
+
+exports.CheckRemainInviteStockFamily = async function (req, res) {
+    
+    try {
+        const ipAddress = await IpAllowList.getIPv4Address(req);
+        const ipBlockList = await IpAllowList.findBlockedById(ipAddress);
+
+        if (ipBlockList.length > 0) {
+            res.status(202).send('Unauthorize ip. (' + ipAddress + ')');
+            return;
+        }
+        
+        //let IsAuth = await AdminList.isAuthenicated(userid, token);
+        let IsAuth = true;
+        if (IsAuth) {
+            let userid = req.body.userid;
+            let checkUseOldId = await EmailStock.checkUseOldIdInviteStockFamily(userid);
+            if (checkUseOldId.length > 0) {
+                res.status(200).json({ 
+                    status: 'success', message: 'Found old id invite stock family', 
+                    auth: true, data: { remain : 0 , use_old_id : 1 } });
+                return;
+            }
+            
+            let tmpData = await EmailStock.checkRemainInviteStockFamily(userid);
+            if (tmpData) {
+                res.status(200).json(
+                { status: 'success', message: 'Invite stock is available', auth: true, 
+                    data: { remain : tmpData.total , use_old_id : 0 } 
+                }
+                );
+            }
+            else {
+                res.status(202).json({ status: 'error', message: 'Invite stock is not available', auth: false, data: [] });
+            }
+        }
+        else {
+            res.status(202).json({ status: 'error', message: 'Authentication Failed', auth: false, data: [] });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(202).json({
+            status: 'error',
+            message: error.message,
+            auth: false,
+            data: [],
+        });
+    }
+    return;
+}; 
 
 // Helper function สำหรับส่ง email/password เข้าไลน์ (สำหรับ shop_family และ shop_personal)
 exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, purchase_type) {
