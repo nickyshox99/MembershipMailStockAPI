@@ -36,6 +36,8 @@ router.post('/GetHistoryOrderByMemberID/', productController.GetHistoryOrderByMe
 
 router.post('/CreateSubScribeOrder/', productController.CreateSubScribeOrder);
 
+router.post('/RenewSubScribeOrder/', productController.RenewSubScribeOrder);
+
 router.post('/CreateAndApproveSubScribeOrder/', productController.CreateAndApproveSubScribeOrder);
 
 router.post('/ApproveSubScribeOrder/', productController.ApproveSubScribeOrder);
@@ -69,6 +71,8 @@ router.post('/GetOrderNearExpire/', productController.GetOrderNearExpire);
 router.post('/GetOrderExpired/', productController.GetOrderExpired);
 
 router.post('/GetSubScribeOrderById/', productController.GetSubScribeOrderById);
+
+router.post('/UpdatePersonalData/', productController.UpdatePersonalData);
 
 
 router.post('/SentPaymentMessageNearOrder/', productController.SentPaymentMessageNearOrder);

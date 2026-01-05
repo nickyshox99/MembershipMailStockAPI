@@ -314,7 +314,7 @@ exports.updatePersonalData = async (req, res) => {
     try {
         const userData = JSON.parse(req.headers.userdata || '{}');
         const { id } = req.params;
-        const { email,password,updated_at } = req.body;
+        const { email,password,updated_at,order_id } = req.body;
 
         // Verify token if provided
         let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
@@ -335,6 +335,14 @@ exports.updatePersonalData = async (req, res) => {
             return res.status(404).json({
                 status: 'error',
                 message: 'Personal email not found'
+            });
+        }
+
+        const result2 = await MainModel.update("membership_order_history",{email:email},{id:order_id})
+        if (result2 === 0) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Membership order history not found'
             });
         }
 

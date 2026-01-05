@@ -284,6 +284,7 @@ productList.createSubScribeOrder = async function (objData, result) {
             + ",product_id  "
             + ",subscription_type_id "
             + ",product_name  "
+            + ",previouse_order_id "
             + ",start_date   "
             + ",end_date  "
             + ",buy_date  "
@@ -291,21 +292,24 @@ productList.createSubScribeOrder = async function (objData, result) {
             + ",create_date "
             + ",approve_by  "
             + ",approve_date "
+            + ",purchase_type "
             + ",note "
-            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 objData.user_id
                 , objData.email
                 , objData.product_id
                 , objData.subscription_type_id
                 , objData.product_name
+                , objData.previouse_order_id 
                 , null
                 , null
                 , objData.buy_date
                 , objData.create_by
                 , objData.create_date
-                , null
-                , null
+                , objData.approve_by
+                , objData.approve_date
+                , objData.purchase_type || ''
                 , objData.note
             ]);
 
@@ -344,7 +348,8 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
             + ",sent_email_at "
             + ",wait_check_payment "
             + ",purchase_type "
-            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            + ",previouse_order_id "
+            + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 objData.user_id
                 , objData.email
@@ -366,6 +371,7 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
 
                 , objData.wait_check_payment
                 , objData.purchase_type
+                , objData.previouse_order_id ? objData.previouse_order_id : null
             ]);
 
         // เก็บ order_id ที่เพิ่งสร้าง
