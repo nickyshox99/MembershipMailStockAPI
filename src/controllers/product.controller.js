@@ -3665,6 +3665,7 @@ exports.VerifySlipOrder = async function (req, res) {
 
                     let user_id = tmpData2['user_id'];
                     let purchase_type = tmpData2['purchase_type']; // default to 'shop'
+                    let previous_order_id = tmpData2['previous_order_id'];
 
                     
                     let email = '';
@@ -3678,7 +3679,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         const UsersEmail = require('../models/usersemail.model');
                         const usersEmailData = await UsersEmail.findByOrderId(order_id);
 
-                        if (usersEmailData && usersEmailData.id) {
+                        if (usersEmailData && usersEmailData.id && (previous_order_id == null || previous_order_id==0 )) {
                             email = usersEmailData.email;
                             password = usersEmailData.password;
                             console.log('Found email in users_email:', email);
@@ -3698,7 +3699,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         const Personal_Email = require('../models/personal_email.model');
                         const personalEmailData = await Personal_Email.findByOrderId(order_id);
 
-                        if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id) {
+                        if (personalEmailData && personalEmailData.length > 0 && personalEmailData[0].id && (previous_order_id == null || previous_order_id==0 )) {
                             email = personalEmailData[0].email;
                             password = null; // ไม่ส่ง password
                             console.log('Found email in personal_email:', email);
@@ -3713,10 +3714,8 @@ exports.VerifySlipOrder = async function (req, res) {
                             return;
                         }
                     } else if (purchase_type === 'shop_personal') {
-                        // กรณี shop_personal: ใช้ email/password จาก subscription_group_user (subscription_group_id = 0)
-                        console.log('Using email from subscription_group_user (shop_personal - group_id = 0)');
-
-                        if (row_order["previous_order_id"] == null) {
+                        
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
                             emailStock = await EmailStock.getEmailStockPersonal(user_id);
 
                             if (emailStock == null) {
@@ -3735,22 +3734,24 @@ exports.VerifySlipOrder = async function (req, res) {
                         
                     } else if (purchase_type === 'shop_family') {
                         // กรณี shop_family: ใช้ email/password จาก subscription_group_user (subscription_group_id != 0)
-                        console.log('Using email from subscription_group_user (shop_family - group_id != 0)');
-                        emailStock = await EmailStock.getEmailStockFamily(user_id);
 
-                        if (emailStock == null) {
-                            res.status(202).json({
-                                status: 'error',
-                                message: 'email family ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
-                                auth: false,
-                                data: [],
-                            });
-                            return;
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {                              
+                            emailStock = await EmailStock.getEmailStockFamily(user_id);
+
+                            if (emailStock == null) {
+                                res.status(202).json({
+                                    status: 'error',
+                                    message: 'email family ที่ว่างหมดแล้ว กรุณาเพิ่ม email ใหม่',
+                                    auth: false,
+                                    data: [],
+                                });
+                                return;
+                            }
+
+                            email = emailStock['email'];
+                            password = emailStock['password'];
+                            console.log('Found email in shop_family:', email);
                         }
-
-                        email = emailStock['email'];
-                        password = emailStock['password'];
-                        console.log('Found email in shop_family:', email);
                     } else {
                         // กรณี shop หรือไม่ระบุ: ใช้ email/password จาก email_stock (แบบเดิม)
                         console.log('Using email from email_stock (shop)');
@@ -3825,7 +3826,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         email = paymentHistory[0]['email'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
             
-                        if (row_order["previous_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
                             msg += "\n"
                             msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
@@ -3845,7 +3846,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         var tmpuserid = paymentHistory[0]['user_id'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
 
-                        if (row_order["previous_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
                             let inviteUrl =  await EmailStock.getInviteStockFamily(tmpuserid,email);
             
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
@@ -3868,7 +3869,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     }
                     else if (purchase_type === 'shop_personal') {
                         
-                        if (row_order["previous_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
                             msg += "\n"
                             msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
@@ -3886,7 +3887,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     }
                     else if (purchase_type === 'shop_family') {
                         
-                        if (row_order["previous_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
                             msg += "\n"
                             msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
