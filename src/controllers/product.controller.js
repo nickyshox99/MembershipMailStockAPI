@@ -2476,7 +2476,7 @@ exports.RenewSubScribeOrder = async function (req, res) {
                         "product_id": row_previous_order['product_id'],
                         "subscription_type_id": row_previous_order['subscription_type_id'],
                         "product_name": row_previous_order['product_name'],
-                        "previouse_order_id": previous_order_id,
+                        "previous_order_id": previous_order_id,
                         "create_by": admin,
                         "create_date": timerHelper.getDateTimeNowString(),
                         "buy_date": timerHelper.getDateTimeNowString(),
@@ -3716,7 +3716,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         // กรณี shop_personal: ใช้ email/password จาก subscription_group_user (subscription_group_id = 0)
                         console.log('Using email from subscription_group_user (shop_personal - group_id = 0)');
 
-                        if (row_order["previouse_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null) {
                             emailStock = await EmailStock.getEmailStockPersonal(user_id);
 
                             if (emailStock == null) {
@@ -3825,7 +3825,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         email = paymentHistory[0]['email'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
             
-                        if (row_order["previouse_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
                             msg += "\n"
                             msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
@@ -3845,7 +3845,7 @@ exports.VerifySlipOrder = async function (req, res) {
                         var tmpuserid = paymentHistory[0]['user_id'] || ''
                         let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
 
-                        if (row_order["previouse_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null) {
                             let inviteUrl =  await EmailStock.getInviteStockFamily(tmpuserid,email);
             
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
@@ -3868,7 +3868,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     }
                     else if (purchase_type === 'shop_personal') {
                         
-                        if (row_order["previouse_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
                             msg += "\n"
                             msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
@@ -3886,7 +3886,7 @@ exports.VerifySlipOrder = async function (req, res) {
                     }
                     else if (purchase_type === 'shop_family') {
                         
-                        if (row_order["previouse_order_id"] == null) {
+                        if (row_order["previous_order_id"] == null) {
                             msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
                             msg += "\n"
                             msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                

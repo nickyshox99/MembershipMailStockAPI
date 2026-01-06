@@ -284,7 +284,7 @@ productList.createSubScribeOrder = async function (objData, result) {
             + ",product_id  "
             + ",subscription_type_id "
             + ",product_name  "
-            + ",previouse_order_id "
+            + ",previous_order_id "
             + ",start_date   "
             + ",end_date  "
             + ",buy_date  "
@@ -301,7 +301,7 @@ productList.createSubScribeOrder = async function (objData, result) {
                 , objData.product_id
                 , objData.subscription_type_id
                 , objData.product_name
-                , objData.previouse_order_id 
+                , objData.previous_order_id 
                 , null
                 , null
                 , objData.buy_date
@@ -348,7 +348,7 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
             + ",sent_email_at "
             + ",wait_check_payment "
             + ",purchase_type "
-            + ",previouse_order_id "
+            + ",previous_order_id "
             + " ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
             , [
                 objData.user_id
@@ -371,7 +371,7 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
 
                 , objData.wait_check_payment
                 , objData.purchase_type
-                , objData.previouse_order_id ? objData.previouse_order_id : null
+                , objData.previous_order_id ? objData.previous_order_id : null
             ]);
 
         // เก็บ order_id ที่เพิ่งสร้าง
