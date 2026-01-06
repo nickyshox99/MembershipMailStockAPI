@@ -11,14 +11,18 @@ let EmailStock = async function () {
 
 EmailStock.getEmailStockByUserId = async function (userId) {
     try {
-        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ?";
+        let sqlStr = `SELECT * FROM subscription_group_user 
+        INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+        WHERE subscription_group_user.user_id = ? AND subscription_group_stock.subscription_type_id = 0`;
         const datas = await dbConn.raw(sqlStr,[userId]);
 
 
         if (datas[0].length > 0) {
             return datas[0][0];
         } else {
-            let sqlStr2 = "SELECT * FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` = NULL) AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+            let sqlStr2 = `SELECT * FROM subscription_group_user 
+            INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+            WHERE (user_id = '' OR user_id IS NULL) AND subscription_group_stock.subscription_type_id = 0 AND password is not null AND password <> '' AND email is not null AND email <> '' `;
             const datas2 = await dbConn.raw(sqlStr2,[]);
 
             return datas2[0][0];
@@ -37,14 +41,18 @@ EmailStock.getEmailStockByUserId = async function (userId) {
 EmailStock.getEmailStockPersonal = async function (userId) {
     try {
         // ค้นหาที่จองไว้แล้วสำหรับ user นี้ (subscription_group_id = 0)
-        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` = 0";
+        let sqlStr = `SELECT * FROM subscription_group_user 
+        INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+        WHERE subscription_group_user.user_id = ? AND subscription_group_stock.subscription_type_id = 0`;
         const datas = await dbConn.raw(sqlStr,[userId]);
 
         if (datas[0].length > 0) {
             return datas[0][0];
         } else {
             // หา email ว่างจาก personal stock (subscription_group_id = 0)
-            let sqlStr2 = "SELECT * FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` IS NULL) AND `subscription_group_id` = 0 AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+            let sqlStr2 = `SELECT * FROM subscription_group_user 
+            INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+            WHERE (user_id = '' OR user_id IS NULL) AND subscription_group_stock_id = 0 `;
             const datas2 = await dbConn.raw(sqlStr2,[]);
 
             return datas2[0][0];
@@ -59,7 +67,9 @@ EmailStock.getEmailStockPersonal = async function (userId) {
 EmailStock.checkRemainEmailStockPersonal = async function (userId) {
     try {
              // หา email ว่างจาก personal stock (subscription_group_id = 0)
-             let sqlStr2 = "SELECT count(*) as total FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` IS NULL) AND `subscription_group_id` = 0 AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+             let sqlStr2 = `SELECT count(*) as total FROM subscription_group_user 
+             WHERE (user_id = '' OR user_id IS NULL) 
+             AND subscription_group_id = 0 `;
              const datas2 = await dbConn.raw(sqlStr2,[]);
 
              return datas2[0][0];
@@ -72,7 +82,9 @@ EmailStock.checkRemainEmailStockPersonal = async function (userId) {
 
 EmailStock.checkUseOldIdEmailStockPersonal = async function (userId) {
     try {
-        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` = 0";
+        let sqlStr = `SELECT * FROM subscription_group_user 
+        INNER JOIN subscription_group ON subscription_group.id = subscription_group_user.subscription_group_id
+        WHERE subscription_group_user.user_id = ? AND subscription_group.id = 0`;
         const datas = await dbConn.raw(sqlStr,[userId]);
         return datas[0] || [];
     } catch (error) {
@@ -84,14 +96,18 @@ EmailStock.checkUseOldIdEmailStockPersonal = async function (userId) {
 EmailStock.getEmailStockFamily = async function (userId) {
     try {
         // ค้นหาที่จองไว้แล้วสำหรับ user นี้ (subscription_group_id != 0)
-        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` != 0";
+        let sqlStr = `SELECT * FROM subscription_group_user 
+        INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+        WHERE subscription_group_user.user_id = ? AND subscription_group_stock.subscription_type_id != 0`;
         const datas = await dbConn.raw(sqlStr,[userId]);
 
         if (datas[0].length > 0) {
             return datas[0][0];
         } else {
             // หา email ว่างจาก family stock (subscription_group_id != 0)
-            let sqlStr2 = "SELECT * FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` = NULL) AND `subscription_group_id` != 0 AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+            let sqlStr2 = `SELECT * FROM subscription_group_user 
+            INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user.subscription_group_stock_id
+            WHERE (user_id = '' OR user_id IS NULL) AND subscription_group_stock.subscription_type_id != 0 `;
             const datas2 = await dbConn.raw(sqlStr2,[]);
 
             return datas2[0][0];
@@ -106,7 +122,9 @@ EmailStock.getEmailStockFamily = async function (userId) {
 EmailStock.checkRemainEmailStockFamily = async function (userId) {
     try {
              // หา email ว่างจาก personal stock (subscription_group_id = 0)
-             let sqlStr2 = "SELECT count(*) as total FROM `subscription_group_user` WHERE (`user_id` = '' OR `user_id` IS NULL) AND `subscription_group_id` != 0 AND password is not null AND password <> '' AND email is not null AND email <> '' limit 1";
+             let sqlStr2 = `SELECT count(*) as total FROM subscription_group_user 
+             INNER JOIN subscription_group ON subscription_group.id = subscription_group_user.subscription_group_id
+             WHERE (user_id = '' OR user_id IS NULL) AND subscription_group.id != 0 `;
              const datas2 = await dbConn.raw(sqlStr2,[]);
 
              return datas2[0][0];
@@ -119,7 +137,9 @@ EmailStock.checkRemainEmailStockFamily = async function (userId) {
 
 EmailStock.checkUseOldIdEmailStockFamily = async function (userId) {
     try {
-        let sqlStr = "SELECT * FROM `subscription_group_user` WHERE `user_id` = ? AND `subscription_group_id` != 0";
+        let sqlStr = `SELECT * FROM subscription_group_user 
+        INNER JOIN subscription_group ON subscription_group.id = subscription_group_user.subscription_group_id
+        WHERE subscription_group_user.user_id = ? AND subscription_group.id != 0`;
         const datas = await dbConn.raw(sqlStr,[userId]);
         return datas[0] || [];
     } catch (error) {
@@ -172,7 +192,8 @@ EmailStock.getInviteStockFamily = async function (userId,email) {
 EmailStock.checkRemainInviteStockFamily = async function () {
     try {
         let sqlStr = `SELECT count(*) as total FROM subscription_group_user_stock 
-        WHERE subscription_group_user_stock.email is null or subscription_group_user_stock.email = ''`;
+        INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id
+        WHERE subscription_group_user_stock.user_id is null or subscription_group_user_stock.user_id = ''`;
         const datas = await dbConn.raw(sqlStr,[]);
         return datas[0][0] || [];
     } catch (error) {
@@ -184,6 +205,7 @@ EmailStock.checkRemainInviteStockFamily = async function () {
 EmailStock.checkUseOldIdInviteStockFamily = async function (userId) {
     try {
         let sqlStr = `SELECT * FROM subscription_group_user_stock 
+        INNER JOIN subscription_group_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id
         WHERE subscription_group_user_stock.user_id=?`;
         const datas = await dbConn.raw(sqlStr,[userId]);
         return datas[0] || [];
