@@ -265,6 +265,45 @@ PersonalEmail.updatePersonalData = async function(id, email,password,updated_at)
     }
 };
 
+PersonalEmail.updatePersonalDataByOrderId = async function(order_id, email,password,updated_at) {
+    try {
+        // Validate and convert parameters
+                
+        let sqlStr = `UPDATE users_email 
+        SET 
+        email = ?,
+        password = ?,
+        updated_at = ? 
+        WHERE order_id = ?`;
+                
+        const result = await dbConn.raw(sqlStr,[
+            email
+            ,password
+            ,timerHelper.convertDatetimeToString(new Date(updated_at))
+            ,order_id
+        ]);
+        return result[0].affectedRows;
+    } catch (error) {
+        console.error('Error in PersonalEmail.updateStatus:', error);
+        throw error;
+    }
+};
+
+PersonalEmail.updateEmailDataByOrderId = async function(order_id, email,password,updated_at) {
+    try {
+        // Validate and convert parameters
+                
+        let sqlStr = `UPDATE personal_email  
+        SET 
+        email = ?,
+        updated_at = ? 
+        WHERE order_id = ?`;
+    } catch (error) {
+        console.error('Error in PersonalEmail.updateEmailDataByOrderId:', error);
+        throw error;
+    }
+};
+
 // Update personal email status by order ID
 PersonalEmail.updateStatusByOrderId = async function(orderId, status) {
     try {

@@ -1,6 +1,7 @@
 'use strict';
 
 const PersonalEmail = require('../models/personalemail.model');
+const UsersEmail = require('../models/usersemail.model');
 const jwt = require('jsonwebtoken');
 const Secret = require('../../config/secret');
 
@@ -314,7 +315,7 @@ exports.updatePersonalData = async (req, res) => {
     try {
         const userData = JSON.parse(req.headers.userdata || '{}');
         const { id } = req.params;
-        const { email,password,updated_at,order_id } = req.body;
+        const { email,password,updated_at,order_id,purchase_type } = req.body;
 
         // Verify token if provided
         let token = req.headers.token || req.headers.authorization?.replace('Bearer ', '');
@@ -329,14 +330,28 @@ exports.updatePersonalData = async (req, res) => {
             });
         }
 
-        const result = await PersonalEmail.updatePersonalData(id, email,password,updated_at);
+        if (purchase_type === 'personal') {
 
-        if (result === 0) {
-            return res.status(404).json({
-                status: 'error',
-                message: 'Personal email not found'
-            });
+            const result = await PersonalEmail.updatePersonalDataByOrderId(order_id, email,password,updated_at);
+            if (result === 0) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'email not found'
+                });
+                return
+            }
+        }else if (purchase_type === 'email') {
+
+            const result = await PersonalEmail.updateEmailDataByOrderId(order_id, email,password,updated_at);
+            if (result === 0) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: 'email not found'
+                });
+                return
+            }
         }
+        
 
         const result2 = await MainModel.update("membership_order_history",{email:email},{id:order_id})
         if (result2 === 0) {
@@ -348,9 +363,10 @@ exports.updatePersonalData = async (req, res) => {
 
         res.status(200).json({
             status: 'success',
-            data: { affectedRows: result },
-            message: 'Personal email status updated successfully'
+            data: { affectedRows: result2 },
+            message: 'Email is updated'
         });
+
     } catch (error) {
         console.error('Error in updatePersonalEmailStatus:', error);
         res.status(500).json({

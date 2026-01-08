@@ -2171,6 +2171,7 @@ exports.UpdatePersonalData = async function (req, res) {
                             );
                             return;
                         }
+
                         tmpResult = await MainModel.update("subscription_group_user_stock",{email:email,user_id:user_id},{id:group_id})
                         if (!tmpResult) {
                             res.status(202).json(
@@ -2183,8 +2184,34 @@ exports.UpdatePersonalData = async function (req, res) {
                             );
                             return;
                         }
+
+                        tmpResult = await MainModel.update("membership_order_history",{email:email},{id:order_id})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+
+                        tmpResult = await MainModel.update("personal_email",{email:email},{order_id:order_id})
+                        if (!tmpResult) {
+                            res.status(202).json(
+                                {
+                                    status: 'error',
+                                    message: 'Failed to update personal data.',
+                                    auth: false,
+                                    data: [],
+                                }
+                            );
+                            return;
+                        }
+
                     }
-                    
                     
                     res.status(200).json(
                         {

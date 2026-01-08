@@ -664,7 +664,7 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     // }
     
     msg += "📝กรุณากดลิ้งค์นี้เพื่อต่ออายุ \n";
-    msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&email=" + tmpOrder['email']+"&type="+tmpOrder['purchase_type']+"&shop_type=";
+    msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&emailx=" + tmpOrder['email']+"&type="+tmpOrder['purchase_type']+"&shop_type=";
 
     if (tmpOrder['purchase_type']=='shop_personal') {
         msg +="0";

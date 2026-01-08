@@ -27,14 +27,6 @@ exports.insertUserEmail = async function (req, res) {
         const status_regis = req.body.status_regis || 0;
         const start_date = req.body.start_date || null;
         const end_date = req.body.end_date || null;
-
-        console.log('=== Received data ===');
-        console.log('user_id:', user_id);
-        console.log('order_id:', order_id);
-        console.log('email:', email);
-        console.log('password:', password ? '***' : 'empty');
-        console.log('status_regis:', status_regis);
-
         // Validate required fields
         if (!user_id || !order_id || !email || !password) {
             res.status(202).json({
