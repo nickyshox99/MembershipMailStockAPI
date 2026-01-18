@@ -2676,6 +2676,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                     let note = req.body.note;
                     let purchase_type = req.body.purchase_type || "";                    
                     let row_product = await productList.findById(product_id);
+                    let previous_order_id = req.body.previous_order_id || 0;
 
                     //Check Stock
                     // if (purchase_type=="shop_personal") {
@@ -2751,6 +2752,7 @@ exports.CreateAndApproveSubScribeOrder = async function (req, res) {
                             "sent_email_at": timerHelper.getDateTimeNowString(),
                             "wait_check_payment": 1,
                             "purchase_type": purchase_type,
+                            "previous_order_id": previous_order_id ? previous_order_id : null
                         };
 
                         let tmpData = await productList.createAndApproveSubScribeOrder(data);
@@ -3710,16 +3712,8 @@ exports.VerifySlipOrder = async function (req, res) {
                             email = usersEmailData.email;
                             password = usersEmailData.password;
                             console.log('Found email in users_email:', email);
-                        } else {
-                            console.error('No email found in users_email for order_id:', order_id);
-                            res.status(202).json({
-                                status: 'error',
-                                message: 'ไม่พบข้อมูล email ของลูกค้า',
-                                auth: false,
-                                data: [],
-                            });
-                            return;
-                        }
+                        } 
+
                     } else if (purchase_type === 'email') {
                         // กรณี email: ใช้เฉพาะ email จาก personal_email (ไม่มี password)
                         console.log('Using email from personal_email (email only)');
@@ -3730,16 +3724,8 @@ exports.VerifySlipOrder = async function (req, res) {
                             email = personalEmailData[0].email;
                             password = null; // ไม่ส่ง password
                             console.log('Found email in personal_email:', email);
-                        } else {
-                            console.error('No email found in personal_email for order_id:', order_id);
-                            res.status(202).json({
-                                status: 'error',
-                                message: 'ไม่พบข้อมูล email ของลูกค้า',
-                                auth: false,
-                                data: [],
-                            });
-                            return;
-                        }
+                        } 
+                        
                     } else if (purchase_type === 'shop_personal') {
                         
                         if (row_order["previous_order_id"] == null || row_order["previous_order_id"]==0) {
@@ -3889,8 +3875,11 @@ exports.VerifySlipOrder = async function (req, res) {
                         else
                         {
                             msg += "✅ขอบคุณสำหรับการต่ออายุ (เมลลูกค้าแบบครอบครัว) "
-                            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
-                            
+                            msg += "\n"
+                            msg += "\n Email: " + email
+                            msg += "\n"                            
+                            msg += "\n💖หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ"
+                            msg += "\n🫶🏻ขอขอบคุณที่อุดหนุนทางร้าน หากไม่เป็นการรบกวน สามารถกดรีวิวให้ทางร้านเพื่อเป็นกำลังใจ💖"
                         }
                         
                     }

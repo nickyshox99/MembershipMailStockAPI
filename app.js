@@ -682,6 +682,8 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
         msg +="3";
     }
 
+    msg += "&previous_order_id=" + tmpOrder['id'];
+
     // ส่ง LINE
     let channelToken = tmpChatSetting['channel_token'];
     lineChatAPI.setToken(channelToken);

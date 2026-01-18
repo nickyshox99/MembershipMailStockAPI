@@ -737,26 +737,26 @@ productList.GetHistorySubScribeOrderWaitCheckPayment = async function (result) {
 
 productList.GetHistorySubScribeOrderCheckedPayment = async function (result) {
 
-    let sqlStr = "Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img ";
-    sqlStr += " ,membership_order_history.purchase_type ";
-    sqlStr += " ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name ";
-    sqlStr += " ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id ";
-    sqlStr += " ,line_contact.display_name as line_display_name ";
-    sqlStr += " ,line_contact.picture_url as line_profile_url ";
-    sqlStr += " ,personal_email.status_regis as personal_email_status_regis ";
-    sqlStr += " ,users_email.status_regis as user_email_status_regis ";
-    sqlStr += " FROM membership_order_history ";
-    sqlStr += " LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id ";
-    sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = membership_order_history.user_id ";
-    sqlStr += " LEFT JOIN personal_email ON personal_email.order_id = membership_order_history.id ";
-    sqlStr += " LEFT JOIN users_email ON users_email.order_id = membership_order_history.id ";
-    sqlStr += " WHERE 1=1 ";
-    sqlStr += " AND membership_order_history.canceled=0";
-    sqlStr += " AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') ";
-    sqlStr += " AND (membership_order_history.sent_email_by is not NULL AND membership_order_history.sent_email_by <>'') ";
-    sqlStr += " AND (membership_order_history.wait_check_payment = 0 ) ";
-    sqlStr += " AND (membership_order_history.slip_correct is not NULL ) ";
-    sqlStr += " ORDER BY subscription_type_id , email,end_date DESC ";
+    let sqlStr = `Select membership_order_history.*,subscription_type.subscription_name,subscription_type.subscription_img 
+    ,membership_order_history.purchase_type 
+    ,(SELECT subscription_group.group_name FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_name 
+    ,(SELECT subscription_group.id FROM subscription_group_user INNER JOIN subscription_group ON subscription_group.id=subscription_group_user.subscription_group_id WHERE subscription_group_user.email=membership_order_history.email LIMIT 1) as group_id 
+    ,line_contact.display_name as line_display_name 
+    ,line_contact.picture_url as line_profile_url 
+    ,personal_email.status_regis as personal_email_status_regis 
+    ,users_email.status_regis as user_email_status_regis 
+    FROM membership_order_history 
+    LEFT JOIN subscription_type ON subscription_type.id=membership_order_history.subscription_type_id 
+    LEFT JOIN line_contact ON line_contact.user_id = membership_order_history.user_id 
+    LEFT JOIN personal_email ON personal_email.order_id = membership_order_history.id 
+    LEFT JOIN users_email ON users_email.order_id = membership_order_history.id 
+    WHERE 1=1 
+    AND membership_order_history.canceled=0
+    AND (membership_order_history.approve_by is not NULL AND membership_order_history.approve_by <>'') 
+    AND (membership_order_history.sent_email_by is not NULL AND membership_order_history.sent_email_by <>'') 
+    AND (membership_order_history.wait_check_payment = 0 ) 
+    AND (membership_order_history.slip_correct is not NULL ) 
+    ORDER BY subscription_type_id , email,end_date DESC `;
 
 
     let datas = await dbConn.raw(sqlStr);
@@ -852,7 +852,7 @@ productList.GetOrderNearExpire = async function (result) {
        AND DATEDIFF(latest.max_end_date, CURDATE()) <= ${lineSetting.SetNearDate}
        AND DATEDIFF(latest.max_end_date, CURDATE()) > 0
        AND moh.canceled <> 1
-     ORDER BY days_left ASC;
+     ORDER BY days_left ASC
     `;
 
 
