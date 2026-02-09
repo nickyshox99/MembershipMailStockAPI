@@ -612,7 +612,7 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     let sourceUserId = row_user["user_id"]; // line_contact.user_id = LINE User ID
     if (!sourceUserId) {
         tmpRemark = "No user_id found for user: " + tmpOrder['user_id'];
-        console.log(tmpRemark);
+        
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
@@ -626,7 +626,7 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     let contact = await lineChatSetting.getContactByUserId(sourceUserId);
     if (!contact || contact.length === 0) {
         tmpRemark = "No LINE contact found for user: " + tmpOrder['user_id'];
-        console.log(tmpRemark);
+        
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
@@ -641,7 +641,7 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
 
     if (tmpChatSetting['status'] != 1) {
         tmpRemark = "Line Bot Not Active for : " + tmpOrder['user_id'];
-        console.log(tmpRemark);
+        
         return MainModel.insert("line_sent_message", {
             email: tmpOrder['email'],
             user_id: tmpOrder['user_id'],
