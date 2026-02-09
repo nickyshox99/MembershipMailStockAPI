@@ -258,27 +258,4 @@ timerHelper.convertDateToString = function (dTime)
     return returnValue;
 }
 
-timerHelper.formatDateThai = function (dateString) {
-    try {
-        const d = new Date(dateString);
-        if (isNaN(d.getTime())) {
-            return dateString; // Return original if invalid date
-        }
-
-        const thaiMonths = [
-            'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-            'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-        ];
-
-        const day = d.getDate();
-        const month = thaiMonths[d.getMonth()];
-        const year = d.getFullYear() + 543; // Convert to Buddhist Era
-
-        return `${day} ${month} ${year}`;
-    } catch (error) {
-        console.log('formatDateThai error:', error);
-        return dateString; // Return original if error
-    }
-}
-
 module.exports = timerHelper;

@@ -653,21 +653,17 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     }
 
     let msg = "";
-    // if (type === "expired") {
-    //     msg = "⏰ขณะนี้แพ็คเก็จได้หมดอายุแล้ว\n";        
-    // } else if (type === "near"){
-    //     //msg = `แพ็คเก็จ ${tmpOrder.product_name} ของ ${tmpOrder.email} กำลังจะหมดอายุในอีก ${tmpOrder.days_left} วัน\n`;
-    //     msg = `⚠️แพ็คเก็จของคุณกำลังจะหมดอายุในอีก ${tmpOrder.days_left} วัน\n`
-    // }
+    if (type === "expired") {
+        msg = "⏰ขณะนี้แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " ได้หมดอายุแล้ว\n";        
+    } else if (type === "near"){
+        //msg = `แพ็คเก็จ ${tmpOrder.product_name} ของ ${tmpOrder.email} กำลังจะหมดอายุในอีก ${tmpOrder.days_left} วัน\n`;
+        msg = `⚠️แพ็คเก็จ ${tmpOrder['product_name']} ของคุณกำลังจะหมดอายุในอีก ${tmpOrder.days_left} วัน\n`
+    }
     //  else if (type === "near") {
     //     msg = "แพ็คเก็จ " + tmpOrder['product_name'] + " ของ " + tmpOrder['email'] + " กำลังจะหมดอายุในอีก 3 วัน\n";
     // }
     
-    msg += "⏰แจ้งต่ออายุของเมล " + tmpOrder['email'] + "\n";
-    msg += "แพ็คเกจ " + tmpOrder['product_name'] + "\n";
-    msg += "หมดอายุวันที่ " + timerHelper.formatDateThai(tmpOrder['expire_date']) + "\n";
-    msg += "\n";
-    msg += "📝หากต้องการต่ออายุ สามารถคลิกลิ้งค์ชำระเงินได้เลย \n";
+    msg += "📝กรุณากดลิ้งค์นี้เพื่อต่ออายุ \n";
     msg += oSecretkey.webDomain + "buyproduct?sourceUserId=" + sourceUserId + "&emailx=" + tmpOrder['email']+"&type="+tmpOrder['purchase_type']+"&shop_type=";
 
     if (tmpOrder['purchase_type']=='shop_personal') {
@@ -687,9 +683,6 @@ async function sendLineMessage(tmpOrder, lineChatAPI, type) {
     }
 
     msg += "&previous_order_id=" + tmpOrder['id'];
-
-    msg += "\n";
-    msg += "หากไม่ประสงค์ต่อเมลสามารถแจ้งทางร้านได้เลยค่ะ";
 
     // ส่ง LINE
     let channelToken = tmpChatSetting['channel_token'];
