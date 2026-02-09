@@ -1,6 +1,7 @@
 const LineChatAPI = require('./lineChatAPI');
 const MemberList = require('../models/memberlist.model');
 const ProductList = require('../models/productlist.model');
+const timerHelper = require('./timehelper');
 
 /**
  * ฟังก์ชันสำหรับแปลงวันที่เป็นรูปแบบ dd/MM/yyyy
@@ -110,8 +111,10 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
         for (let index = 0; index < products.length; index++) {
           const element = products[index];
           const dayLeft = element['days_left'] < 0 ? " หมดอายุ " : " เหลือ " + element['days_left'] + " วัน";
-          const formattedDate = formatDateToDDMMYYYY2(element['end_date']);
-          replyMessage += element['email'] + " ⏰หมดอายุวันที่ " + formattedDate +' '+ element['subscription_name'] + dayLeft + "\n";
+          const formattedDate = timerHelper.formatDateThai(element['end_date']);
+          replyMessage += "⏰เมล: " + element['email'] + "\n";
+          replyMessage += "หมดอายุวันที่ " + formattedDate +" \n";
+          replyMessage += element['subscription_name'] + dayLeft + "\n";
         }
       }
 

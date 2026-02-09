@@ -4723,36 +4723,67 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let password = '';
         let emailStock = null;
         let inviteStock='';
+        let previous_order_id = orderData['previous_order_id'] || 0;
+
+        let previousOrderData = null;
+        if (previous_order_id != null && previous_order_id != 0) {
+            previousOrderData = await productList.getOrderById(previous_order_id);            
+        }
+
         // ดึง email/password ตาม purchase_type
         if (purchase_type === 'shop_personal') {
             console.log('Getting email from shop_personal');
-            emailStock = await EmailStock.getEmailStockPersonal(user_id);
 
-            if (emailStock == null) {
-                console.error('No email stock available for shop_personal');
-                return { success: false, message: 'email personal ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
+            if(previous_order_id == null || previous_order_id==0 )
+            {
+                emailStock = await EmailStock.getEmailStockPersonal(user_id);
+
+                if (emailStock == null) {
+                    console.error('No email stock available for shop_personal');
+                    return { success: false, message: 'email personal ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
+                }
+    
+                email = emailStock['email'];
+                password = emailStock['password'];
             }
-
-            email = emailStock['email'];
-            password = emailStock['password'];
+            else
+            {
+                email = previousOrderData['email'];
+                password = "";
+            }
 
             let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
 
 
-        } else if (purchase_type === 'shop_family') {            
-            emailStock = await EmailStock.getEmailStockFamily(user_id);
-
-            if (emailStock == null) {
-                console.error('No email stock available for shop_family');
-                return { success: false, message: 'email family ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
+        } else if (purchase_type === 'shop_family') {           
+            if(previous_order_id == null || previous_order_id==0 )
+            { 
+                emailStock = await EmailStock.getEmailStockFamily(user_id);
+                if (emailStock == null) {
+                    console.error('No email stock available for shop_family');
+                    return { success: false, message: 'email family ที่ว่างหมดแล้ว กรุณาติดต่อแอดมิน' };
+                }
+    
+                email = emailStock['email'];
+                password = emailStock['password'];
             }
-
-            email = emailStock['email'];
-            password = emailStock['password'];
+            else
+            {
+                email = previousOrderData['email'];
+                password = "";
+            }
+            
             let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})            
 
-        }  else if (purchase_type === 'email') {                   
-            inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
+        }  else if (purchase_type === 'email') {             
+            if(previous_order_id == null || previous_order_id==0 )
+            {       
+                inviteStock = await EmailStock.getInviteStockFamily(user_id,orderData['email']);
+            }
+            else
+            {
+                inviteStock ="";
+            }
         }  else if (purchase_type === 'personal') {
             
         }
@@ -4802,54 +4833,118 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         let msg=''
         if(inviteStock!='')
         {
-            
-            email = orderData['email'] || ''            
+            if(previous_order_id == null || previous_order_id==0 )
+            {
+                email = orderData['email'] || ''    
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
+                msg += "\n"
+                msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteStock                
+                msg += `\nเมลลูกค้า : ${email}`
+                msg += `\n📝วิธีการเข้าใช้งานกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลย(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)`
+                msg += "\n"
+                msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อน พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"                
+                msg += "\n"
+                msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"                    
+            }
+            else
+            {
+                email = previousOrderData['email'];
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อต่อเมล (เมลลูกค้าแบบครอบครัว) "
+                msg += "\n"                
+                msg += `\nEmail : ${email}`
+                msg += `\nวันที่หมดอายุ : ` + timerHelper.formatDateThai(orderData['end_date'])
+                msg += "\n"
+                msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ"
+                msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"
+                msg += "\n"
 
-            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้าแบบครอบครัว) "
-            msg += "\n"
-            msg += "\nลิ้งค์เข้าครอบครัว : "+ inviteStock                
-            msg += `\nเมลลูกค้า : ${email}`
-            msg += `\nเช็ควันหมด พิมพ์คำว่า "เช็ควัน" `
-            msg += "\n"
-            msg += "\nวิธีการเข้าใช้งาน"
-            msg += "\nกดลิ้งค์ที่ร้านส่งไป > กดเข้าร่วมได้เลยค่ะ(อย่าลืมเช็คเมลว่าตรงกับที่แจ้งมา)"
-            msg += "\n"
+            }
+
             
-            msg += "\n⚠️หากติดร้านเก่ามาก่อน อย่าลืมกดออกก่อนน้า พิมพ์คำว่า วิธีออก ส่งมาในแชทนี้ (ไม่ต้องพิมพ์อะไรต่อท้าย)"
-            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
         }
         else if (purchase_type === 'personal') {
-            let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
-            email = paymentHistory[0]['email'] || ''
+            if(previous_order_id == null || previous_order_id==0 )
+            {
+                let paymentHistory = await MainModel.query("SELECT * FROM payment_history WHERE order_id="+order_id)
+                email = paymentHistory[0]['email'] || ''
+
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
+                msg += "\n"
+                msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
+                msg += "\n"
+                msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            }
+            else
+            {
+                email = previousOrderData['email'];
+
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อต่อเมล (เมลลูกค้ารายบุคคล) "
+                msg += "\n"                
+                msg += `\nEmail : ${email}`
+                msg += `\nวันที่หมดอายุ : ` + timerHelper.formatDateThai(orderData['end_date'])
+                msg += "\n"
+                msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ"
+                msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"
+                msg += "\n"
+            }
+
             let resultUpdate = MainModel.update("membership_order_history",{email:email},{id:order_id})
 
-            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลลูกค้ารายบุคคล) "
-            msg += "\n"
-            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ จะมีการขอยืนยันเพื่อเข้าเมลค่ะ"
-            msg += "\n"
-            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            
         }
         else if (purchase_type === 'shop_personal') {
+
+            if(previous_order_id == null || previous_order_id==0 )
+            {
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
+                msg += "\n"
+                msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
+                msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
+                msg += "\n"
+                msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            }
+            else
+            {
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อต่อเมล (เมลร้านรายบุคคล) "
+                msg += "\n"                
+                msg += `\nEmail : ${email}`
+                msg += `\nวันที่หมดอายุ : ` + timerHelper.formatDateThai(orderData['end_date'])
+                msg += "\n"
+                msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ"
+                msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"
+                msg += "\n"
+            }
             
-            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านรายบุคคล) "
-            msg += "\n"
-            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                    
-            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"
-            msg += "\n"
-            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            
         }
         else if (purchase_type === 'shop_family') {
             
-            msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
-            msg += "\n"
-            msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
-            msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
-            msg += "\n"
-            msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
-            msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
-            msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            if(previous_order_id == null || previous_order_id==0 )
+            {
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อ (เมลร้านแบบครอบครัว)"
+                msg += "\n"
+                msg += " \n Email : " + email + "\n password : " + password + " \n เช็ควันหมด พิมพ์คำว่า เช็ควัน \n";                                
+                msg += "\n⚠️กรุณารอแอดมินเข้าเมล เพื่อทำการสมัครสักครู่ (อาจยังไม่สามารถเข้าได้ทันทีในครั้งแรก เนื่องจากต้องให้แอดมินตั้งค่าความปลอดภัย 2 ชั้นให้ก่อนค่ะ)"            
+                msg += "\n"
+                msg += "\n⏰แอดมินทำตามคิวนะคะ อาจมีช้าบ้างหากคิวเยอะค่ะ โปรดรอสักครู่น้า"
+                msg += "\n📝การต่ออายุรอบถัดไป สามารถใช้งานได้เลย ไม่ต้องรอแอดมินเข้าเมลค่ะ"
+                msg += "\n💌ทางร้านมีแจ้งต่ออายุก่อนหมดอายุค่ะ"
+            }
+            else
+            {
+                msg += "✅ขอบคุณสำหรับการสั่งซื้อต่อเมล (เมลร้านแบบครอบครัว) "
+                msg += "\n"                
+                msg += `\nEmail : ${email}`
+                msg += `\nวันที่หมดอายุ : ` + timerHelper.formatDateThai(orderData['end_date'])
+                msg += "\n"
+                msg += "\n⚠️หากติดปัญหาใช้งานตรงไหนแจ้งแอดมินได้เลยนะคะ"
+                msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"
+                msg += "\n"
+            }
+
+            
         }
         else
         {            
