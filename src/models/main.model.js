@@ -5,6 +5,15 @@ var MainModel = async function() {
     
 };
 
+// Helper function to escape SQL string values
+MainModel.escapeSqlString = function(str) {
+    if (typeof str !== 'string') {
+        return str;
+    }
+    // Escape single quotes by doubling them (SQL standard)
+    return str.replace(/'/g, "''");
+};
+
 MainModel.query = async function(sqlStr,result) 
 {
     // console.log(sqlStr);
@@ -55,13 +64,14 @@ MainModel.insert = async function(tableName,data,result) {
             }
             else if(typeof(value)=="string")
             {
+                const escapedValue = MainModel.escapeSqlString(value);
                 if (tmpValue==="") 
                 {
-                    tmpValue+=`'${value}'`;
+                    tmpValue+=`'${escapedValue}'`;
                 }    
                 else
                 {
-                    tmpValue+=`,'${value}'`;
+                    tmpValue+=`,'${escapedValue}'`;
                 }
             }
             else
@@ -119,13 +129,14 @@ MainModel.update = async function(tableName,data,condition,otherCondition="",res
             }
             else if(typeof(value)=="string")
             {
+                const escapedValue = MainModel.escapeSqlString(value);
                 if (tmpSet==="") 
                 {
-                    tmpSet+= "`"+key+"`"+ `='${value}'`;
+                    tmpSet+= "`"+key+"`"+ `='${escapedValue}'`;
                 }    
                 else
                 {
-                    tmpSet+= ","+"`"+key+"`"+`='${value}'`;
+                    tmpSet+= ","+"`"+key+"`"+`='${escapedValue}'`;
                 }
             }
             else
@@ -149,7 +160,8 @@ MainModel.update = async function(tableName,data,condition,otherCondition="",res
             }
             else if(typeof(value)=="string")
             {
-                tmpWhere+= ` AND `+"`"+key+"`"+`='${value}'`;
+                const escapedValue = MainModel.escapeSqlString(value);
+                tmpWhere+= ` AND `+"`"+key+"`"+`='${escapedValue}'`;
             }
             else
             {
@@ -193,7 +205,8 @@ MainModel.delete = async function(tableName,condition,otherCondition="",result) 
             }
             else if(typeof(value)=="string")
             {
-                tmpWhere+= ` AND `+key+`='${value}'`;
+                const escapedValue = MainModel.escapeSqlString(value);
+                tmpWhere+= ` AND `+key+`='${escapedValue}'`;
             }
             else
             {
