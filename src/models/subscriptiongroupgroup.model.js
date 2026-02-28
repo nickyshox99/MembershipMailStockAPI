@@ -18,20 +18,26 @@ SubscriptionGroupStock.findAll = async function (searchword, result) {
     try {
         searchword = searchword ? searchword : "";
 
-        let sqlStr = "Select " + tableName + ".*, " + tableName + ".id as id , subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " ,(SELECT end_at FROM subscription_group_payment_stock WHERE subscription_group_payment_stock.subscription_group_stock_id=" + tableName + ".id ORDER BY subscription_group_payment_stock.end_at DESC  LIMIT 1  ) as end_at ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id ) as CountMember ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id AND subscription_group_user_stock.user_id IS NOT NULL AND subscription_group_user_stock.user_id != '' ) as CountUsedMember ";
-        sqlStr += " ,(SELECT count(*) FROM subscription_group_user_stock ";
-        sqlStr += " INNER JOIN membership_order_history ON membership_order_history.user_id = subscription_group_user_stock.user_id ";
-        sqlStr += " WHERE subscription_group_user_stock.subscription_group_stock_id=" + tableName + ".id ";
-        sqlStr += " AND subscription_group_user_stock.user_id IS NOT NULL ";
-        sqlStr += " AND subscription_group_user_stock.user_id != '' ";
-        sqlStr += " AND membership_order_history.end_date < CURDATE() ";
-        sqlStr += " ) as CountExpiredUsedMember ";
-        sqlStr += " FROM " + tableName;
-        sqlStr += " LEFT JOIN subscription_type ON " + tableName + ".subscription_type_id = subscription_type.id ";
-        sqlStr += " where 1=1 AND (group_name like '%" + searchword + "%') ";
+        //change use all ``
+        let sqlStr = `Select subscription_group_stock.*, subscription_group_stock.id as id , subscription_type.subscription_name,subscription_type.subscription_img  
+         ,(SELECT end_at FROM subscription_group_payment_stock WHERE subscription_group_payment_stock.subscription_group_stock_id=subscription_group_stock.id ORDER BY subscription_group_payment_stock.end_at DESC  LIMIT 1  ) as end_at 
+         ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=subscription_group_stock.id ) as CountMember 
+         ,(SELECT count(*) FROM subscription_group_user_stock WHERE subscription_group_user_stock.subscription_group_stock_id=subscription_group_stock.id AND subscription_group_user_stock.user_id IS NOT NULL AND subscription_group_user_stock.user_id != '' ) as CountUsedMember 
+         ,(SELECT count(*) FROM subscription_group_user_stock 
+         INNER JOIN (
+           SELECT user_id, MAX(end_date) as end_date 
+           FROM membership_order_history 
+           WHERE purchase_type = 'email' 
+           GROUP BY user_id
+         ) latest_moh ON latest_moh.user_id = subscription_group_user_stock.user_id
+         WHERE subscription_group_user_stock.subscription_group_stock_id=subscription_group_stock.id 
+         AND subscription_group_user_stock.user_id IS NOT NULL 
+         AND subscription_group_user_stock.user_id != '' 
+         AND latest_moh.end_date < CURDATE() 
+         ) as CountExpiredUsedMember 
+         FROM subscription_group_stock
+         LEFT JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id 
+         where 1=1 AND (group_name like '%${searchword}%') `;
 
         let datas = await dbConn.raw(sqlStr);
 
@@ -101,15 +107,15 @@ SubscriptionGroupStock.findById = async function (id, result) {
 SubscriptionGroupStock.getSubscribeMemberByGroupById = async function (id, result) {
 
     try {
-        let sqlStr = "Select subscription_group_user_stock.*, subscription_group_user_stock.id as id , subscription_group_user_stock.user_id,subscription_group_user_stock.email,subscription_type.subscription_name,subscription_type.subscription_img  ";
-        sqlStr += " ,line_contact.display_name as line_display_name ";
-        sqlStr += " ,line_contact.picture_url as line_profile_url ";        
-        sqlStr += " ,(SELECT DATEDIFF(max(end_date), CURDATE()) FROM membership_order_history WHERE membership_order_history.user_id = subscription_group_user_stock.user_id AND membership_order_history.subscription_type_id = subscription_group_stock.subscription_type_id ) as RemainingDays ";        
-        sqlStr += " FROM subscription_group_stock";
-        sqlStr += " INNER JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id ";
-        sqlStr += " INNER JOIN subscription_group_user_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id ";        
-        sqlStr += " LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user_stock.user_id ";
-        sqlStr += " where 1=1 AND (subscription_group_stock.id = " + id + ") ";
+        let sqlStr = `Select subscription_group_user_stock.*, subscription_group_user_stock.id as id , subscription_group_user_stock.user_id,subscription_group_user_stock.email,subscription_type.subscription_name,subscription_type.subscription_img  
+        ,line_contact.display_name as line_display_name 
+        ,line_contact.picture_url as line_profile_url 
+        ,(SELECT DATEDIFF(latest_moh.end_date, CURDATE()) FROM ( SELECT user_id, subscription_type_id, MAX(end_date) as end_date FROM membership_order_history WHERE purchase_type = 'email' GROUP BY user_id, subscription_type_id ) latest_moh WHERE latest_moh.user_id = subscription_group_user_stock.user_id AND latest_moh.subscription_type_id = subscription_group_stock.subscription_type_id ) as RemainingDays 
+        FROM subscription_group_stock
+        INNER JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id 
+        INNER JOIN subscription_group_user_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id 
+        LEFT JOIN line_contact ON line_contact.user_id = subscription_group_user_stock.user_id 
+        where 1=1 AND (subscription_group_stock.id = ${id}) `;
 
         const datas = await dbConn.raw(sqlStr);
         return datas[0];

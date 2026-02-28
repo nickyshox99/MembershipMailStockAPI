@@ -4832,8 +4832,9 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         lineChatAPI.setToken(channelToken);
 
         let msg=''
-        if(inviteStock!='')
+        if(purchase_type === 'email')
         {
+            
             if(previous_order_id == null || previous_order_id==0 )
             {
                 email = orderData['email'] || ''    
@@ -4859,10 +4860,10 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
                 msg += "\nขอขอบคุณสำหรับการสั่งซื้อ หากไม่เป็นการรบกวนสามารถ รีวิวให้ทางร้านได้นะคะ"
                 msg += "\n"
 
-            }
-
+            }    
+                
             
-        }
+        }        
         else if (purchase_type === 'personal') {
             if(previous_order_id == null || previous_order_id==0 )
             {
@@ -4949,7 +4950,7 @@ exports.sendEmailPasswordToLineForStripe = async function (order_id, user_id, pu
         }
         else
         {            
-            msg += "ระบบส่ง Email อัตโนมัติ ไม่สามารถส่งได้เนื่องจาก Email Stock อาจเต็มแล้ว กรุณาติดต่อแอดมิน";
+            msg += "ไม่สามารถส่งรหัสเพื่อเข้าระบบได้ กรุณาติดต่อแอดมิน";
         }
         
 
