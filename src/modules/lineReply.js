@@ -114,7 +114,8 @@ async function handleCheckDays(reply_token, profileData, oSecretkey, channelToke
           const formattedDate = timerHelper.formatDateThai(element['end_date']);
           replyMessage += "⏰เมล: " + element['email'] + "\n";
           replyMessage += "หมดอายุวันที่ " + formattedDate +" \n";
-          replyMessage += element['subscription_name'] + dayLeft + "\n";
+          replyMessage += "Youtube premium เหลือ " + element['days_left'] + " วัน \n";
+          
         }
       }
 
