@@ -28,6 +28,7 @@ SubscriptionGroupStock.findAll = async function (searchword, result) {
            SELECT user_id, MAX(end_date) as end_date 
            FROM membership_order_history 
            WHERE purchase_type = 'email' 
+           and slip_correct = 1
            GROUP BY user_id
          ) latest_moh ON latest_moh.user_id = subscription_group_user_stock.user_id
          WHERE subscription_group_user_stock.subscription_group_stock_id=subscription_group_stock.id 
@@ -110,7 +111,8 @@ SubscriptionGroupStock.getSubscribeMemberByGroupById = async function (id, resul
         let sqlStr = `Select subscription_group_user_stock.*, subscription_group_user_stock.id as id , subscription_group_user_stock.user_id,subscription_group_user_stock.email,subscription_type.subscription_name,subscription_type.subscription_img  
         ,line_contact.display_name as line_display_name 
         ,line_contact.picture_url as line_profile_url 
-        ,(SELECT DATEDIFF(latest_moh.end_date, CURDATE()) FROM ( SELECT user_id, subscription_type_id, MAX(end_date) as end_date FROM membership_order_history WHERE purchase_type = 'email' GROUP BY user_id, subscription_type_id ) latest_moh WHERE latest_moh.user_id = subscription_group_user_stock.user_id AND latest_moh.subscription_type_id = subscription_group_stock.subscription_type_id ) as RemainingDays 
+        ,(SELECT DATEDIFF(latest_moh.end_date, CURDATE()) FROM ( SELECT user_id, subscription_type_id, MAX(end_date) as end_date FROM membership_order_history WHERE purchase_type = 'email' and slip_correct = 1 GROUP BY user_id, subscription_type_id ) latest_moh WHERE latest_moh.user_id = subscription_group_user_stock.user_id AND latest_moh.subscription_type_id = subscription_group_stock.subscription_type_id ) as RemainingDays 
+        ,(SELECT latest_moh.end_date FROM ( SELECT user_id, subscription_type_id, MAX(end_date) as end_date FROM membership_order_history WHERE purchase_type = 'email' and slip_correct = 1 GROUP BY user_id, subscription_type_id ) latest_moh WHERE latest_moh.user_id = subscription_group_user_stock.user_id AND latest_moh.subscription_type_id = subscription_group_stock.subscription_type_id ) as ExpiryDate 
         FROM subscription_group_stock
         INNER JOIN subscription_type ON subscription_group_stock.subscription_type_id = subscription_type.id 
         INNER JOIN subscription_group_user_stock ON subscription_group_stock.id = subscription_group_user_stock.subscription_group_stock_id 
