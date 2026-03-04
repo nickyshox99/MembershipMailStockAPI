@@ -539,7 +539,7 @@ async function checkAndSendLineNotify(){
         //ถ้าเวลายังไม่เกิน 17.00 ให้ return ออกตรงนี้เลย
         const now = new Date();
         const currentHour = now.getHours();
-        if (currentHour < 10) {            
+        if (currentHour < 5) {            
             return;
         }
 
