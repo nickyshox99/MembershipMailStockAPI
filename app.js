@@ -546,9 +546,13 @@ async function checkAndSendLineNotify(){
         const lineChatAPI = new LineChatAPI();
 
         const dailysent = await MainModel.query("SELECT * FROM daily_sent WHERE date(last_sent)='" + timerHelper.getDateNowString() + "'");
+        // console.log("SELECT * FROM daily_sent WHERE date(last_sent)='" + timerHelper.getDateNowString() + "'")
+        // console.log(dailysent.length);
         
         if (dailysent.length == 0) {
-           
+            // บันทึกว่าวันนี้ส่งแล้วทันที เพื่อไม่ให้ส่งซ้ำทุกชั่วโมงแม้ส่งข้อความจะ error ทีหลัง
+            await MainModel.insert("daily_sent", { last_sent: timerHelper.getDateNowString() });
+
             const meta_setting = await adminSettingList.findById("line_token");
             const lineSetting = JSON.parse(meta_setting.value);
 
@@ -581,8 +585,6 @@ async function checkAndSendLineNotify(){
                 await sendLineMessage(o, lineChatAPI, "near");
                 }
             }
-
-            await MainModel.insert("daily_sent", { last_sent: timerHelper.getDateNowString() });
         }
     } catch (error) {
         console.log(error);

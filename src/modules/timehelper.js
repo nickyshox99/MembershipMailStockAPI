@@ -281,4 +281,6 @@ timerHelper.formatDateThai = function (dateString) {
     }
 }
 
+timerHelper.convertDateToThai = timerHelper.formatDateThai;
+
 module.exports = timerHelper;
