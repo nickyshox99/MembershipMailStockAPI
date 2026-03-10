@@ -363,14 +363,14 @@ productList.createAndApproveSubScribeOrder = async function (objData, result) {
                 , objData.create_by
                 , objData.create_date
 
-                , objData.approve_by
-                , objData.approve_date
-                , objData.note
-                , objData.sent_email_by
-                , objData.sent_email_at
+                , objData.approve_by || ''
+                , objData.approve_date || null
+                , objData.note || ''
+                , objData.sent_email_by || ''
+                , objData.sent_email_at || null
 
-                , objData.wait_check_payment
-                , objData.purchase_type
+                , typeof objData.wait_check_payment === 'number' ? objData.wait_check_payment : 0
+                , objData.purchase_type || ''
                 , objData.previous_order_id ? objData.previous_order_id : null
             ]);
 

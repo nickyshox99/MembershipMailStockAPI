@@ -75,17 +75,16 @@ Personal_Email.findByUserId = async function(userId) {
 Personal_Email.create = async function(newPersonalEmail) {
     try {
         let sqlStr = `INSERT INTO ${tableName} 
-                     (user_id, order_id, email, password, status_regis, start_date, end_date, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`;
+                     (user_id, order_id, email, status_regis, start_date, end_date, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`;
         
         const result = await dbConn.raw(sqlStr, [
             newPersonalEmail.user_id,
             newPersonalEmail.order_id,
             newPersonalEmail.email,
-            newPersonalEmail.password,
-            newPersonalEmail.status_regis || 0,
-            newPersonalEmail.start_date,
-            newPersonalEmail.end_date
+            newPersonalEmail.status_regis ?? 0,
+            newPersonalEmail.start_date ?? null,
+            newPersonalEmail.end_date ?? null
         ]);
         
         return result[0].insertId;
@@ -99,7 +98,7 @@ Personal_Email.create = async function(newPersonalEmail) {
 Personal_Email.update = async function(id, personalEmail) {
     try {
         let sqlStr = `UPDATE ${tableName} SET 
-                     user_id = ?, order_id = ?, email = ?, password = ?, 
+                     user_id = ?, order_id = ?, email = ?, 
                      status_regis = ?, start_date = ?, end_date = ?, updated_at = NOW()
                      WHERE id = ?`;
         
@@ -107,7 +106,6 @@ Personal_Email.update = async function(id, personalEmail) {
             personalEmail.user_id,
             personalEmail.order_id,
             personalEmail.email,
-            personalEmail.password,
             personalEmail.status_regis,
             personalEmail.start_date,
             personalEmail.end_date,

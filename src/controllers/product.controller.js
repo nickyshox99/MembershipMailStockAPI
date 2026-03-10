@@ -2518,7 +2518,8 @@ exports.RenewSubScribeOrder = async function (req, res) {
                     let tmpData = await productList.createAndApproveSubScribeOrder(data);
                     if (tmpData) {
 
-                        if (this.purchaseType === 'personal') {
+                        // ใช้ตัวแปร purchase_type แทน this.purchaseType เพราะ context นี้ไม่มี this
+                        if (purchase_type === 'personal') {
                             //insert user into users_email
                             let data_users_email = {
                                 "user_id": row_previous_order['user_id'],
@@ -2531,14 +2532,14 @@ exports.RenewSubScribeOrder = async function (req, res) {
                             let tmpData_users_email = await UsersEmail.insertUserEmail(data_users_email);
                             
                         }
-                        else if (this.purchaseType === 'email') {
+                        else if (purchase_type === 'email') {
                             //insert user into personal_email
                         
                             let data_personal_email = {
                                 user_id: row_previous_order['user_id'],
                                 order_id: tmpData.id,
                                 email: row_previous_order['email'],
-                                password: row_previous_order['password'],
+                                password: row_previous_order['password'] ?? '',
                                 status_regis: 0,
                                 start_date: null,
                                 end_date: null
@@ -2550,9 +2551,9 @@ exports.RenewSubScribeOrder = async function (req, res) {
                         let msg = "กรุณาชำระเงินเพื่อต่ออายุได้ตามลิงค์นี้ \n";
                         msg += oSecretkey.webDomain + "confirmpayment?user_id=" + row_previous_order['user_id'] + "&id=" + tmpData.id + "&purchase_type=" + purchase_type + "&email=" + row_previous_order['email'];
                         
-                        tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting WHERE status=1 `)
+                        let tmpChatSetting = await MainModel.queryFirstRow(`SELECT * FROM line_setting WHERE status=1 `);
 
-                        if (tmpChatSetting.length == 0) {
+                        if (!tmpChatSetting || tmpChatSetting.length == 0) {
                             console.log("Invalid Pair Key");
                             res.status(202).json({
                                 status: "error",
